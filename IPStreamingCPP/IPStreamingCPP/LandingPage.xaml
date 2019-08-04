@@ -1,0 +1,74 @@
+﻿<Page
+    x:Class="IPStreamingCPP.Views.LandingPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:c="using:IPStreamingCPP.Controls"
+    xmlns:local="using:IPStreamingCPP"
+    xmlns:triggers="using:IPStreamingCPP.Triggers"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource MediumWindowSnapPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentContainer.Margin" Value="12,0,24,0"/>
+                        <Setter Target="title.Style" Value="{StaticResource PageTitleTextBlockStyle}"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource MinWindowSnapPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentContainer.Margin" Value="0,0,12,0"/>
+                        <Setter Target="title.Style" Value="{StaticResource NarrowPageTitleTextBlockStyle}"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <c:PageHeader x:Name="pageHeader">
+            <c:PageHeader.HeaderContent>
+                <TextBlock x:Name="title" Style="{StaticResource PageTitleTextBlockStyle}" Text="App Overview"/>
+            </c:PageHeader.HeaderContent>
+        </c:PageHeader>
+
+        <ScrollViewer Grid.Row="1" EntranceNavigationTransitionInfo.IsTargetElement="True" IsTabStop="True" Margin="12,4,0,0">
+            <StackPanel x:Name="ContentContainer" Margin="12,0,24,0">
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">IPStreamingCPP</TextBlock>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,4">Streaming ffmpeg rtsp-IP camera input to ffmpeg Output Muxer (file or streaming to mpegvideo to server) </TextBlock>
+
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,4">Overview</TextBlock>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,4">OnVif capable IP-cameras can be used as ffmpeg input stream source.
+                    Streaming url is reading out over Onvif interface.
+                    The streaming url is used as input source for ffmpeg rtsp-streaming.
+                    ffmpeg input stream is stored to App storage folder. PTZ camera function can be used for adjusting camera position while online streaming.
+   
+                </TextBlock>
+
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,12,0,4">Things to do:</TextBlock>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,8"> 1) First: Go to OnVif Camera page and add OnVif capable Camera using User and Password for connecting </TextBlock>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,8"> 2) Try to read out OnVif Camera profiles via interface. Streaming url of each profile is saved in ffmpeg Input sources</TextBlock>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,8"> 3) Go to Streaming Page and adjust Settings of IP streaming and configure OutPut Muxing</TextBlock>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,8"> 4) Start Streaming: Screen shows IP Camera output and in case of Muxing output files are stored in App storage folder</TextBlock>
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,8"> 5) Go to OnVifCamera-Page and adjust Camera position using PTZ function via OnVif interface </TextBlock>
+
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,8"> 6) Is anybody interested for teamworking at this project, there are a lot to do!</TextBlock>
+
+                <TextBlock Style="{StaticResource BodyTextBlockStyle}" Margin="0,8"> srw2ho: in January 2018</TextBlock>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

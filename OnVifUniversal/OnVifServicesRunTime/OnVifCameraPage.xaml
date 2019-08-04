@@ -1,0 +1,235 @@
+﻿<Page
+    x:Class="OnVifServicesRunTime.OnVifCameraPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:OnVifServicesRunTime"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:OnVifServicesRunTime="using:OnVifServicesRunTime"
+    xmlns:converters="using:OnVifServicesRunTime"   
+    mc:Ignorable="d">
+
+    <Page.Resources>
+
+        <converters:DictionaryConverter x:Key="DictConvert" />
+        <Style x:Key="TextBlockStyleLarge" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="TextBoxStyleLarge"  TargetType="TextBox">
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style  x:Key="PasswordBoxStyleLarge" TargetType="PasswordBox">
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="AppBarButtonStyleLarge" TargetType="AppBarButton">
+            <Setter Property="FontSize" Value="14"/>
+        </Style>
+        <Style x:Key="ListViewStyleLarge" TargetType="ListView">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style x:Key="TextBlockStyleSmall" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="TextBoxStyleSmall"  TargetType="TextBox">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style  x:Key="PasswordBoxStyleSmall" TargetType="PasswordBox">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="AppBarButtonStyleSmall" TargetType="AppBarButton">
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="ListViewStyleSmall" TargetType="ListView">
+            <Setter Property="FontSize" Value="10"/>
+        </Style>
+    </Page.Resources>
+    
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0,0,-0,0">
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="WindowSizeStates">
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="720" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="devideIPAdress.Style"  Value= "{StaticResource TextBlockStyleLarge}"/>
+                        <Setter Target="deviceUser.Style"  Value= "{StaticResource TextBlockStyleLarge}"/>
+                        <Setter Target="devicePassword.Style"  Value= "{StaticResource PasswordBoxStyleLarge}"/>
+                        <Setter Target="addButton.Style"  Value= "{StaticResource AppBarButtonStyleLarge}"/>
+                        <Setter Target="deleteButton.Style"  Value= "{StaticResource AppBarButtonStyleLarge}"/>
+                        <Setter Target="OnVifDisovery.Style"  Value= "{StaticResource AppBarButtonStyleLarge}"/>
+                        <Setter Target="editButton.Style"  Value= "{StaticResource ListViewStyleLarge}"/>
+                    </VisualState.Setters>
+                    
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="devideIPAdress.Style"  Value= "{StaticResource TextBlockStyleSmall}"/>
+                        <Setter Target="deviceUser.Style"  Value= "{StaticResource TextBlockStyleSmall}"/>
+                        <Setter Target="devicePassword.Style"  Value= "{StaticResource PasswordBoxStyleSmall}"/>
+                        <Setter Target="addButton.Style"  Value= "{StaticResource AppBarButtonStyleSmall}"/>
+                        <Setter Target="deleteButton.Style"  Value= "{StaticResource AppBarButtonStyleSmall}"/>
+                        <Setter Target="OnVifDisovery.Style"  Value= "{StaticResource AppBarButtonStyleSmall}"/>
+                        <Setter Target="editButton.Style"  Value= "{StaticResource ListViewStyleSmall}"/>
+                    </VisualState.Setters>
+
+                </VisualState>
+
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <ScrollViewer Grid.Column ="0"  VerticalScrollBarVisibility="Auto">
+            <StackPanel Orientation="Vertical" >
+
+
+            <StackPanel x:Name="DataInputPanel"   Orientation="Vertical">
+                <TextBox x:Name="devideIPAdress"  DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.CameraIPAdress, ElementName=cameraGridView}" Header="Device IPAddress" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"/>
+                <TextBox x:Name="deviceUser" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.User, ElementName=cameraGridView}" Header="User" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"  />
+                <PasswordBox x:Name="devicePassword" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Password="{Binding SelectedItem.Password, ElementName=cameraGridView}" Header="Password"  Margin="0,0,0,0"  VerticalAlignment="Top" />
+
+            </StackPanel>
+            <StackPanel Margin="0,10" Orientation="Vertical">
+                <TextBlock Text="Add / Delete / Edit Camera"/>
+                <StackPanel Margin="0,10" Orientation="Horizontal">
+                    <AppBarButton x:Name="addButton" Label="Add" Icon="Add"  Click="{x:Bind ButtonAddDevice}"/>
+                    <AppBarButton x:Name="deleteButton" Label ="Delete" Icon="Delete" Click="{x:Bind ButtonDeleteDevice}"/>
+                    <AppBarButton x:Name="editButton" Label ="Edit" Icon="Edit"  Click="{x:Bind ButtonEditDevice}"/>
+
+                </StackPanel>
+
+                <TextBlock Text="Recovery OnVif-Devices"/>
+                <StackPanel Margin="0,10" Orientation="Vertical">
+                    <StackPanel Orientation="Horizontal">
+                 
+                        <AppBarButton Label="recovery OnVif Devices" Icon="Camera"  Click="{x:Bind ButtonRecoveryDevices}"/>
+                        <AppBarButton x:Name="AddOnVifDNS" IsEnabled="{x:Bind DiscoveryClients.IsDNSNameSelected, Mode=OneWay}" Label="Add OnVif DNS Name" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
+                        <AppBarButton x:Name="AddOnVifIP"  IsEnabled="{x:Bind DiscoveryClients.IsUrlHostNameSelected, Mode=OneWay}" Label="Add OnVif IPAdress" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
+
+                        <!--
+
+                        <CheckBox IsChecked="{x:Bind DiscoveryClients.IsConnected}" />
+                                                -->
+                     </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                             </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" >
+                                <TextBox  HorizontalContentAlignment="Stretch" Text="{x:Bind DiscoveryClients.ListenPort,Mode=TwoWay}" Header="Listen Port"  VerticalAlignment="Top"/>
+                                <TextBox  Width="Auto"  HorizontalContentAlignment="Stretch"  Text="{x:Bind DiscoveryClients.RequestTimeOut,Mode=TwoWay}" Header="RequestTimeOut" VerticalAlignment="Top" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBox  HorizontalContentAlignment="Stretch" Text="{x:Bind Mode=TwoWay, Path=DiscoveryClients.SendPort}" Header="Send Port"  VerticalAlignment="Top"/>
+                            </StackPanel>
+                        </Grid>
+
+                </StackPanel>
+                <StackPanel>
+
+                    <ListView  x:Name ="OnVifDisovery" SelectionMode="Single"  IsItemClickEnabled = "False" ItemsSource="{x:Bind DiscoveryClients.EndPoints}"  SelectedIndex="{x:Bind DiscoveryClients.SelectedIndex, Mode=TwoWay}" SelectionChanged="{x:Bind OnVifDisoverySelectionChanged, Mode=OneWay}" >
+                 
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="OnVifServicesRunTime:WSEndpoint">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="4*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Image Grid.Column="0" Source="images/camera_icon.png" HorizontalAlignment="Left"/>
+                                        <StackPanel  Margin="5,0" Grid.Column="1" Orientation="Vertical">
+                                            <TextBlock Foreground="Blue"  Text="{x:Bind UrlHostName }" TextWrapping="Wrap"  VerticalAlignment="Top"/>
+                                            <TextBlock Foreground="Blue"  Text="{x:Bind DNSName }"  TextWrapping="Wrap"   VerticalAlignment="Top"/>
+                                    </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+
+                            </ListView.ItemTemplate>
+
+
+                        </ListView>
+
+
+                </StackPanel>
+
+
+            </StackPanel>
+        </StackPanel>
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
+            <Frame x:Name="CameraFrame"  Margin="0,0,0,0"  />
+
+        </ScrollViewer>
+        <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+
+
+            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                <TextBlock Text= "Added Cameras" />
+              
+    
+                <GridView  x:Name ="cameraGridView" SelectionMode="Single" Tapped="cameraGridViewTapped" IsItemClickEnabled = "False" ItemsSource="{x:Bind CameraViewModel.Cameras}"  SelectedIndex="{x:Bind CameraViewModel.SelectedIndex, Mode=TwoWay}" SelectionChanged="{x:Bind CameraSelectionChanged, Mode=OneWay}" >
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="OnVifServicesRunTime:OnVifCamera">
+                            <Grid HorizontalAlignment="Left" Width="250"  Height="100">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="4*"/>
+              
+                                </Grid.ColumnDefinitions>
+                 
+                                <StackPanel Grid.Column="0" Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
+                                    <Image  Source="{x:Bind CameraImageSource , Mode=OneWay}" Stretch="UniformToFill" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="1"  Background="{StaticResource ListViewItemOverlayBackgroundThemeBrush}">
+                                    <TextBlock FontSize="20" Text="{x:Bind CameraIPAdress, Mode=TwoWay}" Foreground="{StaticResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}"  TextWrapping="Wrap" Margin="0,0,0,0"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock  Text="{x:Bind User, Mode=TwoWay}" Foreground="{StaticResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Margin="0,0,0,0"/>
+                                        <TextBlock  Text="{x:Bind Password, Mode=TwoWay}" Foreground="{StaticResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding CameraData, Mode =OneWay,  Converter={StaticResource DictConvert},ConverterParameter=Manufacturer}" Foreground="{StaticResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,0,0,0"/>
+                                        <TextBlock Text="{Binding  CameraData, Mode =OneWay,  Converter={StaticResource DictConvert},ConverterParameter=Model}" Foreground="{StaticResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding CameraData, Mode =OneWay,  Converter={StaticResource DictConvert},ConverterParameter=SerialNumber}" Foreground="{StaticResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,0,0,0"/>
+                                        <TextBlock Text="{Binding  CameraData, Mode =OneWay,  Converter={StaticResource DictConvert},ConverterParameter=Name}" Foreground="{StaticResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" Margin="10,0,0,0"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                            </Grid>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+
+                         
+                    <GridView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid  GroupPadding="0,0,0,0"/>
+                        </ItemsPanelTemplate>
+                    </GridView.ItemsPanel>
+       
+
+                    <GridView.Items>
+                        <x:String>One</x:String>
+                        <GridViewItem>Two</GridViewItem>
+                    </GridView.Items>
+    
+
+                </GridView>
+
+            </StackPanel>
+ 
+
+        </ScrollViewer>
+    </Grid>
+</Page>

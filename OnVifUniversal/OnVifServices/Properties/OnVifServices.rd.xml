@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+
+  <Library Name="OnVifServices">
+    <!-- Add your library directives here 
+    <Type Name="System.Linq.Expressions.Expression" Dynamic="Required Public" />
+    -->
+  </Library>
+</Directives>

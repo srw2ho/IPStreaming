@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Common">
+      <UniqueIdentifier>f0f7fc6a-daad-46c8-b372-3335f73e31ad</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>0c3be2cd-db2b-4fae-a6d6-b6d28abeb318</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <Filter Include="Property">
+      <UniqueIdentifier>{36c55e8a-ea84-4280-b54a-75caacf4c70f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="styles">
+      <UniqueIdentifier>{4d2fa88b-40fe-402c-8297-348437cd4a36}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="controls">
+      <UniqueIdentifier>{e8afff27-e8dd-4bd7-95c9-614e2a0a3f74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="triggers">
+      <UniqueIdentifier>{ae3994b2-33e6-4ba0-a8b5-f28edfde9634}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="App.xaml.cpp" />
+    <ClCompile Include="MainPage.xaml.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="DataSources.cpp" />
+    <ClCompile Include="ScenarioViewControl.cpp" />
+    <ClCompile Include="StreamingPage.xaml.cpp" />
+    <ClCompile Include="StreamingPageParam.cpp" />
+    <ClCompile Include="NavMenuItem.cpp" />
+    <ClCompile Include="NavMenuListView.cpp">
+      <Filter>controls</Filter>
+    </ClCompile>
+    <ClCompile Include="IsTenFootTrigger.cpp">
+      <Filter>triggers</Filter>
+    </ClCompile>
+    <ClCompile Include="AppShell.xaml.cpp" />
+    <ClCompile Include="LandingPage.xaml.cpp" />
+    <ClCompile Include="PageHeader.xaml.cpp" />
+    <ClCompile Include="DeviceFamiliyTrigger.cpp">
+      <Filter>triggers</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="App.xaml.h" />
+    <ClInclude Include="MainPage.xaml.h" />
+    <ClInclude Include="DataSources.h" />
+    <ClInclude Include="ScenarioViewControl.h" />
+    <ClInclude Include="StreamingPage.xaml.h" />
+    <ClInclude Include="StreamingPageParam.h" />
+    <ClInclude Include="NavMenuItem.h" />
+    <ClInclude Include="NavMenuListView.h">
+      <Filter>controls</Filter>
+    </ClInclude>
+    <ClInclude Include="IsTenFootTrigger.h">
+      <Filter>triggers</Filter>
+    </ClInclude>
+    <ClInclude Include="SystemInformationHelpers.h" />
+    <ClInclude Include="AppShell.xaml.h" />
+    <ClInclude Include="LandingPage.xaml.h" />
+    <ClInclude Include="PageHeader.xaml.h" />
+    <ClInclude Include="DeviceFamilyTrigger.h">
+      <Filter>triggers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="images\camera_icon.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IPStreamingCPP_TemporaryKey.pfx" />
+    <None Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avcodec-57.dll" />
+    <None Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avdevice-57.dll" />
+    <None Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avfilter-6.dll" />
+    <None Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avformat-57.dll" />
+    <None Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\avutil-55.dll" />
+    <None Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\swresample-2.dll" />
+    <None Include="$(SolutionDir)ffmpeg\Build\Windows10\$(PlatformTarget)\bin\swscale-4.dll" />
+    <None Include="FillingLevelApp_TemporaryKey.pfx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="MainPage.xaml" />
+    <Page Include="StreamingPage.xaml" />
+    <Page Include="AppShell.xaml" />
+    <Page Include="styles\Styles.xaml">
+      <Filter>styles</Filter>
+    </Page>
+    <Page Include="styles\TenFootStylesheet.xaml">
+      <Filter>styles</Filter>
+    </Page>
+    <Page Include="LandingPage.xaml" />
+    <Page Include="PageHeader.xaml" />
+  </ItemGroup>
+</Project>

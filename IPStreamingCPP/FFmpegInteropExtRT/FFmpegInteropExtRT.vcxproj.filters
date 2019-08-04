@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resources">
+      <UniqueIdentifier>61978eee-4a9b-4845-bd09-df76335e5511</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="CameraServer">
+      <UniqueIdentifier>{df10f458-24de-4bfa-bcac-349ebc366eba}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CameraServer\Connection.cpp">
+      <Filter>CameraServer</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraServer\IPCamera.cpp">
+      <Filter>CameraServer</Filter>
+    </ClCompile>
+    <ClCompile Include="CameraServer\DebuggerLogger.cpp">
+      <Filter>CameraServer</Filter>
+    </ClCompile>
+    <ClCompile Include="FFmpegInteropLogging.cpp" />
+    <ClCompile Include="FFmpegInteropMSS.cpp" />
+    <ClCompile Include="FFmpegReader.cpp" />
+    <ClCompile Include="FFmpegTimeouthandler.cpp" />
+    <ClCompile Include="FFmpegUty.cpp" />
+    <ClCompile Include="H264AVCSampleProvider.cpp" />
+    <ClCompile Include="H264SampleProvider.cpp" />
+    <ClCompile Include="MediaSampleOutputEncoder.cpp" />
+    <ClCompile Include="MediaSampleOutputMuxer.cpp" />
+    <ClCompile Include="MediaSampleProvider.cpp" />
+    <ClCompile Include="pch.cpp" />
+    <ClCompile Include="UncompressedAudioSampleProvider.cpp" />
+    <ClCompile Include="UncompressedSampleProvider.cpp" />
+    <ClCompile Include="UncompressedVideoSampleProvider.cpp" />
+    <ClCompile Include="HEVCSampleProvider.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CameraServer\Connection.h">
+      <Filter>CameraServer</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraServer\IPCamera.h">
+      <Filter>CameraServer</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraServer\DebuggerLogger.h">
+      <Filter>CameraServer</Filter>
+    </ClInclude>
+    <ClInclude Include="EventBroadCaster.h" />
+    <ClInclude Include="FFmpegInteropLogging.h" />
+    <ClInclude Include="FFmpegInteropMSS.h" />
+    <ClInclude Include="FFmpegReader.h" />
+    <ClInclude Include="FFmpegTimeouthandler.h" />
+    <ClInclude Include="FFmpegUty.h" />
+    <ClInclude Include="H264AVCSampleProvider.h" />
+    <ClInclude Include="H264SampleProvider.h" />
+    <ClInclude Include="ILogProvider.h" />
+    <ClInclude Include="MediaSampleOutputEncoder.h" />
+    <ClInclude Include="MediaSampleOutputMuxer.h" />
+    <ClInclude Include="MediaSampleProvider.h" />
+    <ClInclude Include="MediaThumbnailData.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="UncompressedAudioSampleProvider.h" />
+    <ClInclude Include="UncompressedSampleProvider.h" />
+    <ClInclude Include="UncompressedVideoSampleProvider.h" />
+    <ClInclude Include="HEVCSampleProvider.h" />
+  </ItemGroup>
+</Project>

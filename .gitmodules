@@ -1,4 +1,3 @@
 [submodule "IPStreamingCPP/FFmpeg"]
 	path = IPStreamingCPP/FFmpeg
 	url = https://github.com/FFmpeg/FFmpeg.git
-	branch = 4.1.1
