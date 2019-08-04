@@ -96,8 +96,10 @@ namespace OnVifServicesRunTime
         private int m_timeOut = 5; // seconds
 
         private SemaphoreSlim m_signal;
+
         int m_SelectedIndex;
         int m_status;
+        bool m_IsNotWorking;
 
         public event PropertyChangedEventHandler PropertyChanged = null;
 
@@ -117,6 +119,9 @@ namespace OnVifServicesRunTime
             m_status = -1;
             m_SelectedIndex = -1;
             m_signal = new SemaphoreSlim(0, 1);
+
+            m_IsNotWorking = true;
+
         }
 
         ~DiscoveryClients()
@@ -128,7 +133,6 @@ namespace OnVifServicesRunTime
         {
             if (m_signal != null)
             {
-    
                 m_signal.Release();
                 m_signal.Dispose();
                 m_signal = null;
@@ -221,6 +225,19 @@ namespace OnVifServicesRunTime
             get { return m_status == 1; }
         }
 
+        public bool IsNotWorking
+        {
+            get {
+                return m_IsNotWorking;
+            }
+            set
+            {
+                m_IsNotWorking = value;
+                RaisePropertyChanged("IsNotWorking");
+
+            }
+        }
+
         public int Status
         {
             set
@@ -260,12 +277,16 @@ namespace OnVifServicesRunTime
             int ret = 0;
             try
             {
-                this.Status = -1;
+                this.Status = -2;
                 m_endPoints.Clear();
-            //    m_signal.CurrentCount
+
+                IsNotWorking = false;
+
                 using (var socket = new Windows.Networking.Sockets.DatagramSocket())
                 {
                     // Set the callback for servers' responses
+               //     await m_MessageReceive.WaitAsync();
+
                     socket.MessageReceived += SocketOnMessageReceived;
                     // Start listening for servers' responses
                     await socket.BindServiceNameAsync(m_ListenPort.ToString());
@@ -277,8 +298,7 @@ namespace OnVifServicesRunTime
                     {
                         bTimeOut = true;
                         m_signal.Release();
-                    }, TimeSpan.FromSeconds(m_timeOut));
-
+                    }, TimeSpan.FromSeconds(m_timeOut+2)); // Timeout +2
                     await m_signal.WaitAsync();
                     timer.Cancel();
                     timer = null;
@@ -296,7 +316,9 @@ namespace OnVifServicesRunTime
             {
                 m_signal.Release();
                 ret = -1;
+    
             }
+            IsNotWorking = true;
             this.Status  = ret;
             return ret;
         }
@@ -328,7 +350,8 @@ namespace OnVifServicesRunTime
         private async void SocketOnMessageReceived(DatagramSocket sender, DatagramSocketMessageReceivedEventArgs args)
         {
             // Creates a reader for the incoming message
-            var resultStream = args.GetDataStream().AsStreamForRead(1024);
+          //  await m_MessageReceive.WaitAsync();
+            var resultStream = args.GetDataStream().AsStreamForRead(4096);
             using (var reader = new StreamReader(resultStream))
             {
                 // Get the message received
@@ -357,6 +380,11 @@ namespace OnVifServicesRunTime
                         }
                     });
                 }
+                else if (message.StartsWith("OnVifUniversal.NODATA", StringComparison.CurrentCultureIgnoreCase))
+                {
+                  
+                }
+    //            m_MessageReceive.Release();
                 m_signal.Release(); // Signal that data arrived
 
             }

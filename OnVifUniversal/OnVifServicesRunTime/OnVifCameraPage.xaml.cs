@@ -31,13 +31,17 @@ namespace OnVifServicesRunTime
             this.InitializeComponent();
  //           this.CameraViewModel = new OnVifCameraViewModel();
             this.CameraViewModel = null;
-            this.DiscoveryClients = new DiscoveryClients(30001,30000, 20); // Datagram listener to 30001, Send-Port, 20 sec timeout
+            this.DiscoveryClients = new DiscoveryClients(30001,30000, 5); // Datagram listener to 30001, Send-Port, 5 sec timeout
 
         }
 
 
+        public bool IsNotWorking
+        {
+            get { return this.DiscoveryClients.IsNotWorking ; }
+        }
 
-        
+
         public void ButtonAddOnVifSelectedDevice(object sender, RoutedEventArgs e)
         {
             if (this.CameraViewModel == null) return;

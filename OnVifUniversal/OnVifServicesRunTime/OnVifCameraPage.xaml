@@ -110,8 +110,8 @@
                 <TextBlock Text="Recovery OnVif-Devices"/>
                 <StackPanel Margin="0,10" Orientation="Vertical">
                     <StackPanel Orientation="Horizontal">
-                 
-                        <AppBarButton Label="recovery OnVif Devices" Icon="Camera"  Click="{x:Bind ButtonRecoveryDevices}"/>
+
+                            <AppBarButton Label="recovery OnVif Devices" IsEnabled ="{x:Bind DiscoveryClients.IsNotWorking, Mode=OneWay}" Icon="Camera"  Click="{x:Bind ButtonRecoveryDevices}"/>
                         <AppBarButton x:Name="AddOnVifDNS" IsEnabled="{x:Bind DiscoveryClients.IsDNSNameSelected, Mode=OneWay}" Label="Add OnVif DNS Name" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
                         <AppBarButton x:Name="AddOnVifIP"  IsEnabled="{x:Bind DiscoveryClients.IsUrlHostNameSelected, Mode=OneWay}" Label="Add OnVif IPAdress" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
 

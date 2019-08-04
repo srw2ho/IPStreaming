@@ -67,6 +67,7 @@ namespace OnVifDiscovery
 
                 var discoveryClient = new DiscoveryClient(endPoint);
 
+                discoveryClient.FindCompleted += DiscoveryClient_FindCompleted;
                 discoveryClient.FindProgressChanged += discoveryClient_FindProgressChanged;
 
                 FindCriteria findCriteria = new FindCriteria();
@@ -88,6 +89,13 @@ namespace OnVifDiscovery
             }
 
         }
+
+        private void DiscoveryClient_FindCompleted(object sender, FindCompletedEventArgs e)
+        {
+
+            this.OnRecoveryChange("", DiscoveryEvent.EventTypes.endEvent);
+        }
+
         void discoveryClient_FindProgressChanged(object sender, FindProgressChangedEventArgs e)
         {
             //Check endpoint metadata here for required types.
@@ -101,7 +109,7 @@ namespace OnVifDiscovery
 
        
             }
-            this.OnRecoveryChange("", DiscoveryEvent.EventTypes.endEvent);
+        //    this.OnRecoveryChange("", DiscoveryEvent.EventTypes.endEvent);
         }
     }
 }
