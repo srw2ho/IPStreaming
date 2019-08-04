@@ -1,4 +1,4 @@
-# FFmpegInterOpExt (UWP-Project divided in two packages IPStreamingCPP and OnVifUniversal)
+# IPStreamin (UWP-Project divided in two packages IPStreamingCPP and OnVifUniversal)
 Extended FFmpegInterop in conjunction with OnVif capable IP cameras for recording / remuxing ffmpeg input streams
 
 Created with Visual Studio 2017
