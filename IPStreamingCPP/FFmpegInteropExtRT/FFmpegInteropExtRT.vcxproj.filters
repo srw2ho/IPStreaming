@@ -8,6 +8,18 @@
     <Filter Include="CameraServer">
       <UniqueIdentifier>{df10f458-24de-4bfa-bcac-349ebc366eba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Encoders">
+      <UniqueIdentifier>{6a6873a6-c621-4b51-8f59-2a5672001f3f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Muxers">
+      <UniqueIdentifier>{4c158a94-2d63-4235-815a-255412209e40}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{a45f8313-b2d6-459c-b1d1-84738d32e02d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SamplePropviders">
+      <UniqueIdentifier>{0a3b80a3-14d2-4574-8533-f675c6eb8814}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CameraServer\Connection.cpp">
@@ -19,21 +31,60 @@
     <ClCompile Include="CameraServer\DebuggerLogger.cpp">
       <Filter>CameraServer</Filter>
     </ClCompile>
-    <ClCompile Include="FFmpegInteropLogging.cpp" />
     <ClCompile Include="FFmpegInteropMSS.cpp" />
     <ClCompile Include="FFmpegReader.cpp" />
-    <ClCompile Include="FFmpegTimeouthandler.cpp" />
-    <ClCompile Include="FFmpegUty.cpp" />
-    <ClCompile Include="H264AVCSampleProvider.cpp" />
-    <ClCompile Include="H264SampleProvider.cpp" />
-    <ClCompile Include="MediaSampleOutputEncoder.cpp" />
-    <ClCompile Include="MediaSampleOutputMuxer.cpp" />
-    <ClCompile Include="MediaSampleProvider.cpp" />
+    <ClCompile Include="H264AVCSampleProvider.cpp">
+      <Filter>SamplePropviders</Filter>
+    </ClCompile>
+    <ClCompile Include="H264SampleProvider.cpp">
+      <Filter>SamplePropviders</Filter>
+    </ClCompile>
+    <ClCompile Include="HEVCSampleProvider.cpp">
+      <Filter>SamplePropviders</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSampleProvider.cpp">
+      <Filter>SamplePropviders</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSampleOutputEncoder.cpp">
+      <Filter>Encoders</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSampleOutputMuxer.cpp">
+      <Filter>Muxers</Filter>
+    </ClCompile>
+    <ClCompile Include="FFmpegTimeouthandler.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="FFmpegUty.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="UncompressedAudioSampleProvider.cpp">
+      <Filter>SamplePropviders</Filter>
+    </ClCompile>
+    <ClCompile Include="UncompressedSampleProvider.cpp">
+      <Filter>SamplePropviders</Filter>
+    </ClCompile>
+    <ClCompile Include="UncompressedVideoSampleProvider.cpp">
+      <Filter>SamplePropviders</Filter>
+    </ClCompile>
     <ClCompile Include="pch.cpp" />
-    <ClCompile Include="UncompressedAudioSampleProvider.cpp" />
-    <ClCompile Include="UncompressedSampleProvider.cpp" />
-    <ClCompile Include="UncompressedVideoSampleProvider.cpp" />
-    <ClCompile Include="HEVCSampleProvider.cpp" />
+    <ClCompile Include="MediaSampleOutputEncoderMPegJPeg.cpp">
+      <Filter>Encoders</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSampleOutputEncoderFFMpegFile.cpp">
+      <Filter>Encoders</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSampleOutputDeviceBase.cpp">
+      <Filter>Muxers</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSampleOutputCamera.cpp">
+      <Filter>Muxers</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaSampleOutputFFMpegFile.cpp">
+      <Filter>Muxers</Filter>
+    </ClCompile>
+    <ClCompile Include="FFmpegInteropLogging.cpp">
+      <Filter>Helpers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CameraServer\Connection.h">
@@ -45,24 +96,70 @@
     <ClInclude Include="CameraServer\DebuggerLogger.h">
       <Filter>CameraServer</Filter>
     </ClInclude>
-    <ClInclude Include="EventBroadCaster.h" />
-    <ClInclude Include="FFmpegInteropLogging.h" />
     <ClInclude Include="FFmpegInteropMSS.h" />
     <ClInclude Include="FFmpegReader.h" />
-    <ClInclude Include="FFmpegTimeouthandler.h" />
-    <ClInclude Include="FFmpegUty.h" />
-    <ClInclude Include="H264AVCSampleProvider.h" />
-    <ClInclude Include="H264SampleProvider.h" />
-    <ClInclude Include="ILogProvider.h" />
-    <ClInclude Include="MediaSampleOutputEncoder.h" />
-    <ClInclude Include="MediaSampleOutputMuxer.h" />
-    <ClInclude Include="MediaSampleProvider.h" />
     <ClInclude Include="MediaThumbnailData.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="UncompressedAudioSampleProvider.h" />
-    <ClInclude Include="UncompressedSampleProvider.h" />
-    <ClInclude Include="UncompressedVideoSampleProvider.h" />
-    <ClInclude Include="HEVCSampleProvider.h" />
+    <ClInclude Include="H264AVCSampleProvider.h">
+      <Filter>SamplePropviders</Filter>
+    </ClInclude>
+    <ClInclude Include="H264SampleProvider.h">
+      <Filter>SamplePropviders</Filter>
+    </ClInclude>
+    <ClInclude Include="HEVCSampleProvider.h">
+      <Filter>SamplePropviders</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleProvider.h">
+      <Filter>SamplePropviders</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputEncoder.h">
+      <Filter>Encoders</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputMuxer.h">
+      <Filter>Muxers</Filter>
+    </ClInclude>
+    <ClInclude Include="EventBroadCaster.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="FFmpegTimeouthandler.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="FFmpegUty.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="ILogProvider.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="UncompressedAudioSampleProvider.h">
+      <Filter>SamplePropviders</Filter>
+    </ClInclude>
+    <ClInclude Include="UncompressedSampleProvider.h">
+      <Filter>SamplePropviders</Filter>
+    </ClInclude>
+    <ClInclude Include="UncompressedVideoSampleProvider.h">
+      <Filter>SamplePropviders</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputEncoderBase.h">
+      <Filter>Encoders</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputEncoderMPegJPeg.h">
+      <Filter>Encoders</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputEncoderFFMpegFile.h">
+      <Filter>Encoders</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputDeviceBase.h">
+      <Filter>Muxers</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputCamera.h">
+      <Filter>Muxers</Filter>
+    </ClInclude>
+    <ClInclude Include="MediaSampleOutputFFMpegFile.h">
+      <Filter>Muxers</Filter>
+    </ClInclude>
+    <ClInclude Include="FFmpegInteropLogging.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

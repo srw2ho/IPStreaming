@@ -19,13 +19,15 @@
 #pragma once
 
 #include <queue>
-#include "..\CameraServer\Connection.h"
-#include "..\CameraServer\IPCamera.h"
 
-#include "FFmpegTimeouthandler.h"
 #include "MediaSampleOutputEncoder.h"
+#include "MediaSampleOutputEncoderMPegJPeg.h"
+#include "MediaSampleOutputEncoderFFMpegFile.h"
 
 #include <ppl.h>
+
+#include "MediaSampleOutputDeviceBase.h"
+
 extern "C"
 {
 #include <libavformat/avformat.h>
@@ -44,153 +46,8 @@ using namespace Windows::Foundation::Collections;
 namespace FFmpegInteropExtRT
 {
 
-	typedef std::list<MediaSampleEncoding*>  MediaSampleEncodingList;
-
-	enum EncodeTypes {
-		EncodeNothing = 0x0, // nothing to do
-		EncodePacket = 0x1, // encode packet
-		CopyPacket = 0x2,	// copy packet
-	};
-
-	class MediaSampleOutputDevice
-	{
-	public:
-		MediaSampleOutputDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx);
-		virtual ~MediaSampleOutputDevice();
-
-		virtual bool DeleteEncoding(MediaSampleEncoding*pdeleteEncoding);
-		virtual void DeleteAllEncodings(void);
-		virtual bool EncodeAndWriteFrames(FramePacket* avPacket);
-		virtual bool CopyAndWriteFrames(FramePacket* avPacket);
-		virtual bool IsCopyOutPutDevice();
-		virtual bool IsEncodingOutPutDevice();
-
-		virtual bool WritePackage(MediaSampleEncoding* pEncoding, AVPacket* encodePacket) {return false;};
-		virtual int reopen_outputAsync() { return -1; };// reopenout file with new filename
-
-
-		virtual bool IsMediaTypeEncodingOutput(AVMediaType type); // is Video or Audio-Encoding 
-
-		virtual bool IsStreamEncodingOutput(int stream_Idx, int& encType); // is Straem-Idx encoding 
-		
-
-		Platform::String^ getDeviceName() { return m_strdeviceName; };
-
-
-//		virtual bool WriteEndFrames();
-	protected:
-
-		bool CopyFrame(MediaSampleEncoding*pEnc,FramePacket* avPacket);
-		bool EncodeFrame(MediaSampleEncoding*pEnc,FramePacket* avPacket);
-	protected:
-
-		MediaSampleEncodingList * m_pEncodings;
-		AVFormatContext* m_pAvFormatCtx;
-		Platform::String^ m_strdeviceName;
-	};
-
-	class CameraOutputDevice: public MediaSampleOutputDevice
-	{
-	public:
-		CameraOutputDevice(Platform::String^ deviceName,AVFormatContext* inputFormaCtx, CameraServer^ m_pCameraServer);
-		virtual ~CameraOutputDevice();
-
-		MediaSampleEncoding* AddMpegEncoding(int fps, int height, int width, int64_t bit_rate);
-		MediaSampleEncoding* AddMJpegEncoding(int fps, int height, int width,int64_t bit_rate);
-		virtual bool WritePackage(MediaSampleEncoding* pEncoding, AVPacket* encodePacket);
-		virtual bool IsEncodingOutPutDevice();
-
-	protected:
-
-		IBuffer^ CreateHttMJpegChunksFromAvPacket(AVPacket* avPacket);
-		IBuffer^ CreateHttpMpegChunksfromAvPacket(AVPacket* avPacket);
-	protected:
-
-		CameraServer^ m_pCameraServer;
-	};
-
-
-	class FFMpegOutputDevice : public MediaSampleOutputDevice
-	{
-	public:
-		FFMpegOutputDevice(Platform::String^ deviceName,AVFormatContext* inputFormaCtx, Platform::String^ Folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ OutputFormat, double deletefilesOlderFilesinHours, double RecordingInHours);
-		virtual ~FFMpegOutputDevice();
-
-
-		virtual int open_output();
-		virtual int reopen_outputAsync();// reopenout file with new filename
-
-		virtual bool WritePackage(MediaSampleEncoding* pEncoding, AVPacket* encodePacket);
-	//	virtual bool isTimeForNewFileCreation();
-		
-	protected:
-		virtual int writeInterleaved(AVPacket* encodePacket);
-		virtual int writeInterleavedAsync(AVPacket* encodePacket);
-		virtual int open_output_file(const char *filename, AVOutputFormat *fmt = nullptr);
-		virtual int open_FFMpegoutput_file(); // open FFMpeFile, Write, Header
-		virtual int reopen_output();
-		virtual int writeTrailer();
-		virtual int writeHeader();
-		virtual int flushEncoder();
-		std::string createTimeStampFile(const char *filename);
-		virtual void setpts_Overrun();
-	//	std::vector<std::string> splitintoArray(const std::string& s, const std::string& delim);
-
-
-		void UnLock();
-		void Lock();
-		bool get_all_files_names_within_folder(std::wstring folder, std::vector<std::wstring>& names, std::vector<std::wstring> * pextfilters =nullptr);
-		size_t deleteOlderFiles(__int64 timebase, double numberOfUnits); // delete older files older than numberOfDays
-		virtual void deleteUnUsedEncodings();
-		bool ParseOptions(PropertySet^ ffmpegOptions);
-
-	protected:
-		Platform::String^ m_strFolder;
-		AVFormatContext* m_pAvOutFormatCtx;
-		timeout_handler * m_ptimeouthandler;
-		bool m_bopenDevice;
-	//	bool m_bCopyInputStream;
-		std::string m_strFolderPath;
-		std::string m_strFileName;
-		std::string m_strOutputFormat;
-		
-		std::string m_strfileExtension;
-		std::string m_strfullFileName;
-		std::vector<std::wstring> m_stroredFiles;
-		CRITICAL_SECTION m_CritLock;
-
-		PropertySet^ m_ffmpegOptions;
-		AVDictionary* m_avDict;
-		int m_fps;
-		int m_height;
-		int m_width;
-
-		int64_t m_bit_rate;
-		double m_deletefilesOlderFilesinHours;
-		double m_RecordingInHours;
-
-	};
-
-	class FFMpegOutputCopyDevice : public FFMpegOutputDevice
-	{
-	public:
-		FFMpegOutputCopyDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx, Platform::String^ Folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ OutputFormat, double deletefilesOlderFilesinHours, double RecordingInHours);
-		virtual ~FFMpegOutputCopyDevice();
-
-
-	protected:
-
-		virtual int open_output_file(const char *filename, AVOutputFormat *fmt = nullptr);
-		virtual int flushEncoder() { return 0; }; // there is no encoder
-	protected:
-	
-
-	};
 
 	typedef std::list<MediaSampleOutputDevice*>  MediaSampleOutputDevices;
-
-	
-
 
 
 	class MediaSampleOutputEncoding

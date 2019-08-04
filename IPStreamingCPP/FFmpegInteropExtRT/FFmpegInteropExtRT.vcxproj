@@ -50,7 +50,12 @@
     <ClCompile Include="H264AVCSampleProvider.cpp" />
     <ClCompile Include="H264SampleProvider.cpp" />
     <ClCompile Include="HEVCSampleProvider.cpp" />
+    <ClCompile Include="MediaSampleOutputCamera.cpp" />
+    <ClCompile Include="MediaSampleOutputDeviceBase.cpp" />
     <ClCompile Include="MediaSampleOutputEncoder.cpp" />
+    <ClCompile Include="MediaSampleOutputEncoderFFMpegFile.cpp" />
+    <ClCompile Include="MediaSampleOutputEncoderMPegJPeg.cpp" />
+    <ClCompile Include="MediaSampleOutputFFMpegFile.cpp" />
     <ClCompile Include="MediaSampleOutputMuxer.cpp" />
     <ClCompile Include="MediaSampleProvider.cpp" />
     <ClCompile Include="pch.cpp" />
@@ -72,7 +77,13 @@
     <ClInclude Include="H264SampleProvider.h" />
     <ClInclude Include="HEVCSampleProvider.h" />
     <ClInclude Include="ILogProvider.h" />
+    <ClInclude Include="MediaSampleOutputCamera.h" />
+    <ClInclude Include="MediaSampleOutputDeviceBase.h" />
     <ClInclude Include="MediaSampleOutputEncoder.h" />
+    <ClInclude Include="MediaSampleOutputEncoderBase.h" />
+    <ClInclude Include="MediaSampleOutputEncoderFFMpegFile.h" />
+    <ClInclude Include="MediaSampleOutputEncoderMPegJPeg.h" />
+    <ClInclude Include="MediaSampleOutputFFMpegFile.h" />
     <ClInclude Include="MediaSampleOutputMuxer.h" />
     <ClInclude Include="MediaSampleProvider.h" />
     <ClInclude Include="MediaThumbnailData.h" />
