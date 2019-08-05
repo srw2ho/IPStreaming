@@ -27,6 +27,8 @@
 #include <ppl.h>
 
 #include "MediaSampleOutputDeviceBase.h"
+#include "MediaSampleOutputCamera.h"
+#include "MediaSampleOutputFFMpegFile.h"
 
 extern "C"
 {

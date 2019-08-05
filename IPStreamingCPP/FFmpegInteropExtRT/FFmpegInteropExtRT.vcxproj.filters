@@ -11,14 +11,14 @@
     <Filter Include="Encoders">
       <UniqueIdentifier>{6a6873a6-c621-4b51-8f59-2a5672001f3f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Muxers">
-      <UniqueIdentifier>{4c158a94-2d63-4235-815a-255412209e40}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Helpers">
       <UniqueIdentifier>{a45f8313-b2d6-459c-b1d1-84738d32e02d}</UniqueIdentifier>
     </Filter>
     <Filter Include="SamplePropviders">
       <UniqueIdentifier>{0a3b80a3-14d2-4574-8533-f675c6eb8814}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="OutputMuxers">
+      <UniqueIdentifier>{4c158a94-2d63-4235-815a-255412209e40}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -49,7 +49,7 @@
       <Filter>Encoders</Filter>
     </ClCompile>
     <ClCompile Include="MediaSampleOutputMuxer.cpp">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClCompile>
     <ClCompile Include="FFmpegTimeouthandler.cpp">
       <Filter>Helpers</Filter>
@@ -74,13 +74,13 @@
       <Filter>Encoders</Filter>
     </ClCompile>
     <ClCompile Include="MediaSampleOutputDeviceBase.cpp">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClCompile>
     <ClCompile Include="MediaSampleOutputCamera.cpp">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClCompile>
     <ClCompile Include="MediaSampleOutputFFMpegFile.cpp">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClCompile>
     <ClCompile Include="FFmpegInteropLogging.cpp">
       <Filter>Helpers</Filter>
@@ -117,7 +117,7 @@
       <Filter>Encoders</Filter>
     </ClInclude>
     <ClInclude Include="MediaSampleOutputMuxer.h">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClInclude>
     <ClInclude Include="EventBroadCaster.h">
       <Filter>Helpers</Filter>
@@ -150,13 +150,13 @@
       <Filter>Encoders</Filter>
     </ClInclude>
     <ClInclude Include="MediaSampleOutputDeviceBase.h">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClInclude>
     <ClInclude Include="MediaSampleOutputCamera.h">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClInclude>
     <ClInclude Include="MediaSampleOutputFFMpegFile.h">
-      <Filter>Muxers</Filter>
+      <Filter>OutputMuxers</Filter>
     </ClInclude>
     <ClInclude Include="FFmpegInteropLogging.h">
       <Filter>Helpers</Filter>

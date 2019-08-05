@@ -241,31 +241,40 @@ IAsyncAction ^ CameraServer::CreateHTTPServerAsync(int port)
 
 	
 
-	return create_async([server, port]()
+	return create_async([this,server, port]()
 	{
 
 		server->m_listener->Control->KeepAlive = false;
 		return create_task(server->m_listener->BindServiceNameAsync(port == 0 ? L"" : port.ToString()))
 
-		.then([server] {
+		.then([this,server] (task<void> previousTask) {
 
-			server->m_port = _wtoi(server->m_listener->Information->LocalPort->Data());
-			if (server->m_port == 0)
-			{
-				throw ref new InvalidArgumentException(L"Failed to convert TCP port");
-			}
-			Trace("@%p bound socket listener to port %i", (void*)server, server->m_port);
+			try {
+				previousTask.get();
 
-			auto ipAddresses = ref new Vector<IPAddress^>();
-			for (HostName^ host : NetworkInformation::GetHostNames())
-			{
-				if ((host->Type == HostNameType::Ipv4) || (host->Type == HostNameType::Ipv6))
+				server->m_port = _wtoi(server->m_listener->Information->LocalPort->Data());
+				if (server->m_port == 0)
 				{
-					Trace("@%p network IP %S %S", (void*)server, host->Type.ToString()->Data(), host->CanonicalName->Data());
-					ipAddresses->Append(ref new IPAddress(host->Type, host->CanonicalName));
+					throw ref new InvalidArgumentException(L"Failed to convert TCP port");
 				}
+				Trace("@%p bound socket listener to port %i", (void*)server, server->m_port);
+
+				auto ipAddresses = ref new Vector<IPAddress^>();
+				for (HostName^ host : NetworkInformation::GetHostNames())
+				{
+					if ((host->Type == HostNameType::Ipv4) || (host->Type == HostNameType::Ipv6))
+					{
+						Trace("@%p network IP %S %S", (void*)server, host->Type.ToString()->Data(), host->CanonicalName->Data());
+						ipAddresses->Append(ref new IPAddress(host->Type, host->CanonicalName));
+					}
+				}
+				server->m_ipAddresses = ipAddresses->GetView();
 			}
-			server->m_ipAddresses = ipAddresses->GetView();
+			catch (Exception^ exception) {
+				this->Failed(this, ref new CameraServerFailedEventArgs(exception));
+				return;
+			}
+
 
 
 		});
