@@ -26,7 +26,7 @@
 #include "HEVCSampleProvider.h"
 #include "UncompressedAudioSampleProvider.h"
 #include "UncompressedVideoSampleProvider.h"
-#include "CritSec.h"
+//#include "CritSec.h"
 #include "shcore.h"
 #include <mfapi.h>
 
@@ -49,7 +49,7 @@ const int FILESTREAMBUFFERSZ = 16384;
 // Static functions passed to FFmpeg for stream interop
 static int FileStreamRead(void* ptr, uint8_t* buf, int bufSize);
 static int64_t FileStreamSeek(void* ptr, int64_t pos, int whence);
-static int lock_manager(void **mtx, enum AVLockOp op);
+//static int lock_manager(void **mtx, enum AVLockOp op);
 static bool isRegistered = false;
 
 // Initialize an FFmpegInteropObject
@@ -472,14 +472,15 @@ HRESULT FFmpegInteropMSS::InitFFmpegContext(bool forceAudioDecode, bool forceVid
 				//	AVDictionary *opts = NULL;
 				//	av_dict_set(&opts, "flags2", "+export_mvs", 0);
 				//	if (avcodec_open2(avVideoCodecCtx, avVideoCodec, &opts) < 0)
-					/*
+					/*threas increase latency while online streaming
 					unsigned threads = std::thread::hardware_concurrency();
-					if (threads)
+					if (threads>0)
 					{
 						avVideoCodecCtx->thread_count = threads;
 						avVideoCodecCtx->thread_type = FF_THREAD_FRAME | FF_THREAD_SLICE;
 					}
 					*/
+					
 					if (avcodec_open2(avVideoCodecCtx, avVideoCodec, NULL) < 0)
 					{
 						avVideoCodecCtx = nullptr;
@@ -1048,6 +1049,7 @@ static int64_t FileStreamSeek(void* ptr, int64_t pos, int whence)
 
 	return out.QuadPart; // Return the new position:
 }
+/*
 static int lock_manager(void **mtx, enum AVLockOp op)
 {
 	switch (op)
@@ -1078,3 +1080,4 @@ static int lock_manager(void **mtx, enum AVLockOp op)
 	}
 	return 1;
 }
+*/
