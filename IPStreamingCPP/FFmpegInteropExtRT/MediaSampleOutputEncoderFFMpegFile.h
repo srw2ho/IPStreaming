@@ -20,13 +20,16 @@
 
 #include "MediaSampleOutputEncoder.h"
 
+using namespace Windows::Foundation::Collections;
+using namespace Windows::Foundation;
+
 namespace FFmpegInteropExtRT
 {
 
 	class MediaSampleFFMpegEncoding :public MediaSampleEncoding
 	{
 	public:
-		MediaSampleFFMpegEncoding(AVFormatContext* inputFormaCtx, double RecordingInHours);
+		MediaSampleFFMpegEncoding(AVFormatContext* inputFormaCtx, PropertySet^ configOptions);
 		virtual ~MediaSampleFFMpegEncoding();
 
 		virtual int SetEncoding(AVFormatContext* pAvOutFormatCtx, int streamIdx);// add encoding for output device
@@ -36,13 +39,13 @@ namespace FFmpegInteropExtRT
 		virtual bool IsTimeForNewFile();
 		virtual void SetRecordingInHours(double RecordingInHours) { m_RecordingInHours = RecordingInHours; };
 
-	//	virtual void Setpts_Overrun() { m_pts_Overrun = m_Outputpts;};
-
+		virtual void writeNewHeader();
 
 	protected:
 		virtual void rescaleEncodePacket(AVPacket*enc_pkt);
 		double calculateOverrunTimeforfulHournanoSecs();
 		void calculateRecordingTime();
+
 
 	protected:
 		AVFormatContext* m_pAvOutFormatCtx;
@@ -52,6 +55,11 @@ namespace FFmpegInteropExtRT
 		bool m_bTimeForNewFile;
 		double m_RecordingInHours; // Recording time = (m_RecordingInHours* 1hours ) per File
 //		int64_t m_writeLastpts;
+	//	int64_t m_pts;
+	//	int64_t m_dts;
+
+		int64_t m_Outpts;
+		int64_t m_Outdts;
 
 	};
 
@@ -59,14 +67,14 @@ namespace FFmpegInteropExtRT
 	class MediaSampleFFMpegCopy :public MediaSampleFFMpegEncoding
 	{
 	public:
-		MediaSampleFFMpegCopy(AVFormatContext* inputFormaCtx, double RecordingInHours);
+		MediaSampleFFMpegCopy(AVFormatContext* inputFormaCtx, PropertySet^ configOptions);
 		virtual ~MediaSampleFFMpegCopy();
 
 		virtual AVFrame* prepare_write_frame(FramePacket* Packet);
 		virtual void SetAvOutStream(AVStream* pAvOutStream) { };
 		virtual bool IsInputStreamCopy() { return true; }; // should Input Stram be copied
 
-
+		virtual int flushEncoder(AVPacket**encpacket);
 	protected:
 		//virtual void rescaleEncodePacket(AVPacket*enc_pkt);
 

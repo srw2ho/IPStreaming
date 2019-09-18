@@ -73,6 +73,7 @@ MainPage::~MainPage()
 
 	ReleaseAllRequestedDisplay();
 
+	delete m_StreamingPageParamControl;
 
 }
 
@@ -151,6 +152,7 @@ void MainPage::ReleaseDisplay()
 
 	if (m_displayRequestCnt > 0) {
 		//undo the request
+
 		m_displayRequest->RequestRelease();
 		m_displayRequestCnt--;
 	}
@@ -173,7 +175,7 @@ void MainPage::Application_Suspending(Object^ sender, Windows::ApplicationModel:
 	// Handle global application events only if this page is active
 	if (Frame->CurrentSourcePageType.Name == Interop::TypeName(MainPage::typeid).Name)
 	{
-		this->UnRegisterEvents();
+		this->ClearRessources();
 		this->clearRecording();
 		this->ReleaseAllRequestedDisplay();
 
@@ -209,7 +211,7 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 	{
 		this->m_OnVifCameraViewModel->readDatafromLocalStorage();
 	}
-	m_StreamingPageParamControl->UnRegisterEvents(); // all previous events unregister
+	m_StreamingPageParamControl->ClearRessources(); // all previous events unregister
 	m_StreamingPageParamControl->Items->Clear();
 	//int ncount = 0;
 	wchar_t buffer[200];
@@ -226,7 +228,16 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 
 		param->PropertyChangedEventRegister = param->OnVifCamera->PropertyChanged+= ref new PropertyChangedEventHandler(this, &MainPage::ScenarioPropertyChanged);
 		param->CameraServerFailedRegister = param->CameraServer->Failed += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, FFmpegInteropExtRT::CameraServerFailedEventArgs ^>(this, &MainPage::CameraServerOnFailed);
-		
+		// Movement-Recording On
+		param->OnStartMovementStreaming = param->MovementRecording->startStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Windows::Networking::Sockets::StreamSocket ^>(this, &IPStreamingCPP::MainPage::OnstartMovementStreaming);
+		param->OnStopMovementStreaming = param->MovementRecording->stopStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Platform::String ^>(this, &IPStreamingCPP::MainPage::OnStopMovementStreaming);
+//		param->OnStopMovementStreaming = param->MovementRecording->Failed += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Platform::String ^>(this, &IPStreamingCPP::MainPage::OnStopMovementStreaming);
+		param->OnChangeMovementStreaming = param->MovementRecording->ChangeMovement += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Windows::Foundation::Collections::PropertySet ^>(this, &IPStreamingCPP::MainPage::OnChangeMovement);
+		param->MovementRecording->HostName = "WilliRaspiPlus";
+		param->MovementRecording->Port = 3000;
+
+		// Movement-Recording On
+
 		param->ScenarioView = ref new IPStreamingCPP::ScenarioViewControl();
 
 		Windows::UI::Xaml::Interop::TypeName tt = Windows::UI::Xaml::Interop::TypeName(StreamingPage::typeid);
@@ -252,7 +263,7 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 void MainPage::OnNavigatingFrom(Windows::UI::Xaml::Navigation::NavigatingCancelEventArgs^ e)
 {
 	// Handling of this event is included for completeness, as it will only fire when navigating between pages and this sample only includes one page
-	this->UnRegisterEvents();
+	this->ClearRessources();
 	this->clearRecording();
 	this->ReleaseAllRequestedDisplay();
 	this->WriteToAppData();
@@ -294,29 +305,18 @@ void MainPage::stopRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::
 		streamingPageParam->stopStreaming();
 	}
 
-
-	//clearRecording(); // Stop all Recording
-//	this->startRecording->IsEnabled = true;
-//	this->stopRecording->IsEnabled = false;
 }
 
 
 
 void MainPage::startRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
-//	this->stopRecording->IsEnabled = true;
-//	this->startRecording->IsEnabled = false;
+
 	StreamingPageParam ^ streamingPageParam = m_StreamingPageParamControl->getSelectedItem();
 	if (streamingPageParam != nullptr) {
-		streamingPageParam->startUriStreaming();
+		bool boK = streamingPageParam->startUriStreaming();
+		Splitter->IsPaneOpen = !boK;
 	}
-
-/*
-	for each (auto var in this->m_StreamingPageParamControl->Items)
-	{
-		var->startUriStreaming(); // start of all camera Recording
-	}
-	*/
 
 }
 
@@ -333,6 +333,15 @@ void MainPage::PivotCameras_SelectionChanged(Platform::Object^ sender, Windows::
 		if (param != nullptr) {
 			ScenarioControl->ItemsSource = param->ScenarioView->Items;
 			ScenarioControl->SelectedIndex = 0;
+			if (param->MovementRecording->IsMoment) {
+				this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Visible;
+			}
+			else
+			{
+				this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+			}
+
+			
 		}
 
 	}
@@ -404,7 +413,7 @@ void MainPage::ScenarioControl_SelectionChanged(Platform::Object^ sender, Window
 
 void MainPage::CameraServerOnFailed(Platform::Object ^sender, FFmpegInteropExtRT::CameraServerFailedEventArgs ^args)
 {
-	PlatForm:String ^ message = args->Message;
+	Platform::String ^ message = args->Message;
 	DisplayErrorMessage(message);
 
 
@@ -423,6 +432,8 @@ void MainPage::MediaElement_OnCurrentStateChanged(Platform::Object ^sender, Wind
 		}
 		else // CurrentState is Buffering, Closed, Opening, Paused, or Stopped. 
 		{
+
+
 			bool bRelease = true;
 			if (mediaElement->CurrentState == Windows::UI::Xaml::Media::MediaElementState::Opening) {
 				bRelease = false;
@@ -460,7 +471,7 @@ void MainPage::MediaElement_OnMediaFailed(Platform::Object ^sender, Windows::UI:
 		// Deactivate the display request and set the var to null.
 		this->ReleaseDisplay();
 	}
-	PlatForm:String ^ message = e->ErrorMessage;
+	Platform::String ^ message = e->ErrorMessage;
 	DisplayErrorMessage(message);
 
 	//	throw ref new Platform::NotImplementedException();
@@ -472,14 +483,78 @@ void MainPage::clearRecording()
 	{
 		var->clearRecording();
 	}
-
+//	this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 }
 
-void MainPage::UnRegisterEvents()
+void MainPage::ClearRessources()
 {
-	m_StreamingPageParamControl->UnRegisterEvents(); // all previous events unregister
+	m_StreamingPageParamControl->ClearRessources(); // all previous events unregister
 
 }
 
+
+/*
+void IPStreamingCPP::MainPage::OnstartMovementStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args)
+{
+	//	throw ref new Platform::NotImplementedException();
+}
+
+
+void IPStreamingCPP::MainPage::OnstopMovementStreaming(Platform::Object ^sender, Platform::String ^args)
+{
+	//throw ref new Platform::NotImplementedException();
+}
+*/
+
+void IPStreamingCPP::MainPage::OnStopMovementStreaming(Platform::Object ^sender, Platform::String ^args)
+{
+	if (args != nullptr) { // stop movement with error
+		Platform::String ^ message = "Movement-Watcher: " + args;
+		DisplayErrorMessage(message);
+	}
+
+	//	throw ref new Platform::NotImplementedException();
+}
+
+void IPStreamingCPP::MainPage::OnstartMovementStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args)
+{
+	//	throw ref new Platform::NotImplementedException();
+}
+
+
+
+
+void IPStreamingCPP::MainPage::OnChangeMovement(Platform::Object ^sender, Windows::Foundation::Collections::PropertySet ^args)
+{
+
+	RecordingListener::Recording^ recording = dynamic_cast<RecordingListener::Recording ^>(sender);
+	bool dodetect = false;
+	if (recording != nullptr) {
+		StreamingPageParam ^ streamingPageParam = m_StreamingPageParamControl->getSelectedItem();
+		if (streamingPageParam != nullptr) {
+			if (streamingPageParam->MovementRecording == recording)
+			{
+				Windows::ApplicationModel::Core::CoreApplication::MainView->CoreWindow->Dispatcher->RunAsync(
+					CoreDispatcherPriority::Normal,
+					ref new Windows::UI::Core::DispatchedHandler([this, recording, args]()
+				{
+					if (recording->IsMoment) {
+						this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Visible;
+					}
+					else
+					{
+						this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+					}
+
+				}));
+
+			}
+		}
+	}
+	
+
+
+
+}
 
 

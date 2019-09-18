@@ -131,6 +131,19 @@ FFmpegInteropMSS::~FFmpegInteropMSS()
 	delete m_ptimeouthandler;
 	mutexGuard.unlock();
 }
+
+
+Windows::Foundation::IAsyncAction ^ FFmpegInteropMSS::DestroyFFmpegAsync() {
+
+	return create_async([this]()
+	{
+		if (this != nullptr) {
+			delete this;
+		}
+
+	});
+}
+
 FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSS()
 {
 	auto interopMSS = ref new FFmpegInteropMSS();
@@ -569,7 +582,7 @@ HRESULT FFmpegInteropMSS::InitFFmpegContext(bool forceAudioDecode, bool forceVid
 			if (avVideoCodecCtx != nullptr) {
 		//		avVideoCodecCtx->
 				double fps = av_q2d(avFormatCtx->streams[videoStreamIndex]->r_frame_rate);
-
+			
 			//	float fps = (float)av_q2intfloat(avFormatCtx->streams[videoStreamIndex]->r_frame_rate);
 				int height = avVideoCodecCtx->height;
 				int width = avVideoCodecCtx->width;
@@ -923,48 +936,49 @@ HRESULT FFmpegInteropMSS::Seek(TimeSpan position)
 
 	return hr;
 }
-/*
-void FFmpegInteropMSS::PrepareHttpClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, int fps, int height, int width, int64_t bit_rate)
-{
-	
-	if (videoSampleProvider != nullptr) {
-		CameraOutputDevice* pOutputDevice = m_pOutPutEncoding->CreateCameraOutputDevice(hostname,pCameraServer);
-		pOutputDevice->AddMpegEncoding(fps, height, width, bit_rate); // fps = -1: take inoput fts, height, width
-		if (pCameraServer->Port != -1) {
-			pOutputDevice->AddMJpegEncoding(fps, height, width, bit_rate);
-		}// fps, height, width
-		this->m_pOutPutEncoding->startEncoding();
-	}
 
-}
-
-*/
-void FFmpegInteropMSS::PrepareHttpMpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, int fps, int height, int width, int64_t bit_rate)
+void FFmpegInteropMSS::PrepareHttpMpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, PropertySet^ configOptions)
 {
 
 	if (videoSampleProvider != nullptr) {
 		CameraOutputDevice* pOutputDevice = (CameraOutputDevice*) m_pOutPutEncoding->getDeviceByName(hostname);
-		if (pOutputDevice==nullptr)
-			pOutputDevice = m_pOutPutEncoding->CreateCameraOutputDevice(hostname, pCameraServer);
-
-	
-		pOutputDevice->AddMpegEncoding(fps, height, width, bit_rate); // fps = -1: take inoput fts, height, width
+		if (pOutputDevice == nullptr) {
+			pOutputDevice = m_pOutPutEncoding->CreateCameraOutputDevice(hostname, configOptions, pCameraServer);
+		}
+		else pOutputDevice->ParseConfigOptions();
+		pOutputDevice->AddMpegEncoding(pOutputDevice->getfps(), pOutputDevice->getheigh(), pOutputDevice->getwidth(), pOutputDevice->getbit_rate()); // fps = -1: take inoput fts, height, width
 	
 		this->m_pOutPutEncoding->startEncoding();
 	}
 
 }
 
-void FFmpegInteropMSS::PrepareHttpMJpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, int fps, int height, int width, int64_t bit_rate)
+void FFmpegInteropMSS::PrepareHttpMJpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, PropertySet^ configOptions)
 {
 	if (videoSampleProvider != nullptr) {
 		CameraOutputDevice* pOutputDevice = (CameraOutputDevice*)m_pOutPutEncoding->getDeviceByName(hostname);
-		if (pOutputDevice == nullptr)
-				pOutputDevice = m_pOutPutEncoding->CreateCameraOutputDevice(hostname, pCameraServer);
-		//if (pCameraServer->Port != -1) 
-		{
-			pOutputDevice->AddMJpegEncoding(fps, height, width, bit_rate);
-		}// fps, height, width
+		if (pOutputDevice == nullptr) {
+			pOutputDevice = m_pOutPutEncoding->CreateCameraOutputDevice(hostname, configOptions, pCameraServer);
+		}
+		else pOutputDevice->ParseConfigOptions();
+
+		pOutputDevice->AddMJpegEncoding(pOutputDevice->getfps(), pOutputDevice->getheigh(), pOutputDevice->getwidth(), pOutputDevice->getbit_rate());
+
+		this->m_pOutPutEncoding->startEncoding();
+	}
+
+}
+void FFmpegInteropMSS::PrepareFFMPegOutPutEncoding(Platform::String^ fileName, PropertySet^ configOptions, PropertySet^ ffmpegOutputOptions)
+{
+	if (videoSampleProvider != nullptr || audioSampleProvider != nullptr) {
+		FFMpegOutputDevice* pFFMpegOutputDevice = (FFMpegOutputDevice*)m_pOutPutEncoding->getDeviceByName(fileName);
+		if (pFFMpegOutputDevice == nullptr) {
+			pFFMpegOutputDevice = m_pOutPutEncoding->CreateFFMpegOutputDevice(fileName, configOptions, ffmpegOutputOptions);
+		}
+		else pFFMpegOutputDevice->ParseConfigOptions();
+
+		pFFMpegOutputDevice->open_output();
+
 		this->m_pOutPutEncoding->startEncoding();
 	}
 
@@ -990,19 +1004,9 @@ void FFmpegInteropMSS::OnSampleRequested(Windows::Media::Core::MediaStreamSource
 	}
 	mutexGuard.unlock();
 }
-void FFmpegInteropMSS::PrepareFFMPegOutPutEncoding(Platform::String^ folder, Platform::String^ fileName, int fps, int height,int width , int64_t bit_rate, PropertySet^ ffmpegOutputOptions,  Platform::String^ outputformat, double deletefilesOlderFilesinHours, double RecordingInHours)
-{
-	if (videoSampleProvider != nullptr || audioSampleProvider != nullptr) {
-		FFMpegOutputDevice* pFFMpegOutputDevice = (FFMpegOutputDevice*)m_pOutPutEncoding->getDeviceByName(fileName);
-		if (pFFMpegOutputDevice==nullptr)
-			 pFFMpegOutputDevice = m_pOutPutEncoding->CreateFFMpegOutputDevice(fileName, folder, fps,  height,  width, bit_rate, ffmpegOutputOptions,outputformat, deletefilesOlderFilesinHours, RecordingInHours);
-		//	pFFMpegOutputDevice->open_output_file("rtsp://127.0.0.1:8554/live.sdp");fileName
-		pFFMpegOutputDevice->open_output();
 
-		this->m_pOutPutEncoding->startEncoding();
-	}
-	
-}
+
+
 void FFmpegInteropMSS::OnMediaClosed(Windows::Media::Core::MediaStreamSource ^sender, MediaStreamSourceClosedEventArgs^ args) {
 
 	bool bOk = true;

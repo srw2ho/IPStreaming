@@ -60,8 +60,8 @@ namespace FFmpegInteropExtRT
 		MediaSampleOutputEncoding(AVFormatContext* inputFormaCtx);
 
 		virtual ~MediaSampleOutputEncoding();
-		CameraOutputDevice* CreateCameraOutputDevice(Platform::String^ deviceName,CameraServer^ pCameraServer);
-		FFMpegOutputDevice* CreateFFMpegOutputDevice(Platform::String^ deviceName, Platform::String^ folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double videoTimeinHours);
+		CameraOutputDevice* CreateCameraOutputDevice(Platform::String^ deviceName, PropertySet^ configOptions, CameraServer^ pCameraServer );
+		FFMpegOutputDevice* CreateFFMpegOutputDevice(Platform::String^ deviceName, PropertySet^ configOptions, PropertySet^ ffmpegOutputOptions);
 
 		virtual void WriteAVPacketToMuxer(AVPacket* avPacket); //Link to m_pOutputEncoding
 		virtual void WriteAVFrameToMuxer(AVFrame* avFame, AVPacket* avPacket, int streamIdx); //Link to m_pOutputEncoding

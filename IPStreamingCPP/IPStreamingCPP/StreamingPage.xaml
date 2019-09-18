@@ -5,9 +5,16 @@
     xmlns:local="using:IPStreamingCPP"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:IPStreamingCPP"   
     mc:Ignorable="d">
-
+    
+    <Page.Resources>
+        <converters:ValueConverterToBool x:Key="ValueToBool" />
+    </Page.Resources>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        
         <Grid.ColumnDefinitions>
 
 
@@ -55,26 +62,53 @@
 
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Margin="0,0,0,0" Width ="320" >
+  
                         <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
                             <ToggleSwitch Width="155" x:Name="toggleSwitchOutPutMuxer" Header="Output Muxer to File" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchOutPutMuxer.ValueasBool, Mode=TwoWay}"/>
-                            <ComboBox   ItemsSource="{x:Bind FFmpegoutputformat.Items}" x:Name="ffmpegoutputformat" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="155"   Height="30" SelectionChanged="{x:Bind FFmpegoutputformat.SelectionChanged}" SelectedIndex="{x:Bind FFmpegoutputformat.SelectedIndex}">
+                            <ToggleSwitch Width="155" x:Name="toggleSwitchMuxCopyInput" Header="Copy Input to File" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchMuxCopyInput.ValueasBool, Mode=TwoWay}"/>
+
+                         </StackPanel>
+
+                        <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
+                            <ToggleSwitch Width="155" x:Name="toggleSwitchMovementWatcher" Header="Movement Watcher" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchMovementWatcher.ValueasBool, Mode=TwoWay}"/>
+                            <ToggleSwitch Width="155" x:Name="recordingOnMovement" Header="Record on Movement" OffContent="OFF" OnContent="ON" IsOn="{x:Bind RecordingOnMovement.ValueasBool, Mode=TwoWay}"/>
+
+          
+                        </StackPanel>
+                        <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
+                            <TextBox FontSize ="14" Text="{x:Bind HostNameMovementWatcher.Value, Mode=TwoWay}" IsEnabled="{x:Bind toggleSwitchMovementWatcher.IsOn, Mode=OneWay}"  PlaceholderText="localhost" Width="155" InputScope="Text"  Margin="0,0,0,0"  Header="Hostname Movement"  HorizontalAlignment="Left" />
+                            <TextBox FontSize ="14" Text="{x:Bind PortMovementWatcher.Value, Mode=TwoWay}" IsEnabled="{x:Bind toggleSwitchMovementWatcher.IsOn, Mode=OneWay}" PlaceholderText="3005" Width="155" InputScope="Number"  Margin="0,0,0,0"  Header="Portname Movement"  HorizontalAlignment="Left" />
+
+                        </StackPanel>
+                        <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
+                            <TextBox FontSize ="14" Text="{x:Bind InputPin1MovementWatcher.Value, Mode=TwoWay}" IsEnabled="{x:Bind toggleSwitchMovementWatcher.IsOn, Mode=OneWay}" PlaceholderText="1...25" Width="155"  InputScope="Number" Margin="0,0,0,0"  Header="Input Pin 1 Movement"  HorizontalAlignment="Left" />
+                            <TextBox FontSize ="14" Text="{x:Bind InputPin1MovementWatcherActiv.Value, Mode=TwoWay}" IsEnabled="{x:Bind toggleSwitchMovementWatcher.IsOn, Mode=OneWay}" PlaceholderText="0...1" Width="155"  InputScope="Number"  Margin="0,0,0,0"  Header="Input Pin 1 Activ"  HorizontalAlignment="Left" />
+                        </StackPanel>
+                        <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
+                            <ComboBox ItemsSource="{x:Bind MovementRecordingTimeSecs.Items}" IsEnabled="{x:Bind recordingOnMovement.IsOn, Mode=OneWay}" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="155"   Height="30" SelectionChanged="{x:Bind MovementRecordingTimeSecs.SelectionChanged}" SelectedIndex="{x:Bind MovementRecordingTimeSecs.SelectedIndex}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate  x:DataType="local:ItemValue">
+                                        <TextBlock Text="{x:Bind VisibleItemWatchRecording}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox   ItemsSource="{x:Bind FFmpegoutputformat.Items}" IsEnabled="{x:Bind toggleSwitchOutPutMuxer.IsOn, Mode=OneWay}"  x:Name="ffmpegoutputformat" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="155"   Height="30" SelectionChanged="{x:Bind FFmpegoutputformat.SelectionChanged}" SelectedIndex="{x:Bind FFmpegoutputformat.SelectedIndex}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate  x:DataType="local:outPutFormat">
                                         <TextBlock Text="{x:Bind VisibleItem}"/>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-
-                        </StackPanel>
+                         </StackPanel>
                         <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
-                            <ComboBox ItemsSource="{x:Bind FFmpegoutputresolution.Items}" x:Name="ffmpegoutputresolution" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="155"   Height="30" SelectionChanged="{x:Bind FFmpegoutputresolution.SelectionChanged}" SelectedIndex="{x:Bind FFmpegoutputresolution.SelectedIndex}">
+                            <ComboBox ItemsSource="{x:Bind FFmpegoutputresolution.Items}" IsEnabled="{x:Bind toggleSwitchMuxCopyInput.IsOn, Mode=TwoWay,Converter= {StaticResource ValueToBool},ConverterParameter= Negation}"  x:Name="ffmpegoutputresolution" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="155"   Height="30" SelectionChanged="{x:Bind FFmpegoutputresolution.SelectionChanged}" SelectedIndex="{x:Bind FFmpegoutputresolution.SelectedIndex}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate  x:DataType="local:Resolution">
                                         <TextBlock  Text="{x:Bind VisibleItem}"/>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox ItemsSource="{x:Bind FFmpegoutputFps.Items}" x:Name="ffmpegoutputFps" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"   Height="30" SelectionChanged="{x:Bind FFmpegoutputFps.SelectionChanged}" SelectedIndex="{x:Bind FFmpegoutputFps.SelectedIndex}" Width="155">
+                            <ComboBox ItemsSource="{x:Bind FFmpegoutputFps.Items}" IsEnabled="{x:Bind toggleSwitchMuxCopyInput.IsOn, Mode=OneWay,Converter={StaticResource ValueToBool},ConverterParameter= Negation}" x:Name="ffmpegoutputFps" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"   Height="30" SelectionChanged="{x:Bind FFmpegoutputFps.SelectionChanged}" SelectedIndex="{x:Bind FFmpegoutputFps.SelectedIndex}" Width="155">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate  x:DataType="local:Fps">
                                         <TextBlock  Text="{x:Bind VisibleItem}"/>
@@ -106,36 +140,31 @@
                     </StackPanel>
                     <StackPanel Margin="0,00,0,0" Orientation="Horizontal" >
                         <StackPanel Margin="0,00,0,0" Orientation="Vertical"   >
-                            <ComboBox ItemsSource="{x:Bind OutputMPegresolution.Items}" x:Name="outputMPegresolution" HorizontalAlignment="Left"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMPegresolution.SelectionChanged}" SelectedIndex="{x:Bind OutputMPegresolution.SelectedIndex}" Width="155" >
+                            <ComboBox ItemsSource="{x:Bind OutputMPegresolution.Items}" IsEnabled="{x:Bind toggleSwitchOutPutMpegStream.IsOn, Mode=OneWay}"  x:Name="outputMPegresolution" HorizontalAlignment="Left"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMPegresolution.SelectionChanged}" SelectedIndex="{x:Bind OutputMPegresolution.SelectedIndex}" Width="155" >
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate  x:DataType="local:Resolution">
                                         <TextBlock  Text="{x:Bind VisibleItem}"/>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox ItemsSource="{x:Bind OutputMPegFps.Items}" x:Name="outputMPegfps" HorizontalAlignment="Stretch"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMPegFps.SelectionChanged}" SelectedIndex="{x:Bind OutputMPegFps.SelectedIndex}"  Width="155"  >
+                            <ComboBox ItemsSource="{x:Bind OutputMPegFps.Items}" IsEnabled="{x:Bind toggleSwitchOutPutMpegStream.IsOn, Mode=OneWay}"  x:Name="outputMPegfps" HorizontalAlignment="Stretch"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMPegFps.SelectionChanged}" SelectedIndex="{x:Bind OutputMPegFps.SelectedIndex}"  Width="155"  >
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate  x:DataType="local:Fps">
                                         <TextBlock Text="{x:Bind VisibleItem}"/>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <!--
-                            <StackPanel  Height="32" Margin="0,0,0,10" Orientation="Horizontal">
-                                <TextBlock  DataContext="{Binding SelectedItem, ElementName=outputMPeg1resolution}" Text="{Binding VisibleItem}" Margin="0,0,10,0" Width="60"/>
-                                <TextBlock  DataContext="{Binding SelectedItem, ElementName=outputMPeg1fps}" Text="{Binding VisibleItem}" Width="70"/>
-                            </StackPanel>
-                            -->
+
                         </StackPanel>
                         <StackPanel Margin="0,0,0,00" Orientation="Vertical"  >
-                            <ComboBox ItemsSource="{x:Bind OutputMJpegresolution.Items}" x:Name="outputMJpegresolution" HorizontalAlignment="Left"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMJpegresolution.SelectionChanged}" SelectedIndex="{x:Bind OutputMJpegresolution.SelectedIndex}" Width="155" >
+                            <ComboBox ItemsSource="{x:Bind OutputMJpegresolution.Items}" IsEnabled="{x:Bind toggleSwitchOutPutMJpegStream.IsOn, Mode=OneWay}"  x:Name="outputMJpegresolution" HorizontalAlignment="Left"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMJpegresolution.SelectionChanged}" SelectedIndex="{x:Bind OutputMJpegresolution.SelectedIndex}" Width="155" >
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate  x:DataType="local:Resolution">
                                         <TextBlock  Text="{x:Bind VisibleItem}"/>
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox ItemsSource="{x:Bind OutputMJpegFps.Items}" x:Name="outputMJpegFps" HorizontalAlignment="Stretch"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMJpegFps.SelectionChanged}" SelectedIndex="{x:Bind OutputMJpegFps.SelectedIndex}" Width="155" >
+                            <ComboBox ItemsSource="{x:Bind OutputMJpegFps.Items}"  IsEnabled="{x:Bind toggleSwitchOutPutMJpegStream.IsOn, Mode=OneWay}"  x:Name="outputMJpegFps" HorizontalAlignment="Stretch"  VerticalAlignment="Top" SelectionChanged="{x:Bind OutputMJpegFps.SelectionChanged}" SelectedIndex="{x:Bind OutputMJpegFps.SelectedIndex}" Width="155" >
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate  x:DataType="local:Fps">
                                         <TextBlock  Text="{x:Bind VisibleItem}"/>
@@ -146,8 +175,8 @@
                     </StackPanel>
 
                     <StackPanel Margin="0,0,00,0" Orientation="Horizontal"  >
-                        <TextBox FontSize ="14" x:Name="outputMpegStreamUrl" Header ="Format Server:Port" PlaceholderText="MpegVideo Stream url" Text ="{x:Bind OutputMpegStreamUrl.Value, Mode=TwoWay}" InputScope="Url" Height="60"  Margin="0,0,0,0" KeyUp="outputMpegStreamUrlKeyUp" Width="155"/>
-                        <TextBox FontSize ="14" x:Name="outputMJpegStreamUrlPort" Header ="Format Server:Port" PlaceholderText="MpegVideo Stream url" Text ="{x:Bind OutputMJpegStreamUrlPort.Value, Mode=TwoWay}" InputScope="Url" Height="60" KeyUp="outputMJpegStreamUrlPortKeyUp" Margin="0,0,0,0" Width="155"/>
+                        <TextBox FontSize ="14" x:Name="outputMpegStreamUrl" IsEnabled="{x:Bind toggleSwitchOutPutMpegStream.IsOn, Mode=OneWay}" Header ="Format Server:Port" PlaceholderText="MpegVideo Stream url" Text ="{x:Bind OutputMpegStreamUrl.Value, Mode=TwoWay}" InputScope="Url" Height="60"  Margin="0,0,0,0" KeyUp="outputMpegStreamUrlKeyUp" Width="155"/>
+                        <TextBox FontSize ="14" x:Name="outputMJpegStreamUrlPort"  IsEnabled="{x:Bind toggleSwitchOutPutMJpegStream.IsOn, Mode=OneWay}"  Header ="Format Server:Port" PlaceholderText="MpegVideo Stream url" Text ="{x:Bind OutputMJpegStreamUrlPort.Value, Mode=TwoWay}" InputScope="Url" Height="60" KeyUp="outputMJpegStreamUrlPortKeyUp" Margin="0,0,0,0" Width="155"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

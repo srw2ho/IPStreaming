@@ -8,8 +8,8 @@
 #include "StreamingPage.g.h"
 
 //#include "DataSources.h"
-
 #include "StreamingPageParam.h"
+#include "ValueConverter.h"
 
 namespace IPStreamingCPP
 {
@@ -124,6 +124,48 @@ namespace IPStreamingCPP
 		}
 
 
+		property IPStreamingCPP::ItemValueViewModel^ ToggleSwitchMovementWatcher
+		{
+			IPStreamingCPP::ItemValueViewModel^ get() { return _toggleSwitchMovementWatcher; };
+		}
+
+		property IPStreamingCPP::ItemValueViewModel^ ToggleSwitchMuxCopyInput
+		{
+			IPStreamingCPP::ItemValueViewModel^ get() { return _toggleSwitchMuxCopyInput; };
+		}
+
+		property IPStreamingCPP::ItemStringViewModel^ HostNameMovementWatcher
+		{
+			IPStreamingCPP::ItemStringViewModel^ get() { return _HostNameMovementWatcher; };
+		}
+
+		property IPStreamingCPP::ItemValueViewModel^ PortMovementWatcher
+		{
+			IPStreamingCPP::ItemValueViewModel^ get() { return _PortMovementWatcher; };
+		}
+
+
+		property IPStreamingCPP::ItemValueViewModel^ InputPin1MovementWatcher
+		{
+			IPStreamingCPP::ItemValueViewModel^ get() { return _InputPin1MovementWatcher; };
+		}
+		property IPStreamingCPP::ItemValueViewModel^ InputPin1MovementWatcherActiv
+		{
+			IPStreamingCPP::ItemValueViewModel^ get() { return _InputPin1MovementWatcherActiv; };
+		}
+
+		property IPStreamingCPP::HourViewModel^ MovementRecordingTimeSecs
+		{
+			IPStreamingCPP::HourViewModel^ get() { return _MovementRecordingTimeSecs; };
+		}
+		property IPStreamingCPP::ItemValueViewModel^ RecordingOnMovement
+		{
+			IPStreamingCPP::ItemValueViewModel^ get() { return _RecordingOnMovement; };
+		}
+
+	
+
+
 	protected:
 		virtual void OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e) override;
 		virtual void OnNavigatingFrom(Windows::UI::Xaml::Navigation::NavigatingCancelEventArgs^ e) override;
@@ -143,17 +185,7 @@ namespace IPStreamingCPP
 		void stopRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void startRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 
-//		void inputFFMpegAnalyzeDuration(Platform::Object^ sender, Windows::UI::Xaml::Input::KeyRoutedEventArgs^ e);
-
 		void OpenLocalFile(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
-
-//		void MediaFailed(Platform::Object^ sender, Windows::UI::Xaml::ExceptionRoutedEventArgs^ e);
-
-
-	//	void inputFFMpegProbeSize(Platform::Object^ sender, Windows::UI::Xaml::Input::KeyRoutedEventArgs^ e);
-
-	//	void startinputtimerestartStreaming(Platform::Object^ sender, Windows::UI::Xaml::Input::KeyRoutedEventArgs^ e);
-
 
 		void starturiRecording();
 	
@@ -188,9 +220,22 @@ namespace IPStreamingCPP
 
 
 		IPStreamingCPP::inputSourceViewModel^ _inputSourceUri;
+		IPStreamingCPP::ItemValueViewModel ^ _toggleSwitchMovementWatcher;
 
+		IPStreamingCPP::ItemValueViewModel ^ _toggleSwitchMuxCopyInput;
+
+		IPStreamingCPP::ItemStringViewModel^ _HostNameMovementWatcher;
+
+		IPStreamingCPP::ItemValueViewModel^ _PortMovementWatcher;
+		IPStreamingCPP::ItemValueViewModel^ _InputPin1MovementWatcher;
+		IPStreamingCPP::ItemValueViewModel^ _InputPin1MovementWatcherActiv;
+		IPStreamingCPP::ItemValueViewModel^ _RecordingOnMovement;
+
+		IPStreamingCPP::HourViewModel ^ _MovementRecordingTimeSecs;
 
 		Windows::System::Threading::ThreadPoolTimer ^ _restartStreamingTimer;
 
+
+		
 	};
 }

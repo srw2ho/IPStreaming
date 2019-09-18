@@ -38,8 +38,8 @@ using namespace std;
 using namespace Windows::Storage;
 //using namespace IpCamera;
 
-CameraOutputDevice::CameraOutputDevice(Platform::String^ deviceName,AVFormatContext* inputFormaCtx, CameraServer^ pCameraServer)
-	: MediaSampleOutputDevice(deviceName,inputFormaCtx) {
+CameraOutputDevice::CameraOutputDevice(Platform::String^ deviceName,AVFormatContext* inputFormaCtx, PropertySet^ configOptions, CameraServer^ pCameraServer)
+	: MediaSampleOutputDevice(deviceName,inputFormaCtx, configOptions) {
 
 	m_pCameraServer = pCameraServer;
 }

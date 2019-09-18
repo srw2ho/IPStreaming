@@ -239,52 +239,80 @@ IAsyncAction ^ CameraServer::CreateHTTPServerAsync(int port)
 	auto server = this;
 	Trace("@%p creating CameraServer on port %i with camera", (void*)server, port);
 
-	
+	//	if (server->m_listener == nullptr) return;
 
-	return create_async([this,server, port]()
+	return create_async([this, server, port]()
 	{
+		if (this->m_listener != nullptr) {
 
-		server->m_listener->Control->KeepAlive = false;
-		return create_task(server->m_listener->BindServiceNameAsync(port == 0 ? L"" : port.ToString()))
+			server->m_listener->Control->KeepAlive = false;
+			return create_task(server->m_listener->BindServiceNameAsync(port == 0 ? L"" : port.ToString()))
 
-		.then([this,server] (task<void> previousTask) {
+				.then([this, server](task<void> previousTask) {
 
-			try {
-				previousTask.get();
+				try {
+					previousTask.get();
 
-				server->m_port = _wtoi(server->m_listener->Information->LocalPort->Data());
-				if (server->m_port == 0)
-				{
-					throw ref new InvalidArgumentException(L"Failed to convert TCP port");
-				}
-				Trace("@%p bound socket listener to port %i", (void*)server, server->m_port);
-
-				auto ipAddresses = ref new Vector<IPAddress^>();
-				for (HostName^ host : NetworkInformation::GetHostNames())
-				{
-					if ((host->Type == HostNameType::Ipv4) || (host->Type == HostNameType::Ipv6))
+					server->m_port = _wtoi(server->m_listener->Information->LocalPort->Data());
+					if (server->m_port == 0)
 					{
-						Trace("@%p network IP %S %S", (void*)server, host->Type.ToString()->Data(), host->CanonicalName->Data());
-						ipAddresses->Append(ref new IPAddress(host->Type, host->CanonicalName));
+						throw ref new InvalidArgumentException(L"Failed to convert TCP port");
 					}
+					Trace("@%p bound socket listener to port %i", (void*)server, server->m_port);
+
+					auto ipAddresses = ref new Vector<IPAddress^>();
+					for (HostName^ host : NetworkInformation::GetHostNames())
+					{
+						if ((host->Type == HostNameType::Ipv4) || (host->Type == HostNameType::Ipv6))
+						{
+							Trace("@%p network IP %S %S", (void*)server, host->Type.ToString()->Data(), host->CanonicalName->Data());
+							ipAddresses->Append(ref new IPAddress(host->Type, host->CanonicalName));
+						}
+					}
+					server->m_ipAddresses = ipAddresses->GetView();
 				}
-				server->m_ipAddresses = ipAddresses->GetView();
-			}
-			catch (Exception^ exception) {
-				this->Failed(this, ref new CameraServerFailedEventArgs(exception));
-				return;
-			}
+				catch (Exception^ exception) {
+					this->Failed(this, ref new CameraServerFailedEventArgs(exception));
+					return;
+				}
 
 
 
-		});
+			});
 
-
+		}
 	});
-	
+
 
 }
 
+
+IAsyncAction ^ CameraServer::DestroyHTTPServerAsync()
+{
+
+
+	Trace("@%p Destroy CameraServer on port %i with camera", (void*)this, this->Port);
+
+
+	return create_async([this]()
+	{
+
+		try {
+			if (this->m_listener != nullptr) {
+
+				delete this->m_listener;
+				this->m_listener = nullptr;
+				return;
+			}
+		}
+
+		catch (Exception^ exception) {
+			this->Failed(this, ref new CameraServerFailedEventArgs(exception));
+			return;
+		}
+	});
+
+}
 
 void CameraServer::OpenHTTPServerAsync()
 {
@@ -347,14 +375,17 @@ void CameraServer::UnLock()
 
 CameraServer::~CameraServer()
 {
+
 	auto lock = m_lock.LockExclusive();
 
 
 	m_connections.DeleteAllConnections();
 
-	
-	delete m_listener; // calls IClosable::Close()
-	m_listener = nullptr;
+	if (m_listener != nullptr) {
+		delete m_listener; // calls IClosable::Close()
+		m_listener = nullptr;
+	}
+
 
 	DeleteCriticalSection(&m_CritLock);
 	delete m_pAsyncClientCancelTaskToken;

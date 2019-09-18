@@ -40,15 +40,18 @@ using namespace std;
 using namespace Windows::Storage;
 //using namespace IpCamera;
 
+MapConfigOptions globMapConfigOptions;
 
 
 
+MediaSampleOutputDevice::MediaSampleOutputDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx, PropertySet^ configOptions) {
 
-MediaSampleOutputDevice::MediaSampleOutputDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx) {
-
+	m_ConfigOptions = configOptions;
 	m_pAvFormatCtx = inputFormaCtx;
 	m_pEncodings = new MediaSampleEncodingList();
 	this->m_strdeviceName = deviceName;
+	ParseConfigOptions();
+	m_RecordingActiv = true;
 }
 
 MediaSampleOutputDevice::~MediaSampleOutputDevice() {
@@ -57,8 +60,53 @@ MediaSampleOutputDevice::~MediaSampleOutputDevice() {
 	delete m_pEncodings;
 	m_pEncodings = nullptr;
 
+	globMapConfigOptions.erase(m_ConfigOptions->GetHashCode());
+
+
 }
 
+bool MediaSampleOutputDevice::ParseConfigOptions()
+{
+	bool ret = true;
+
+	Platform::String^ folder;
+	Platform::String^ outputformat;
+
+	// Convert FFmpeg options given in PropertySet to AVDictionary. List of options can be found in https://www.ffmpeg.org/ffmpeg-protocols.html
+	if (m_ConfigOptions != nullptr)
+	{
+		auto options = m_ConfigOptions->First();
+
+		//	Platform::String^ folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double RecordingInHours
+
+		while (options->HasCurrent)
+		{
+			Platform::String^ key = options->Current->Key;
+			Platform::Object^ value = options->Current->Value;
+
+			 if (key == L"m_fps") {
+				m_fps = safe_cast<IPropertyValue^>(value)->GetInt32();
+			}
+			else if (key == L"m_height") {
+				m_height = safe_cast<IPropertyValue^>(value)->GetInt32();
+			}
+			else if (key == L"m_width") {
+				m_width = safe_cast<IPropertyValue^>(value)->GetInt32();
+
+			}
+			else if (key == L"m_bit_rate") {
+				m_bit_rate = safe_cast<IPropertyValue^>(value)->GetInt64();
+			}
+
+
+			options->MoveNext();
+		}
+
+
+	}
+
+	return ret;
+}
 bool MediaSampleOutputDevice::DeleteEncoding(MediaSampleEncoding*pdeleteEncoding) {
 	bool found = false;
 
@@ -111,10 +159,16 @@ bool MediaSampleOutputDevice::IsMediaTypeEncodingOutput(AVMediaType type) // is 
 
 
 
+std::string getDeviceNameBystdString()
+{ 
+	return ""; 
+};
 
 bool MediaSampleOutputDevice::IsStreamEncodingOutput(int stream_Idx, int& encType) // is Straem-Idx encoding 
 {
 	bool ret = false;
+	if (!IsRecordingActiv()) return ret; // nur wenn Recording activiert ist
+
 	std::list<MediaSampleEncoding*>::iterator it;
 	for (it = this->m_pEncodings->begin(); it != this->m_pEncodings->end();it++)
 	{
@@ -130,24 +184,7 @@ bool MediaSampleOutputDevice::IsStreamEncodingOutput(int stream_Idx, int& encTyp
 
 }
 
-/*
 
-bool MediaSampleOutputDevice::IsStreamCopyingOutput(int stream_Idx) // is Straem-Idx encoding 
-{
-	std::list<MediaSampleEncoding*>::iterator it;
-	for (it = this->m_pEncodings->begin(); it != this->m_pEncodings->end();it++)
-	{
-		MediaSampleEncoding*pEnc = *it;
-		if (pEnc->getStreamIdx() == stream_Idx) {
-			return pEnc->IsInputStreamCopy(); // should Input Stram be copied
-											   //		return true;
-		}
-	}
-
-	return false;
-
-}
-*/
 
 bool MediaSampleOutputDevice::IsCopyOutPutDevice() 
 {

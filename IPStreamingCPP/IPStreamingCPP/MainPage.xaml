@@ -118,7 +118,13 @@
      
                         <Pivot.HeaderTemplate >
                             <DataTemplate  x:DataType="local:StreamingPageParam">
-                                <TextBlock   FontSize="20" Height="auto" Text= "{x:Bind VisibleKeyName, Mode=OneWay}"/>
+                                <TextBlock   FontSize="20" Height="auto">
+                                   <Run Text="{x:Bind  VisibleKeyName, Mode=OneWay}"/>
+                                    <!--
+            
+                                   <Run Text="{x:Bind  RecordingState, Mode=OneWay}" />
+                                   -->
+                                </TextBlock>
                             </DataTemplate>
                         </Pivot.HeaderTemplate>
                         <Pivot.ItemTemplate>
@@ -129,13 +135,14 @@
                                     <MediaPlayerElement >
                                         
                                     </MediaPlayerElement>
-                                              -->
+                                    -->
                                     <MediaElement 
                                         
                                                AreTransportControlsEnabled="True"
                                                AudioCategory="ForegroundOnlyMedia"
                                                AutoPlay="True"
                                                Loaded="PivotMediaLoaded"/>
+
                                 </StackPanel>
 
                             </DataTemplate>
@@ -154,8 +161,13 @@
                 </ToggleButton.Content>
             </ToggleButton>
             <AppBarButton x:Name="startRecording" Content="Start Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="startRecording_Click" Width="38" Icon="Play" Label="Start" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
-            <AppBarButton x:Name="stopRecording" Content="Stop Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="stopRecording_Click" Width="38" Icon="Play" Label="Stop" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
-
+            <AppBarButton x:Name="stopRecording"  Content="Stop Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="stopRecording_Click" Width="38" Icon="Play" Label="Stop" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
+            <Image Visibility="Visible" x:Name="detectMovement"  Height ="38" Width="38" Source="images\MovementDetection.png"  Stretch="UniformToFill"  Margin="0,10" />
+            <!--
+             <ToggleSwitch x:Name="detectMovement" Header="Mov." OffContent="OFF" OnContent="ON" HorizontalAlignment="Stretch" VerticalAlignment ="Stretch"  />
+            <Image  Height ="50" Width="50" Source="images\camera_icon.png"  Stretch="UniformToFill"  Margin="-10" />
+            <Image  Height ="50" Width="50" Source=".."  Stretch="UniformToFill"  Margin="-10" />
+                        -->
         </StackPanel>
 
 

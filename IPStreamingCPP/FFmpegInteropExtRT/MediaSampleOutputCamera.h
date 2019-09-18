@@ -49,7 +49,7 @@ namespace FFmpegInteropExtRT
 	class CameraOutputDevice: public MediaSampleOutputDevice
 	{
 	public:
-		CameraOutputDevice(Platform::String^ deviceName,AVFormatContext* inputFormaCtx, CameraServer^ m_pCameraServer);
+		CameraOutputDevice(Platform::String^ deviceName,AVFormatContext* inputFormaCtx, PropertySet^ configOptions, CameraServer^ m_pCameraServer);
 		virtual ~CameraOutputDevice();
 
 		MediaSampleEncoding* AddMpegEncoding(int fps, int height, int width, int64_t bit_rate);

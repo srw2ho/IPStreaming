@@ -265,6 +265,15 @@ Platform::String^ ItemValue::VisibleItemDeleteOlderFiles::get()
 	return ref new Platform::String(buffer);
 
 }
+Platform::String^ ItemValue::VisibleItemWatchRecording::get()
+{
+
+	//const wchar_t *wdata = m_IDName->Data();
+	wchar_t buffer[100];
+	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"MovRec.%03d sec", (int)m_Value);
+	return ref new Platform::String(buffer);
+
+}
 
 
 
@@ -1177,8 +1186,9 @@ outPutFormat^ OutputFormatViewModel::getSelectedOutPutFormat()
 void OutputFormatViewModel::initdefaults()
 {
 	SelectedIndex = -1;
-	outPutFormat^ format = ref new outPutFormat("file_cpyinput.mp4", "cpyinput.mp4");
-	this->Items->Append(format);
+	outPutFormat^ format;
+	// = ref new outPutFormat("file_cpyinput.mp4", "cpyinput.mp4");
+	//this->Items->Append(format);
 
 	format = ref new outPutFormat("file_mp4", "mp4");
 	this->Items->Append(format);
@@ -1346,6 +1356,17 @@ void HourViewModel::initdefaults()
 				ItemValue^ item = ref new ItemValue(ref new String(buffer), i);
 				this->Items->Append(item);
 			}
+
+
+	}
+	else if (this->DataSourceIDName == "_MovementRecordingTimeSecs")
+	{
+		for (int i = 0; i <= 200; i = i + 10)
+		{
+			swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"RecSecs.%3d", i);
+			ItemValue^ item = ref new ItemValue(ref new String(buffer), i);
+			this->Items->Append(item);
+		}
 
 
 	}

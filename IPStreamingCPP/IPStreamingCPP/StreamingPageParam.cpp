@@ -45,6 +45,8 @@ StreamingPageParam::StreamingPageParam()
 //	m_ScenarioFrame = nullptr;
 	m_ScenarioViewControl = nullptr;
 //	m_SplitView = nullptr;
+	m_Muxerconfigoptions = ref new Windows::Foundation::Collections::PropertySet();
+	m_Recording = nullptr;
 
 }
 
@@ -52,11 +54,19 @@ StreamingPageParam::~StreamingPageParam()
 {
 	
 	if (m_FFmpegMSS != nullptr) {
-		delete m_FFmpegMSS;
+		m_FFmpegMSS->DestroyFFmpegAsync();
+		//delete m_FFmpegMSS;
+		m_FFmpegMSS = nullptr;
 	}
 	if (m_pCameraServer != nullptr) {
 		delete m_pCameraServer;
 	}
+	
+	if (m_Recording != nullptr)
+	{
+		delete m_Recording;
+	}
+	
 	/*
 	if (m_datasources != nullptr) {
 		delete m_datasources;
@@ -66,6 +76,36 @@ StreamingPageParam::~StreamingPageParam()
 	
 }
 
+/*
+void StreamingPageParam::NotifyPropertyChanged(Platform::String^ prop)
+{
+
+	PropertyChanged(this, ref new PropertyChangedEventArgs(prop));
+
+}
+*/
+
+
+
+void StreamingPageParam::startMovementRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions) {
+
+	if (m_Recording != nullptr) {
+	//	m_OnStartMovementStreaming = m_Recording->startStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Windows::Networking::Sockets::StreamSocket ^>(this, &IPStreamingCPP::StreamingPageParam::OnstartMovementStreaming);
+	//	m_OnStopMovementStreaming = m_Recording->stopStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Platform::String ^>(this, &IPStreamingCPP::StreamingPageParam::OnstopMovementStreaming);
+
+		m_Recording->startProcessingPackagesAsync(inputconfigoptions, this->m_Muxerconfigoptions);
+
+
+	}
+}		
+void StreamingPageParam::stopMovementRecording() {
+
+
+
+	m_Recording->stopProcessingPackagesAsync();
+	
+
+}
 
 
  Platform::String ^ StreamingPageParam::VisibleKeyName::get()
@@ -75,13 +115,27 @@ StreamingPageParam::~StreamingPageParam()
 		return ref new String(buffer);
 }
 
-void StreamingPageParam::UnRegisterEvents()
+void StreamingPageParam::ClearRessources()
 {
 	this->m_OnVifCamera->PropertyChanged -= m_PropertyChangedEventRegister;
-	this->m_pCameraServer->Failed -= m_CameraServerFailedRegister;
+	
 	if (this->m_mediaElement != nullptr) {
 		this->m_mediaElement->CurrentStateChanged -= m_MediaCurrentStateChangedRegister;
 		this->m_mediaElement->MediaFailed -= m_MediaFailedRegister;
+	}
+
+	if (m_pCameraServer != nullptr) {
+
+		this->m_pCameraServer->DestroyHTTPServerAsync();// Listener wird destroyed
+		this->m_pCameraServer->Failed -= m_CameraServerFailedRegister;
+	}
+
+	if (m_Recording != nullptr) {
+		m_Recording->stopStreaming -= m_OnStopMovementStreaming;
+		m_Recording->startStreaming -= m_OnStartMovementStreaming;
+		m_Recording->ChangeMovement -= m_OnChangeMovementStreaming;
+		stopMovementRecording();
+
 	}
 
 
@@ -94,7 +148,10 @@ StreamingPageParam ^ StreamingPageParam::createStreamingPageParam(Platform::Stri
 
 	KeyName = key;
 	m_FFmpegMSS = nullptr;
+
 	m_pCameraServer = ref new FFmpegInteropExtRT::CameraServer();
+	
+
 	m_datasources = ref new IPStreamingCPP::DataSources(key);
 	m_restartStreamingTimer = nullptr;
 	m_DataSourceparam = ref new IPStreamingCPP::DataSourceparam();
@@ -102,6 +159,7 @@ StreamingPageParam ^ StreamingPageParam::createStreamingPageParam(Platform::Stri
 	m_MainFrame = Main;
 	m_stream = nullptr;
 //	m_SplitView = nullptr;
+	m_Recording = ref new RecordingListener::Recording();
 	return this;
 }
 
@@ -273,36 +331,7 @@ bool StreamingPageParam::startFileStreaming()
 			}));
 
 		}
-		/*
-		else
-		{
 
-		m_FFmpegMSS = m_FFmpegMSS->StartFFmpegInteropMSSFromStream(this->Stream, forceDecodeAudio, forceDecodeVideo, nullptr);
-		if (m_FFmpegMSS != nullptr)
-		{
-			MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
-
-			if (mss)
-			{
-				// Pass MediaStreamSource to Media Element
-				m_mediaElement->SetMediaStreamSource(mss);
-
-				// Close control panel after file open
-				//	Splitter->IsPaneOpen = false;
-				return true;
-			}
-			else
-			{
-				this->DisplayErrorMessage("Cannot open media");
-			}
-		}
-		else
-		{
-			this->DisplayErrorMessage("Cannot open media");
-		}
-	
-		}
-		*/
 	}
 	return true;
 	
@@ -353,6 +382,7 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 				intputwidth = args->Width;
 			}
 
+
 			bool doClientEncoding = false;
 			if (m_DataSourceparam->_toggleSwitchOutPutMJpegStream->ValueasBool) {
 				if (this->m_pCameraServer->Port == -1)
@@ -382,7 +412,11 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 					width = selectedResolution->Width;
 				}
 				bit_rate = CalculateBitrate(inputfps, fps, height, width, 1);
-				_FFmpegMSS->PrepareHttpMJpegClientEncoding(m_pCameraServer, "Camera_1_Http", fps, height, width, bit_rate);
+				PropertySet^ configoptions = ref new PropertySet();
+				configoptions->Insert("m_fps", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(fps))); configoptions->Insert("m_height", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(height)));
+				configoptions->Insert("m_width", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(width))); configoptions->Insert("m_bit_rate", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt64(bit_rate)));
+
+				_FFmpegMSS->PrepareHttpMJpegClientEncoding(m_pCameraServer, "Camera_1_Http", configoptions);
 			}
 			else
 			{
@@ -419,7 +453,12 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 					width = selectedResolution->Width;
 				}
 				bit_rate = CalculateBitrate(inputfps, fps, height, width, 1);
-				_FFmpegMSS->PrepareHttpMpegClientEncoding(m_pCameraServer, "Camera_1_Http", fps, height, width, bit_rate);
+				
+				PropertySet^ configoptions = ref new PropertySet();
+
+				configoptions->Insert("m_fps", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(fps))); configoptions->Insert("m_height", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(height)));
+				configoptions->Insert("m_width", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(width))); configoptions->Insert("m_bit_rate", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt64(bit_rate)));
+				_FFmpegMSS->PrepareHttpMpegClientEncoding(m_pCameraServer, "Camera_1_Http", configoptions);
 
 			}
 			else
@@ -452,8 +491,72 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 				if (outformat != nullptr)outputFormat = outformat->Format;
 				PropertySet^ outputoptions = ref new PropertySet();
 				//	outputoptions->Insert("bufsize", "2000000");
+			//	PropertySet^ configoptions = ref new PropertySet();
+
+				m_Muxerconfigoptions->Insert("m_fps", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(fps))); m_Muxerconfigoptions->Insert("m_height", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(height)));
+				m_Muxerconfigoptions->Insert("m_width", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(width))); m_Muxerconfigoptions->Insert("m_bit_rate", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt64(bit_rate)));
 			
-				_FFmpegMSS->PrepareFFMPegOutPutEncoding(folderPath, this->KeyName, fps, height, width, bit_rate, outputoptions, outputFormat, deletefilesOlderFiles, RecordingInHours);
+				m_Muxerconfigoptions->Insert("m_strFolder", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(folderPath))); m_Muxerconfigoptions->Insert("m_outputformat", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(outputFormat)));
+				m_Muxerconfigoptions->Insert("m_outputFormat", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(outputFormat)) ); m_Muxerconfigoptions->Insert("m_deletefilesOlderFilesinHours", dynamic_cast<PropertyValue^>(PropertyValue::CreateDouble(deletefilesOlderFiles)));
+				m_Muxerconfigoptions->Insert("m_RecordingInHours", dynamic_cast<PropertyValue^>(PropertyValue::CreateDouble(RecordingInHours)));
+
+				bool CopyInput = m_DataSourceparam->_toggleSwitchMuxCopyInput->ValueasBool;
+				m_Muxerconfigoptions->Insert("m_MuxCopyInput", dynamic_cast<PropertyValue^>(PropertyValue::CreateBoolean(CopyInput)));
+
+				ItemValue^ selectedRecordingActivTimeinSec = m_DataSourceparam->_MovementRecordingTimeSecs->getSelectedHours();
+
+				double RecordingActivTimeinSec = selectedRecordingActivTimeinSec->Value;
+				m_Muxerconfigoptions->Insert("m_RecordingActivTimeinSec", dynamic_cast<PropertyValue^>(PropertyValue::CreateDouble(RecordingActivTimeinSec)));
+				bool recordingOnMovement = m_DataSourceparam->_RecordingOnMovement->ValueasBool;
+
+				bool MovementActiv = m_DataSourceparam->_toggleSwitchMovementWatcher->ValueasBool;
+				if (MovementActiv) {
+					PropertySet^ inputOptions = ref new PropertySet();
+					inputOptions->Insert("HostName", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(m_DataSourceparam->_HostNameMovementWatcher->Value)));
+					inputOptions->Insert("Port", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(m_DataSourceparam->_PortMovementWatcher->Value)));
+					inputOptions->Insert("GPIOTyp.input_1", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(m_DataSourceparam->_InputPin1MovementWatcher->Value)));
+					inputOptions->Insert("GPIOTyp.input_1.Activ", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(m_DataSourceparam->_InputPin1MovementWatcherActiv->Value)));
+					this->startMovementRecording(inputOptions);
+				}
+
+				if (recordingOnMovement)
+					m_Muxerconfigoptions->Insert("m_MovementActivated", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(1)));
+				else {
+					m_Muxerconfigoptions->Insert("m_MovementActivated", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(-1)));
+					//RecordingInHours = 72;
+					//m_Muxerconfigoptions->Insert("m_RecordingInHours", dynamic_cast<PropertyValue^>(PropertyValue::CreateDouble(RecordingInHours)));
+				}
+
+
+				m_Muxerconfigoptions->Insert("m_MovementActiv", dynamic_cast<PropertyValue^>(PropertyValue::CreateBoolean(MovementActiv)));
+
+				_FFmpegMSS->PrepareFFMPegOutPutEncoding(this->KeyName, m_Muxerconfigoptions, outputoptions);
+				
+				// only for testing
+				/*
+				TimeSpan delay;
+				delay.Duration = RecordingActivTimeinSec * 10000000;
+
+				ThreadPoolTimer^timer = ThreadPoolTimer::CreatePeriodicTimer(ref new TimerElapsedHandler([this](ThreadPoolTimer^  source)
+				{
+					bool isActiv;
+					Object^ value = m_Muxerconfigoptions->Lookup("m_MovementActiv");
+					if (value != nullptr)
+					{
+						isActiv = safe_cast<IPropertyValue^>(value)->GetBoolean();
+					}
+					else isActiv = false;
+				
+	
+					isActiv = !isActiv;
+					m_Muxerconfigoptions->Insert("m_MovementActiv", dynamic_cast<PropertyValue^>(PropertyValue::CreateBoolean(isActiv)));
+
+
+				}), delay);
+				// only for testing
+				*/
+//
+		
 			}
 		}
 
@@ -481,24 +584,11 @@ void StreamingPageParam::restartStreamingTimer(inputSource ^ inpSource)
 		//DateTimeToSystemTime
 		GetSystemTime(&st);
 		SystemTimeToFileTime(&st, &ft);
-//		WORD vglminute = WORD(WORD(timedelayinhour * 60) % 60);
+
 		WORD minMinute;
 		bool doDeltaTime = true;
 		WORD maxMinute;
-		/*
-		if (vglminute > 0) { // maybe 10.5 as input value
-			minMinute = vglminute;
-			maxMinute = vglminute;
-		}
-		else {
-			minMinute = 0;
-	//		maxMinute = 59;
-			maxMinute = 30;
-			//	minMinute = 0;
-			//		maxMinute = 59;
 
-		}
-		*/
 		minMinute = 29; // recording starts always in half hour steps
 		maxMinute = 30;
 	
@@ -508,20 +598,6 @@ void StreamingPageParam::restartStreamingTimer(inputSource ^ inpSource)
 		}
 		
 		if (doDeltaTime) {
-			/*
-			if (st.wMinute < 31)
-			{
-				st.wMilliseconds = 0;
-				st.wMinute = 0;
-				st.wSecond = 0;
-			}
-			else
-			{
-				st.wMilliseconds = 999;
-				st.wMinute = 59; // round to full hour 
-				st.wSecond = 59;
-			}
-			*/
 			st.wMilliseconds = 0;
 			st.wMinute = 30; // round to half hour, because all full hour a recording file are new created
 			st.wSecond = 0;
@@ -543,6 +619,7 @@ void StreamingPageParam::restartStreamingTimer(inputSource ^ inpSource)
 	delay.Duration = timedelayinhour * 60 * 60 * 10000000 + deltatoFullHour;
 
 
+	// for testing 	delay.Duration = 10000000*20;
 
 	m_restartStreamingTimer = ThreadPoolTimer::CreateTimer(ref new TimerElapsedHandler([this](ThreadPoolTimer^  source)
 	{
@@ -644,6 +721,7 @@ void StreamingPageParam::takeParametersFromCamera()
 
 void StreamingPageParam::clearRecording()
 {
+	stopMovementRecording();
 
 	if (m_FFmpegMSS != nullptr)
 	{
@@ -653,14 +731,17 @@ void StreamingPageParam::clearRecording()
 			m_mediaElement->Source = nullptr;
 // wsc in this case no changings are fired			m_mediaElement->ClearValue(m_mediaElement->SourceProperty);
 		}
-		delete m_FFmpegMSS;
+		m_FFmpegMSS->DestroyFFmpegAsync();
+	//	delete m_FFmpegMSS;
 		m_FFmpegMSS = nullptr;
 	}
+
 	if (m_restartStreamingTimer != nullptr) {
 
 		m_restartStreamingTimer->Cancel();
 		m_restartStreamingTimer = nullptr;
 	}
+
 
 }
 
@@ -727,6 +808,24 @@ void StreamingPageParam::ReadFromAppData()
 	HourViewModel^ _ffmpegoutDeleteOlderFiles = ref new HourViewModel("_ffmpegoutDeleteOlderFiles");
 	HourViewModel^ _ffmpegoutRecordingHours = ref new HourViewModel("_ffmpegoutRecordingHours");
 
+	ItemValueViewModel^ _toggleSwitchMovementWatcher = ref new ItemValueViewModel("_toggleSwitchMovementWatcher");
+
+	ItemValueViewModel^ _toggleSwitchMuxCopyInput = ref new ItemValueViewModel("_toggleSwitchMuxCopyInput");
+
+	ItemStringViewModel^ _HostNameMovementWatcher = ref new ItemStringViewModel("_HostNameMovementWatcher");
+
+	ItemValueViewModel^ _PortMovementWatcher = ref new  ItemValueViewModel("_PortMovementWatcher");
+
+	ItemValueViewModel^ _InputPin1MovementWatcher = ref new  ItemValueViewModel("_InputPin1MovementWatcher");
+
+	ItemValueViewModel^ _InputPin1MovementWatcherActiv = ref new  ItemValueViewModel("_InputPin1MovementWatcherActiv");
+
+	ItemValueViewModel^ _RecordingOnMovement = ref new  ItemValueViewModel("_RecordingOnMovement");
+
+
+	HourViewModel^ _MovementRecordingTimeSecs = ref new  HourViewModel("_MovementRecordingTimeSecs");
+
+
 
 
 	_outputMpegStreamUrl->Value = L"Willi-PC:3000";
@@ -754,10 +853,18 @@ void StreamingPageParam::ReadFromAppData()
 
 	_datasources->AddDataSource(_inputUri);
 
-
 	_datasources->AddDataSource(_ffmpegoutDeleteOlderFiles);
 	_datasources->AddDataSource(_ffmpegoutRecordingHours);
 
+	_datasources->AddDataSource(_toggleSwitchMovementWatcher);
+	_datasources->AddDataSource(_toggleSwitchMuxCopyInput);
+	_datasources->AddDataSource(_HostNameMovementWatcher);
+	_datasources->AddDataSource(_PortMovementWatcher);
+	_datasources->AddDataSource(_InputPin1MovementWatcher);
+	_datasources->AddDataSource(_InputPin1MovementWatcherActiv);
+	_datasources->AddDataSource(_RecordingOnMovement);
+	
+	_datasources->AddDataSource(_MovementRecordingTimeSecs);
 
 	_datasources->readSettingsfromLocalStorage();
 
@@ -792,6 +899,19 @@ StreamingPageParamControl::StreamingPageParamControl()
 	m_SelectedIndex = -1;
 }
 
+StreamingPageParamControl::~StreamingPageParamControl()
+{
+	for each (auto var in this->Items)
+	{
+		delete var;
+
+	}
+
+	delete Items;
+	m_SelectedIndex = -1;
+}
+
+
 
 void StreamingPageParamControl::SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
 {
@@ -816,11 +936,11 @@ void StreamingPageParamControl::SelectedIndex::set(int value) {
 
 
 
-void StreamingPageParamControl::UnRegisterEvents()
+void StreamingPageParamControl::ClearRessources()
 {
 	for each (auto var in this->Items)
 	{
-		var->UnRegisterEvents();
+		var->ClearRessources();
 
 	}
 }
@@ -850,3 +970,7 @@ StreamingPageParam^ StreamingPageParamControl::getSelectedItem()
 	else return nullptr;
 
 }
+
+
+
+

@@ -7,6 +7,8 @@
 
 #include "DataSources.h"
 
+
+
 //#include "MainPage.xaml.h"
 
 
@@ -18,7 +20,7 @@ using namespace Windows::Foundation;
 using namespace Windows::UI::Popups;
 using namespace Windows::UI::Core;
 using namespace Windows::UI::Xaml;
-using namespace Windows::UI::Xaml;
+using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Controls;
 
 namespace IPStreamingCPP
@@ -45,6 +47,18 @@ namespace IPStreamingCPP
 		HourViewModel^ _ffmpegoutDeleteOlderFiles;
 		HourViewModel^ _ffmpegoutRecordingHours;
 		ItemStringViewModel^ _inputUri;
+
+		ItemValueViewModel ^ _toggleSwitchMovementWatcher;
+
+		ItemValueViewModel ^ _toggleSwitchMuxCopyInput;
+
+		ItemStringViewModel^ _HostNameMovementWatcher;
+
+		ItemValueViewModel^ _PortMovementWatcher;
+		ItemValueViewModel^ _InputPin1MovementWatcher;
+		ItemValueViewModel^ _InputPin1MovementWatcherActiv;
+		ItemValueViewModel^ _RecordingOnMovement;
+		HourViewModel ^ _MovementRecordingTimeSecs;
 
 		bool _init;
 		DataSourceparam()
@@ -87,6 +101,19 @@ namespace IPStreamingCPP
 			this->_ffmpegoutRecordingHours = nullptr;
 
 			this->_inputUri = nullptr;
+
+			this->_toggleSwitchMovementWatcher = nullptr;
+			this->_toggleSwitchMuxCopyInput = nullptr;
+
+			this->_HostNameMovementWatcher = nullptr;
+
+			this->_PortMovementWatcher = nullptr;
+
+			this->_InputPin1MovementWatcher = nullptr;
+			this->_InputPin1MovementWatcherActiv = nullptr;
+			this->_MovementRecordingTimeSecs = nullptr;
+			this->_RecordingOnMovement = nullptr;
+
 		}
 		void SetParams(IPStreamingCPP::DataSources ^ _datasources)
 		{
@@ -129,6 +156,24 @@ namespace IPStreamingCPP
 			this->_ffmpegoutRecordingHours = safe_cast <HourViewModel^>(_datasources->getDataSource("_ffmpegoutRecordingHours"));
 
 			this->_inputUri = safe_cast <ItemStringViewModel^>(_datasources->getDataSource("_inputUri"));
+
+			this->_toggleSwitchMovementWatcher = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchMovementWatcher"));;
+
+			this->_toggleSwitchMuxCopyInput = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchMuxCopyInput"));;
+
+			this->_HostNameMovementWatcher = safe_cast <ItemStringViewModel^>(_datasources->getDataSource("_HostNameMovementWatcher"));;
+
+			this->_PortMovementWatcher = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_PortMovementWatcher"));;
+
+			this->_InputPin1MovementWatcher = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_InputPin1MovementWatcher"));;
+
+			this->_InputPin1MovementWatcherActiv = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_InputPin1MovementWatcherActiv"));;
+
+			this->_MovementRecordingTimeSecs = safe_cast <HourViewModel^>(_datasources->getDataSource("_MovementRecordingTimeSecs"));
+
+			this->_RecordingOnMovement = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_RecordingOnMovement"));;
+
+
 			_init = true;
 		}
 
@@ -138,15 +183,19 @@ namespace IPStreamingCPP
 	};
 
 	[Windows::UI::Xaml::Data::Bindable]
+	[Windows::Foundation::Metadata::WebHostHidden]
 
-	public ref class StreamingPageParam sealed
+	public ref class StreamingPageParam sealed //: public Windows::UI::Xaml::Data::INotifyPropertyChanged
 	{
+
 		Platform::String^ m_KeyName;
 		Windows::UI::Xaml::Controls::MediaElement ^ m_mediaElement;
 		Frame^ m_MainFrame;
 		FFmpegInteropExtRT::FFmpegInteropMSS^ m_FFmpegMSS;
 		FFmpegInteropExtRT::CameraServer ^ m_pCameraServer;
 		IPStreamingCPP::DataSources ^ m_datasources;
+		RecordingListener::Recording ^ m_Recording;
+
 		Windows::System::Threading::ThreadPoolTimer ^ m_restartStreamingTimer;
 		IPStreamingCPP::DataSourceparam ^ m_DataSourceparam;
 		Windows::Storage::Streams::IRandomAccessStream^ m_stream;
@@ -155,12 +204,17 @@ namespace IPStreamingCPP
 		Windows::Foundation::EventRegistrationToken m_MediaCurrentStateChangedRegister;
 		Windows::Foundation::EventRegistrationToken m_MediaFailedRegister;
 		Windows::Foundation::EventRegistrationToken m_CameraServerFailedRegister;
+
+		//Windows::Foundation::EventRegistrationToken m_OnFailedMovementStreaming;
+		Windows::Foundation::EventRegistrationToken m_OnStartMovementStreaming;
+		Windows::Foundation::EventRegistrationToken m_OnStopMovementStreaming;
+		Windows::Foundation::EventRegistrationToken m_OnChangeMovementStreaming;
+
 		IPStreamingCPP::ScenarioViewControl ^  m_ScenarioViewControl;
-	//	Frame^  m_ScenarioFrame;
-	//	SplitView^ m_SplitView;
 		
-
-
+		Windows::Foundation::Collections::PropertySet^ m_Muxerconfigoptions;
+//		Platform::String^  m_RecordingState;
+	
 	internal:
 
 		property Windows::Foundation::EventRegistrationToken PropertyChangedEventRegister
@@ -182,29 +236,30 @@ namespace IPStreamingCPP
 		{
 			void set(Windows::Foundation::EventRegistrationToken value) { this->m_CameraServerFailedRegister = value; };
 		}
+		property Windows::Foundation::EventRegistrationToken OnStartMovementStreaming
+		{
+			void set(Windows::Foundation::EventRegistrationToken value) { this->m_OnStartMovementStreaming = value; };
+		}
+
+		property Windows::Foundation::EventRegistrationToken OnStopMovementStreaming
+		{
+			void set(Windows::Foundation::EventRegistrationToken value) { this->m_OnStopMovementStreaming = value; };
+		}
+
+		property Windows::Foundation::EventRegistrationToken OnChangeMovementStreaming
+		{
+			void set(Windows::Foundation::EventRegistrationToken value) { this->m_OnChangeMovementStreaming = value; };
+		}
 
 
 	
 	public:
+	//	virtual event Windows::UI::Xaml::Data::PropertyChangedEventHandler^ PropertyChanged;
 
 
-		void UnRegisterEvents();
+		void ClearRessources();
 	
 
-		/*
-		property SplitView ^ Splitter
-		{
-			SplitView^ get() { return this->m_SplitView; }
-			void set(SplitView^ value) { this->m_SplitView = value; };
-		}
-
-	
-		property Frame ^ ScenarioFrame
-		{
-			Frame^ get() { return this->m_ScenarioFrame; }
-			void set(Frame^ value) { this->m_ScenarioFrame = value; };
-		}
-		*/
 		
 		property ScenarioViewControl^ ScenarioView
 		{
@@ -214,7 +269,6 @@ namespace IPStreamingCPP
 
 
 		property Platform::String ^ VisibleKeyName{	Platform::String ^ get(); }
-
 
 		property Platform::String ^ KeyName
 		{
@@ -235,6 +289,13 @@ namespace IPStreamingCPP
 			FFmpegInteropExtRT::CameraServer ^ get() { return this->m_pCameraServer; }
 			void set(FFmpegInteropExtRT::CameraServer ^ value) { this->m_pCameraServer = value; };
 		}
+
+		property RecordingListener::Recording ^ MovementRecording
+		{
+			RecordingListener::Recording ^ get() { return this->m_Recording; }
+			void set(RecordingListener::Recording ^ value) { this->m_Recording = value;  };
+		}
+
 
 		property IPStreamingCPP::DataSourceparam ^ DataSourceparam
 		{
@@ -261,40 +322,27 @@ namespace IPStreamingCPP
 		}
 
 
-
-	//	StreamingPageParam ^ createStreamingPageParam(Platform::String^ key);
-
-	//	Windows::System::Threading::ThreadPoolTimer ^ getRestartStreamingTimer() { return  m_restartStreamingTimer; };
-
-	//	IPStreamingCPP::DataSources^ getDataSources() { return  m_datasources; };
-
-
 		StreamingPageParam ^ createStreamingPageParam(Platform::String^ key, Frame^  Main);
 
-
-	//	MediaElement ^ getMediaElement() { return m_mediaElement; };
 		FFmpegInteropExtRT::FFmpegInteropMSS^ getFFmpegInteropMSS() { return  m_FFmpegMSS; };
-	//	FFmpegInteropExtRT::CameraServer ^ getCameraServer() { return m_pCameraServer; };
+
 		StreamingPageParam();
 		virtual ~StreamingPageParam();
 
 		void clearRecording();
 		void restartStreamingTimer(inputSource ^ inpSource);
 		void OnstartStreaming(Platform::Object ^sender, FFmpegInteropMSSInputParamArgs^ args);
-//		void startUriRecording();
-
 		bool startUriStreaming();
-
 		bool startFileStreaming();
-		
 		bool stopStreaming();
-
 
 		void WriteToAppData();
 		void ReadFromAppData();
 		void takeParametersFromCamera();
 		void DisplayErrorMessage(Platform::String^ title, Platform::String^ message);
 
+		void startMovementRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions);
+		void stopMovementRecording();
 	internal:
 
 
@@ -305,7 +353,15 @@ namespace IPStreamingCPP
 
 	private:
 		
-	};
+	//	void OnstartMovementStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args);
+	//	void OnstopMovementStreaming(Platform::Object ^sender, Platform::String ^args);
+	//	void OnChangeMovement(Platform::Object ^sender, Windows::Foundation::Collections::PropertySet ^args);
+	
+	//protected:
+	//	void NotifyPropertyChanged(Platform::String^ prop);
+
+	
+};
 
 
 
@@ -318,8 +374,9 @@ namespace IPStreamingCPP
 
 	public:
 		StreamingPageParamControl();
+		virtual ~StreamingPageParamControl();
 		void SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
-		void UnRegisterEvents();
+		void ClearRessources();
 
 		property Windows::Foundation::Collections::IVector<StreamingPageParam^>^ Items {
 			Windows::Foundation::Collections::IVector<StreamingPageParam^>^ Items::get() { return this->m_Items; };

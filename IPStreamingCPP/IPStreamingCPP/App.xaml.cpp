@@ -90,6 +90,20 @@ void App::WriteLogMessage(String^ message)
 
 	if ((m_poutout != nullptr) && m_poutout->good() && m_poutout->is_open())
 	{
+		/*
+		// funktioniert nicht, da Messges gestückelt ankommen, diese aber
+		// nur zusammen einen Simm ergeben
+		time_t rawtime;
+		struct tm  timeinfo;
+		wchar_t buffer[100];
+		time(&rawtime);
+		localtime_s(&timeinfo, &rawtime);
+		wcsftime(buffer, sizeof(buffer), L"%d.%m.%Y %T : ", &timeinfo);
+
+
+		String^ _message = ref new String(buffer) + message;
+
+		*/
 		m_poutout->write(message->Data(), wcslen(message->Data()));
 
 		m_poutout->flush();

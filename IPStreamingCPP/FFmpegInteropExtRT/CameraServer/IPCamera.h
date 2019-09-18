@@ -62,6 +62,7 @@ namespace FFmpegInteropExtRT
 
 
 		 Windows::Foundation::IAsyncAction ^ CreateHTTPServerAsync(int port);
+		 Windows::Foundation::IAsyncAction ^  CameraServer::DestroyHTTPServerAsync(); 
 		 void OpenHTTPServerAsync(); // close all connections, new connections are accepted
 		 void CloseHTTPServerAsync();// close all connections, new connections are accepted
 		 Windows::Foundation::IAsyncAction ^ CreateHTTPClientAsync(Platform::String^ hostNameForConnect, int port);
@@ -121,7 +122,7 @@ namespace FFmpegInteropExtRT
 */
 		void CancelMpegConnections();
 		void CancelJMpegConnections();
-		void CancelOpenCVConnections();
+//		void CancelOpenCVConnections();
 		void UnLock();
 		void Lock();
 

@@ -50,7 +50,8 @@ int FFmpegReader::ReadPacket()
 	{
 		char buf[AV_ERROR_MAX_STRING_SIZE];
 		av_make_error_string(buf, sizeof(buf), ret);
-		Trace("#### error %d = av_read_frame(), error = %s", ret, (char*)buf);
+		av_log(NULL, AV_LOG_ERROR, "#### error %d = av_read_frame(), error = %s", ret, (char*)buf);
+	//	Trace("#### error %d = av_read_frame(), error = %s", ret, (char*)buf);
 
 		if (ret == (EAGAIN)) {
 			ret = 0;

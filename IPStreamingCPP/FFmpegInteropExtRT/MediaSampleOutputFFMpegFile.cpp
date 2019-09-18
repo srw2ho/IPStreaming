@@ -38,53 +38,165 @@ using namespace concurrency;
 using namespace FFmpegInteropExtRT;
 using namespace std;
 using namespace Windows::Storage;
+//using namespace Windows::System::Threading;
 //using namespace IpCamera;
 
-FFMpegOutputDevice::FFMpegOutputDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx, Platform::String^ folder, int fps, int height,int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours,double RecordingInHours)
-	: MediaSampleOutputDevice(deviceName,inputFormaCtx) {
+extern MapConfigOptions globMapConfigOptions;
+
+
+
+//typedef std::map<int, ThreadPoolTimer^ > MapThreadPoolTimerConfigOptions;
+
+//MapThreadPoolTimerConfigOptions globMapThreadPoolTimerConfigOptions;
+
+
+void FFmpegInteropExtRT::FFMpegOutputDevice::cancelPendingTimeouts() { // cancel all pending timeouts
+
+
+	MapThreadPoolTimerConfigOptions::iterator it;
+	MapThreadPoolTimerConfigOptions & ThreadPoolTimerConfigOptions = this->getReordingPoolTimers();
+	for (it = ThreadPoolTimerConfigOptions.begin(); it != ThreadPoolTimerConfigOptions.end(); ) {
+		ThreadPoolTimer^timer = it->second;
+		timer->Cancel();
+		it = ThreadPoolTimerConfigOptions.erase(it);
+	}
+}
+
+void FFmpegInteropExtRT::FFMpegOutputDevice::delayRecording(FFMpegOutputDevice*pOutputDevice, double recordingTimeinSec) { // cancel all pending timeouts
+
+	pOutputDevice->setRecordingTimeinSec(recordingTimeinSec);
+
+	MapThreadPoolTimerConfigOptions & ThreadPoolTimerConfigOptions = pOutputDevice->getReordingPoolTimers();
+
+	if (recordingTimeinSec <= 0) return; // nur bei Werten >=0
+	if (ThreadPoolTimerConfigOptions.size() > 50) return;
+	
+
+	TimeSpan delay;						 
+	//delay.Duration = recordingTimeinSec* 10000000;;
+	delay.Duration = recordingTimeinSec * nano100SecInSec;;
+
+
+	ThreadPoolTimer^timer = ThreadPoolTimer::CreateTimer(ref new TimerElapsedHandler([pOutputDevice](ThreadPoolTimer^  source)
+	{
+		MapThreadPoolTimerConfigOptions & ThreadPoolTimerConfigOptions = pOutputDevice->getReordingPoolTimers();
+		source->Cancel();
+		ThreadPoolTimerConfigOptions.erase(source->GetHashCode());
+	
+		if (ThreadPoolTimerConfigOptions.size() == 0) {
+			pOutputDevice->SetRecordingActiv(false);
+			av_log(NULL, AV_LOG_INFO, "%s: End Movement detected: %d\n", pOutputDevice->getFileName().c_str(), ThreadPoolTimerConfigOptions.size());
+		}
+		else {
+		//	av_log(NULL, AV_LOG_INFO, "%s: Timer Movement detected: %d\n", pOutputDevice->getFileName().c_str(), ThreadPoolTimerConfigOptions.size());
+		}
+
+	}), delay);
+
+	ThreadPoolTimerConfigOptions[timer->GetHashCode()] = timer;
+
+}
+
+
+void FFmpegInteropExtRT::FFMpegOutputDevice::OnMapChanged(Windows::Foundation::Collections::IObservableMap<Platform::String ^, Platform::Object ^> ^sender, Windows::Foundation::Collections::IMapChangedEventArgs<Platform::String ^> ^event)
+{
+	
+	MapConfigOptions::const_iterator it;
+	int nHashCode = 0;
+	PropertySet^ configOptions = safe_cast<PropertySet^>(sender);
+	if (configOptions != nullptr) {
+		nHashCode = configOptions->GetHashCode();
+	}
+
+	it = globMapConfigOptions.find(nHashCode); // Object zum zugehörigen InputPin suchen
+
+	if ( it != globMapConfigOptions.end() )
+	{
+		FFmpegInteropExtRT::FFMpegOutputDevice * pOutputDevice = (FFmpegInteropExtRT::FFMpegOutputDevice*)it->second;
+		if (pOutputDevice != nullptr) {
+			if (configOptions->HasKey("m_MovementActiv") && configOptions->HasKey("m_MovementActivated") && configOptions->HasKey("m_RecordingActivTimeinSec")) {
+				Platform::Object^ isActivvalue = configOptions->Lookup("m_MovementActiv");
+				Platform::Object^ isActatedvalue = configOptions->Lookup("m_MovementActivated");
+				Platform::Object^ RecordingTime = configOptions->Lookup("m_RecordingActivTimeinSec");
+				if (isActivvalue != nullptr) {
+					MapThreadPoolTimerConfigOptions & ThreadPoolTimerConfigOptions = pOutputDevice->getReordingPoolTimers();
+					bool isActiv = safe_cast<IPropertyValue^>(isActivvalue)->GetBoolean();
+					int isActived = safe_cast<IPropertyValue^>(isActatedvalue)->GetInt32();
+					bool wasActive = pOutputDevice->getMovementActiv();
+	
+					if (isActived > 0) {
+						double recordingTimeinSec = safe_cast<IPropertyValue^>(RecordingTime)->GetDouble();
+						if (isActiv) {
+							pOutputDevice->SetRecordingActiv(true);
+							av_log(NULL, AV_LOG_INFO, "%s: Movement detected: %d\n", pOutputDevice->getFileName().c_str(), ThreadPoolTimerConfigOptions.size());
+						}
+						else
+						{
+							if (wasActive) {// Recording verlängern
+								FFMpegOutputDevice::delayRecording(pOutputDevice, recordingTimeinSec);
+							}
+							if (ThreadPoolTimerConfigOptions.size() == 0) {
+								pOutputDevice->SetRecordingActiv(false);
+								av_log(NULL, AV_LOG_INFO, "%s: End Movement detected: %d\n", pOutputDevice->getFileName().c_str(), ThreadPoolTimerConfigOptions.size());
+							}
+						}
+					
+					}
+					else if (isActived == 0)
+					{
+						pOutputDevice->SetRecordingActiv(false);
+						pOutputDevice->cancelPendingTimeouts();
+		
+					}
+
+					// = -1 do nothint
+					pOutputDevice->setMovementActiv(isActiv);  // last movement saving
+					
+				}
+			}
+
+
+
+		}
+	}
+
+}
+
+
+FFMpegOutputDevice::FFMpegOutputDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx, PropertySet^ configOptions, PropertySet^ ffmpegOutputOptions)
+	: MediaSampleOutputDevice(deviceName, inputFormaCtx, configOptions) {
 
 	InitializeCriticalSection(&m_CritLock);
 	m_pAvOutFormatCtx = nullptr;
-	m_strFolder = folder;
 	m_ptimeouthandler = new timeout_handler(10);
 	m_bopenDevice = false;
 
-
-	std::wstring valueW = folder->Data();
-
-	m_strFolderPath = std::string(valueW.begin(), valueW.end());
-	valueW = deviceName->Data();
+	std::wstring valueW = deviceName->Data();
 	m_strFileName = std::string(valueW.begin(), valueW.end());
-	valueW = outputformat->Data();
-	m_strOutputFormat = std::string(valueW.begin(), valueW.end());
+
+	m_ffmpegOptions = ffmpegOutputOptions;
+
 	m_strfileExtension = "";
 	m_ffmpegOptions = ffmpegOutputOptions;
 	m_avDict = nullptr;
-	m_fps = fps;
-	m_height = height;
-	m_width = width;
-	m_bit_rate = bit_rate;
-	m_deletefilesOlderFilesinHours = deletefilesOlderFilesinHours;
-	m_RecordingInHours = RecordingInHours;
-//	m_bCopyInputStream = false;
 
+	m_RecordingTimeinSec = 1;
+
+	ParseConfigOptions();
+
+	m_ConfigOptionsEvent = m_ConfigOptions->MapChanged += ref new Windows::Foundation::Collections::MapChangedEventHandler<Platform::String ^, Platform::Object ^>(&OnMapChanged);
+	globMapConfigOptions[m_ConfigOptions->GetHashCode()] = this;
+
+
+	m_bMovementActiv = false;
 }
-
-
-
-void FFMpegOutputDevice::Lock() {
-	EnterCriticalSection(&m_CritLock);
-}
-
-void FFMpegOutputDevice::UnLock() {
-
-	LeaveCriticalSection(&m_CritLock);
-}
-
-
 
 FFMpegOutputDevice::~FFMpegOutputDevice()
 {
+
+	m_ConfigOptions->MapChanged -= m_ConfigOptionsEvent;
+	cancelPendingTimeouts();
+
 	this->flushEncoder();
 	this->writeTrailer();
 	if (m_pAvOutFormatCtx != nullptr) {
@@ -96,7 +208,7 @@ FFMpegOutputDevice::~FFMpegOutputDevice()
 
 		}
 
-		
+
 		DeleteAllEncodings();
 		m_pAvOutFormatCtx->nb_streams = 0;
 		/* wird alles in DeleteEncodings gelöscht
@@ -117,6 +229,78 @@ FFMpegOutputDevice::~FFMpegOutputDevice()
 
 
 
+bool FFMpegOutputDevice::ParseConfigOptions()
+{
+	bool ret = true;
+	
+	MediaSampleOutputDevice::ParseConfigOptions();
+	Platform::String^ folder;
+	Platform::String^ outputformat;
+
+	// Convert FFmpeg options given in PropertySet to AVDictionary. List of options can be found in https://www.ffmpeg.org/ffmpeg-protocols.html
+	if (m_ConfigOptions != nullptr)
+	{
+		auto options = m_ConfigOptions->First();
+
+	//	Platform::String^ folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double RecordingInHours
+
+		while (options->HasCurrent)
+		{
+			Platform::String^ key = options->Current->Key;
+			Platform::Object^ value = options->Current->Value;
+			
+			if (key == L"m_strFolder") {
+
+				folder = safe_cast<IPropertyValue^>(value)->GetString(); 
+			}
+			else if (key == L"m_RecordingActivTimeinSec") {
+				m_RecordingTimeinSec = safe_cast<IPropertyValue^>(value)->GetDouble();
+			}
+			/*
+			else if (key == L"m_MovementActiv") {
+				m_RecordingActiv = safe_cast<IPropertyValue^>(value)->GetBoolean();
+			}
+			*/
+			else if (key == L"m_outputformat") {
+				outputformat = safe_cast<IPropertyValue^>(value)->GetString();
+			}
+			else if (key == L"m_deletefilesOlderFilesinHours") {
+				m_deletefilesOlderFilesinHours = safe_cast<IPropertyValue^>(value)->GetDouble();
+			}
+			else if (key == L"m_RecordingInHours") {
+				m_RecordingInHours = safe_cast<IPropertyValue^>(value)->GetDouble();
+			}
+			else if (key == L"m_MovementActivated") {
+
+			}
+
+			
+
+			options->MoveNext();
+		}
+
+		std::wstring valueW = folder->Data();
+		m_strFolderPath = std::string(valueW.begin(), valueW.end());
+		valueW = outputformat->Data();
+		m_strOutputFormat = std::string(valueW.begin(), valueW.end());
+	}
+
+	return ret;
+}
+
+
+void FFMpegOutputDevice::Lock() {
+	EnterCriticalSection(&m_CritLock);
+}
+
+void FFMpegOutputDevice::UnLock() {
+
+	LeaveCriticalSection(&m_CritLock);
+}
+
+
+
+
 void FFMpegOutputDevice::deleteUnUsedEncodings()
 {
 	if (m_pAvOutFormatCtx == nullptr) return;
@@ -130,25 +314,6 @@ void FFMpegOutputDevice::deleteUnUsedEncodings()
 			MediaSampleFFMpegEncoding*pEnc = (MediaSampleFFMpegEncoding*)*it;
 			if (pEnc->getState() < 0)//error initalized
 			{
-	
-				/*
-				if (m_pAvOutFormatCtx->nb_streams > 0)
-				{
-					for (size_t i = 0; i < m_pAvOutFormatCtx->nb_streams; i++)
-					{
-						if (pEnc->getAvOutStream() == m_pAvOutFormatCtx->streams[i])
-						{
-							m_pAvOutFormatCtx->streams[i] = nullptr;
-							m_pAvOutFormatCtx->nb_streams--;
-							m_pEncodings->erase(it);
-							delete pEnc;
-							it = this->m_pEncodings->begin();// von vorne beginnen
-							break;
-						}
-					}
-				}
-				else
-				*/
 				{
 					for (size_t i = 0; i < m_pAvOutFormatCtx->nb_streams; i++)
 					{
@@ -167,25 +332,20 @@ void FFMpegOutputDevice::deleteUnUsedEncodings()
 
 			}
 			else it++;
-
-
 		}
-
-
-
 	}
 
 
 }
 
-bool FFMpegOutputDevice::ParseOptions(PropertySet^ ffmpegOptions)
+bool FFMpegOutputDevice::ParseOptions()
 {
 	bool ret = true;
 	av_dict_free(&m_avDict);
 	// Convert FFmpeg options given in PropertySet to AVDictionary. List of options can be found in https://www.ffmpeg.org/ffmpeg-protocols.html
-	if (ffmpegOptions != nullptr)
+	if (m_ffmpegOptions != nullptr)
 	{
-		auto options = ffmpegOptions->First();
+		auto options = m_ffmpegOptions->First();
 
 		while (options->HasCurrent)
 		{
@@ -218,19 +378,7 @@ int FFMpegOutputDevice::open_output()
 	AVOutputFormat *fmt = nullptr;
 	std::vector<std::string> extensionarray;
 	std::vector<std::string> outputarray;
-	/*
-	
 
-	m_bCopyInputStream = false;
-	outputarray = splitintoArray(m_strOutputFormat.c_str(), ".");
-	if (outputarray.size() > 1) {
-		if (outputarray[0] == "cpyinput") {// copy input stream to muxer
-			m_strOutputFormat = outputarray[1];
-
-		}
-		m_bCopyInputStream = true;
-	}
-	*/
 	fmt = av_guess_format(m_strOutputFormat.c_str(), nullptr, 0);
 	if (fmt == nullptr) {
 		fmt = av_guess_format("mpeg", nullptr, 0);
@@ -294,25 +442,6 @@ int FFMpegOutputDevice::reopen_output()
 	return ret;
 
 }
-/*
-std::vector<std::string> FFMpegOutputDevice::splitintoArray(const std::string& s, const std::string& delim) 
-{
-	std::vector<string> result;
-	char*pbegin = (char*) s.c_str();
-	char * next_token =nullptr;
-	char* token;
-	token = strtok_s(pbegin, delim.c_str(),&next_token);
-	while (token != nullptr) {
-		// Do something with the tok
-		result.push_back(token);
-		token = strtok_s(NULL, delim.c_str(),&next_token);
-	}
-
-	return result;
-}
-
-*/
-
 
 int FFMpegOutputDevice::open_output_file(const char *filename, AVOutputFormat *fmt)
 {
@@ -336,7 +465,7 @@ int FFMpegOutputDevice::open_output_file(const char *filename, AVOutputFormat *f
 	AVCodecContext* pAvInputCodecCtx;
 
 	if (m_ffmpegOptions != nullptr) {
-		ParseOptions(m_ffmpegOptions);
+		ParseOptions();
 	}
 	
 
@@ -376,7 +505,9 @@ int FFMpegOutputDevice::open_output_file(const char *filename, AVOutputFormat *f
 
 		MediaSampleFFMpegEncoding * encoding = nullptr;
 		
-		encoding = new MediaSampleFFMpegEncoding(this->m_pAvFormatCtx, this->m_RecordingInHours);
+		encoding = new MediaSampleFFMpegEncoding(this->m_pAvFormatCtx, this->m_ConfigOptions);
+
+		
 		encoding->setState(-1);//not completed
 		this->m_pEncodings->push_back(encoding);
 		
@@ -611,6 +742,9 @@ int FFMpegOutputDevice::open_output_file(const char *filename, AVOutputFormat *f
 
 			if (m_pAvOutFormatCtx->oformat->flags & AVFMT_GLOBALHEADER)
 				enc_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
+			m_pAvOutFormatCtx->oformat->flags |= AVFMT_TS_NONSTRICT; // no strict monotonic pts
+
 			/* Third parameter can be used to pass settings to encoder */
 			int retcodec = avcodec_open2(enc_ctx, encoder, &this->m_avDict);
 			if (retcodec < 0) {
@@ -799,6 +933,17 @@ std::string FFMpegOutputDevice::createTimeStampFile(const char *filename)
 
 }
 
+
+void FFMpegOutputDevice::writeNewHeader() {
+	std::list<MediaSampleEncoding*>::iterator it;
+	for (it = this->m_pEncodings->begin(); it != this->m_pEncodings->end(); it++)
+	{
+		MediaSampleEncoding*pEnc = *it;
+
+		pEnc->writeNewHeader();
+	}
+}
+
 void FFMpegOutputDevice::setpts_Overrun() {
 	std::list<MediaSampleEncoding*>::iterator it;
 	for (it = this->m_pEncodings->begin(); it != this->m_pEncodings->end();it++)
@@ -917,7 +1062,10 @@ int FFMpegOutputDevice::flushEncoder()
 			AVPacket*encpacket = nullptr;
 			int ret = pEnc->flushEncoder(&encpacket);
 			if (encpacket != nullptr) {
-				writeInterleavedAsync(encpacket);
+		
+				WritePackage(pEnc, encpacket);
+
+//				writeInterleavedAsync(encpacket);
 				av_packet_free(&encpacket);// free encoded packet
 			}
 			else
@@ -931,25 +1079,6 @@ int FFMpegOutputDevice::flushEncoder()
 	}
 
 	return ret;
-	/*
-
-	while (1) {
-		if (!(m_pAvOutFormatCtx->streams[stream_index]->codec->codec->capabilities &
-			AV_CODEC_CAP_DELAY))
-			return 0;
-
-		av_log(NULL, AV_LOG_INFO, "Flushing stream #%u encoder\n", stream_index);
-		ret = encode_write_frame(NULL, stream_index, &got_frame);
-		if (ret < 0)
-			break;
-		if (!got_frame)
-			return 0;
-	}
-	return ret;
-	*/
-
-
-
 
 }
 
@@ -972,7 +1101,12 @@ int FFMpegOutputDevice::writeHeader()
 	/* init muxer, write output file header */
 	m_ptimeouthandler->setTimeoutinMS(2000);
 	int ret = avformat_write_header(m_pAvOutFormatCtx, NULL);
-	
+
+//	writeNewHeader();
+	// set 	m_Outpts = 0;
+	// setvm_Outdts = 0;
+
+
 	if (ret < 0) {
 	//av_log(NULL, AV_LOG_ERROR, "Error occurred when opening output file\n");
 	//return ret;
@@ -982,17 +1116,84 @@ int FFMpegOutputDevice::writeHeader()
 	return (ret);
 
 }
+/*
+void FFMpegOutputDevice::SyncPackageTime(MediaSampleEncoding* pEncoding, AVPacket* encodePacket) {
 
+	if (encodePacket->dts == AV_NOPTS_VALUE)
+	{
+		return;
+	}
+	if (pEncoding->getMediaType() != AVMEDIA_TYPE_VIDEO) {
+		return;
+	}
+
+	if (m_Outpts > 0) {
+		int64_t delta_pts = encodePacket->pts - m_pts;
+		int64_t delta_dts = encodePacket->dts - m_dts;
+		//		double detaTimeinSec = (m_Outpts - encodePacket->pts)  * av_q2d(pEncoding->getAvOutStream()->time_base); 
+		double delta_ptsinSec = (delta_pts)* av_q2d(pEncoding->getAvOutStream()->time_base);
+
+		if (delta_ptsinSec > 5) { // Live-Recording ist weiter
+			if (encodePacket->duration > 0) {
+				delta_pts = encodePacket->duration;
+				delta_dts = encodePacket->duration;
+			}
+			else {
+				delta_pts = 1;
+				delta_dts = 1;
+			}
+		}
+		m_Outpts = m_Outpts + delta_pts;
+		m_Outdts = m_Outdts + delta_dts;
+
+	}
+	else {
+		double detaTimeinSec = (encodePacket->pts)  * av_q2d(pEncoding->getAvOutStream()->time_base);
+		if (detaTimeinSec < 10) { // wir starten
+			m_Outpts = encodePacket->pts;
+			m_Outdts = encodePacket->dts;
+		}
+		else { //neues  file wurde angelegt
+			m_Outpts = 1;
+			m_Outdts = 1;
+			// dies ist nicht sauber, kann passieren, dass cur_dts nicht mehr unterstützt wird
+			// dann muss nach einer anderen Lösung gesucht werden
+			// siehe mux.c
+			//if (st->cur_dts && st->cur_dts != AV_NOPTS_VALUE &&
+			//	((!(s->oformat->flags & AVFMT_TS_NONSTRICT) &&
+			//		st->codecpar->codec_type != AVMEDIA_TYPE_SUBTITLE &&
+			//		st->codecpar->codec_type != AVMEDIA_TYPE_DATA &&
+			//		st->cur_dts >= pkt->dts) || st->cur_dts > pkt->dts)) {
+			//	av_log(s, AV_LOG_ERROR,
+			//		"Application provided invalid, non monotonically increasing dts to muxer in stream %d: %s >= %s\n",
+			//		st->index, av_ts2str(st->cur_dts), av_ts2str(pkt->dts));
+			//	return AVERROR(EINVAL);
+			//}
+			pEncoding->getAvOutStream()->cur_dts = AV_NOPTS_VALUE;
+		}
+	}
+
+	m_pts = encodePacket->pts;
+	m_dts = encodePacket->dts;
+
+	encodePacket->pts = m_Outpts;
+	encodePacket->dts = m_Outdts;
+
+}
+*/
 bool FFMpegOutputDevice::WritePackage(MediaSampleEncoding* pEncoding, AVPacket* encodePacket) {
+
+	// m_Outpts : last written pts
+	// m_Outdts: last written dts
+
+
 
 	if (m_pAvOutFormatCtx == nullptr) return false;
 	if (!m_bopenDevice) return false;
+//	SyncPackageTime(pEncoding, encodePacket);
 	//writeInterleaved(encodePacket);
 	writeInterleavedAsync(encodePacket);
 	//this->m_packetQueue->PushPacket(encodePacket);
-
-
-
 
 	return true;
 
@@ -1002,8 +1203,8 @@ bool FFMpegOutputDevice::WritePackage(MediaSampleEncoding* pEncoding, AVPacket* 
 
 
 
-FFMpegOutputCopyDevice::FFMpegOutputCopyDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx, Platform::String^ folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double RecordingInHours)
-	: FFMpegOutputDevice(deviceName, inputFormaCtx,  folder,  fps,  height,  width, bit_rate, ffmpegOutputOptions, outputformat,  deletefilesOlderFilesinHours,  RecordingInHours) {
+FFMpegOutputCopyDevice::FFMpegOutputCopyDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx, PropertySet^ configOptions, PropertySet^ ffmpegOutputOptions)
+	: FFMpegOutputDevice(deviceName, inputFormaCtx, configOptions, ffmpegOutputOptions) {
 
 
 
@@ -1063,6 +1264,9 @@ int FFMpegOutputCopyDevice::open_output_file(const char *filename, AVOutputForma
 
 	fmt = m_pAvOutFormatCtx->oformat;
 
+
+
+
 	//dec_ctx
 
 	for (i = 0; i < ifmt_ctx->nb_streams; i++) {
@@ -1072,7 +1276,7 @@ int FFMpegOutputCopyDevice::open_output_file(const char *filename, AVOutputForma
 
 		MediaSampleFFMpegEncoding * encoding = nullptr;
 	
-		encoding = new MediaSampleFFMpegCopy(this->m_pAvFormatCtx, this->m_RecordingInHours);
+		encoding = new MediaSampleFFMpegCopy(this->m_pAvFormatCtx, this->m_ConfigOptions);
 		this->m_pEncodings->push_back(encoding);
 		encoding->setState(-1);//not completed
 
@@ -1227,6 +1431,11 @@ int FFMpegOutputCopyDevice::open_output_file(const char *filename, AVOutputForma
 
 			if (m_pAvOutFormatCtx->oformat->flags & AVFMT_GLOBALHEADER)
 				enc_ctx->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
+			
+			m_pAvOutFormatCtx->oformat->flags |= AVFMT_TS_NONSTRICT; // no strict monotonic pts
+		
+
 			/* Third parameter can be used to pass settings to encoder */
 		//	int retcodec = avcodec_open2(enc_ctx, encoder, NULL);
 		
@@ -1261,7 +1470,4 @@ int FFMpegOutputCopyDevice::open_output_file(const char *filename, AVOutputForma
 
 	return 0;
 }
-
-
-
 

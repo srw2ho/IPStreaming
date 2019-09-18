@@ -242,6 +242,7 @@
     </ClInclude>
     <ClInclude Include="StreamingPageParam.h" />
     <ClInclude Include="SystemInformationHelpers.h" />
+    <ClInclude Include="ValueConverter.h" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -352,6 +353,7 @@
     <Image Include="Assets\StoreLogo.png" />
     <Image Include="Assets\Wide310x150Logo.scale-200.png" />
     <Image Include="images\camera_icon.png" />
+    <Image Include="images\MovementDetection.png" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.xaml.cpp">
@@ -390,6 +392,7 @@
       <DependentUpon>StreamingPage.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="StreamingPageParam.cpp" />
+    <ClCompile Include="ValueConverter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\OnVifUniversal\OnVifServicesRunTime\OnVifServicesRunTime.csproj">
@@ -397,6 +400,9 @@
     </ProjectReference>
     <ProjectReference Include="..\FFmpegInteropExtRT\FFmpegInteropExtRT.vcxproj">
       <Project>{02499880-5c26-4603-bf00-1d063d5e1e76}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\RecordingListener\RecordingListener.vcxproj">
+      <Project>{bfbc6b2b-8e6f-43e5-aa7b-f550c1c44d78}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

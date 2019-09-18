@@ -66,6 +66,7 @@ namespace FFmpegInteropExtRT
 	public:
 		static FFmpegInteropMSS^ CreateFFmpegInteropMSS();
 
+		Windows::Foundation::IAsyncAction ^ DestroyFFmpegAsync();
 		FFmpegInteropMSS^ StartFFmpegInteropMSSFromStream(IRandomAccessStream^ stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions);
 		FFmpegInteropMSS^ StartFFmpegInteropMSSFromUri(String^ uri, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions);
 		static FFmpegInteropMSS^ CreateFFmpegInteropMSSFromStream(IRandomAccessStream^ stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions);
@@ -74,11 +75,10 @@ namespace FFmpegInteropExtRT
 		static FFmpegInteropMSS^ CreateFFmpegInteropMSSFromUri(String^ uri, bool forceAudioDecode, bool forceVideoDecode);
 		MediaThumbnailData^ ExtractThumbnail();
 
-	//	void PrepareHttpClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, int fps, int height, int width, int64_t bit_rate);
-		void PrepareHttpMJpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, int fps, int height, int width, int64_t bit_rate);
-		void PrepareHttpMpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, int fps, int height, int width, int64_t bit_rate);
-
-		void PrepareFFMPegOutPutEncoding(Platform::String^ folder, Platform::String^ fileName, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double videoTimeinHours);
+		void PrepareHttpMJpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, PropertySet^ configOptions);
+		void PrepareHttpMpegClientEncoding(CameraServer^ pCameraServer, Platform::String^  hostname, PropertySet^ configOptions);
+		void PrepareFFMPegOutPutEncoding(Platform::String^ fileName, PropertySet^ configOptions, PropertySet^ ffmpegOutputOptions);
+	
 		// Contructor
 		MediaStreamSource^ GetMediaStreamSource();
 		virtual ~FFmpegInteropMSS();

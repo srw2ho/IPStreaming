@@ -172,36 +172,51 @@ void MediaSampleOutputEncoding::InitCodecContext(AVFormatContext* inputFormaCtx)
 
 
 
-CameraOutputDevice* MediaSampleOutputEncoding::CreateCameraOutputDevice(Platform::String^ deviceName,CameraServer^ pCameraServer) {
+CameraOutputDevice* MediaSampleOutputEncoding::CreateCameraOutputDevice(Platform::String^ deviceName,  PropertySet^ configOptions, CameraServer^ pCameraServer) {
 
-	CameraOutputDevice*pRet = new CameraOutputDevice(deviceName,m_pAvFormatCtx, pCameraServer);
+	CameraOutputDevice*pRet = new CameraOutputDevice(deviceName,m_pAvFormatCtx, configOptions, pCameraServer);
 	m_pOutputDevices->push_back(pRet);
 	return pRet;
 
 }
 
-FFMpegOutputDevice* MediaSampleOutputEncoding::CreateFFMpegOutputDevice(Platform::String^ deviceName, Platform::String^ folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double RecordingInHours) {
 
-	
-	bool bcreateCpyDevice = false;
+FFMpegOutputDevice* MediaSampleOutputEncoding::CreateFFMpegOutputDevice(Platform::String^ deviceName, PropertySet^ configOptions, PropertySet^ ffmpegOutputOptions) {
 
+
+	bool bcreateCpyDevice = true;
+	Platform::String^  outputformat;
 	std::vector<std::wstring> outputarray;
 
+	
+	if (configOptions->HasKey("m_MuxCopyInput")) {
+		Platform::Object^ valuecpyInput = configOptions->Lookup("m_MuxCopyInput");
+		if (valuecpyInput != nullptr) {
+			bcreateCpyDevice = safe_cast<IPropertyValue^>(valuecpyInput)->GetBoolean();
+		}
+	}
+	/*
+	Platform::Object^ value = configOptions->Lookup("m_outputformat");
+	if (value != nullptr) {
+		outputformat = (Platform::String^) value;
+	}
 	outputarray = splitintoArray(outputformat->Data(), L".");
 	if (outputarray.size() > 1) {
 		if (outputarray[0] == L"cpyinput") {// copy input stream to muxer
 			outputformat = ref new  Platform::String(outputarray[1].c_str());
+			configOptions->Insert("m_outputformat", outputformat);
 			bcreateCpyDevice = true;
 		}
 	}
+	*/
 
 	FFMpegOutputDevice*pRet = nullptr;
 	if (bcreateCpyDevice) {
-		pRet = new FFMpegOutputCopyDevice(deviceName, m_pAvFormatCtx, folder, fps, height, width, bit_rate, ffmpegOutputOptions, outputformat, deletefilesOlderFilesinHours, RecordingInHours);
+		pRet = new FFMpegOutputCopyDevice(deviceName, m_pAvFormatCtx, configOptions, ffmpegOutputOptions);
 
 	}
 	else {
-		pRet = new FFMpegOutputDevice(deviceName, m_pAvFormatCtx, folder, fps, height, width, bit_rate, ffmpegOutputOptions,outputformat, deletefilesOlderFilesinHours, RecordingInHours);
+		pRet = new FFMpegOutputDevice(deviceName, m_pAvFormatCtx, configOptions, ffmpegOutputOptions);
 
 	}
 	m_pOutputDevices->push_back(pRet);
@@ -248,11 +263,6 @@ MediaSampleEncoding* CameraOutputDevice::AddMJpegEncoding(int fps, int height, i
 }
 
 
-
-
-
-
-
 bool MediaSampleOutputEncoding::EncodeAndWriteFrames(FramePacket* avPacket) {
 	bool found = false;
 
@@ -260,21 +270,23 @@ bool MediaSampleOutputEncoding::EncodeAndWriteFrames(FramePacket* avPacket) {
 	for (it = this->m_pOutputDevices->begin(); it != this->m_pOutputDevices->end();it++)
 	{
 		MediaSampleOutputDevice*pDevice = *it;
-		AVPacket*encpacket = nullptr;
-		if (avPacket->IsAvPacketInputSet())
-		{
-			if (pDevice->IsCopyOutPutDevice())
+		if (pDevice->IsRecordingActiv()) { // Ist Device aktiv
+			AVPacket*encpacket = nullptr;
+			if (avPacket->IsAvPacketInputSet())
 			{
-				found = pDevice->CopyAndWriteFrames(avPacket) | found; // Copy Packet
-			}
+				if (pDevice->IsCopyOutPutDevice())
+				{
+					found = pDevice->CopyAndWriteFrames(avPacket) | found; // Copy Packet
+				}
 
-		}
-		else if (avPacket->IsAvFrameSet())
-		{
-			if (pDevice->IsEncodingOutPutDevice()) {
-				found = pDevice->EncodeAndWriteFrames(avPacket) | found; // Encoding Packet
 			}
+			else if (avPacket->IsAvFrameSet())
+			{
+				if (pDevice->IsEncodingOutPutDevice()) {
+					found = pDevice->EncodeAndWriteFrames(avPacket) | found; // Encoding Packet
+				}
 
+			}
 		}
 
 	}
@@ -316,26 +328,7 @@ void MediaSampleOutputEncoding::WriteAVFrameToMuxer(AVFrame* pavFame, AVPacket* 
 
 	//	this->Lock();
 	if (m_btaskStarted) {
-		/*
-		AVFrameSideData *sd;
-		sd = av_frame_get_side_data(pavFame, AV_FRAME_DATA_MOTION_VECTORS);
-		if (sd) {
-			const AVMotionVector *mvs = (const AVMotionVector *)sd->data;
-			for (size_t i = 0; i < sd->size / sizeof(*mvs); i++) {
-				const AVMotionVector *mv = &mvs[i];
-				char buffer[100];
-	
-		//		sprintf_s(filebuffer, sizeof(filebuffer), "%s_%s", buffer, filename);
 
-				sprintf_s(buffer, sizeof (buffer), "%d,%2d,%2d,%2d,%4d,%4d,%4d,%4d,%llx\n",
-					0, mv->source,
-					mv->w, mv->h, mv->src_x, mv->src_y,
-					mv->dst_x, mv->dst_y, mv->flags);
-				av_log(nullptr, 32, buffer);
-				
-			}
-		}
-		*/
 
 		int encType = EncodeTypes::EncodeNothing;
 
@@ -437,7 +430,8 @@ void MediaSampleOutputEncoding::stopEncoding()
 	try {
 		m_packetQueue->cancelwaitForPacket();
 		m_pCancelTaskToken->cancel();
-		Sleep(100);
+//		Sleep(100);
+// Darf nicht in UI-Thread aufgerufen werden-> Blockiert UI-Thread-> gibt Exception
 		m_doEncodingTsk.wait();
 	}
 	catch (const exception&  )

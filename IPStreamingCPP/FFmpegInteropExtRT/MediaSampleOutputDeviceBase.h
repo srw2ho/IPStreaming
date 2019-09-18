@@ -19,7 +19,7 @@
 #pragma once
 
 #include <queue>
-
+#include <map>
 #include "FFmpegTimeouthandler.h"
 #include "MediaSampleOutputEncoder.h"
 
@@ -42,6 +42,7 @@ using namespace Windows::Foundation::Collections;
 
 namespace FFmpegInteropExtRT
 {
+
 
 	inline std::vector<std::string> splitintoArray(const std::string& s, const std::string& delim)
 	{
@@ -79,7 +80,9 @@ namespace FFmpegInteropExtRT
 
 
 
+
 	typedef std::list<MediaSampleEncoding*>  MediaSampleEncodingList;
+
 
 	enum EncodeTypes {
 		EncodeNothing = 0x0, // nothing to do
@@ -90,8 +93,16 @@ namespace FFmpegInteropExtRT
 	class MediaSampleOutputDevice
 	{
 	public:
-		MediaSampleOutputDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx);
+		MediaSampleOutputDevice(Platform::String^ deviceName, AVFormatContext* inputFormaCtx, PropertySet^ configOptions);
 		virtual ~MediaSampleOutputDevice();
+
+
+		int getfps() { return m_fps; };
+		int getheigh() {return m_height; };
+		int getwidth() { return m_width; };
+		int64_t getbit_rate() { return m_bit_rate; };
+
+		virtual void SetRecordingActiv(bool activ) {m_RecordingActiv = activ;}; // recording activated
 
 		virtual bool DeleteEncoding(MediaSampleEncoding*pdeleteEncoding);
 		virtual void DeleteAllEncodings(void);
@@ -111,20 +122,31 @@ namespace FFmpegInteropExtRT
 
 		Platform::String^ getDeviceName() { return m_strdeviceName; };
 
+		virtual bool IsRecordingActiv() { return m_RecordingActiv; }; // recording activated
 
-//		virtual bool WriteEndFrames();
+		virtual bool ParseConfigOptions();
+		virtual AVFormatContext* getAvOutFormatCtx() { return nullptr; };
+
+		virtual std::string& getFileName() { return std::string(""); };
 	protected:
 
 		bool CopyFrame(MediaSampleEncoding*pEnc,FramePacket* avPacket);
 		bool EncodeFrame(MediaSampleEncoding*pEnc,FramePacket* avPacket);
+
 	protected:
 
 		MediaSampleEncodingList * m_pEncodings;
 		AVFormatContext* m_pAvFormatCtx;
 		Platform::String^ m_strdeviceName;
+		PropertySet^ m_ConfigOptions;
+		int m_fps;
+		int m_height;
+		int m_width;
+		int64_t m_bit_rate;
+		bool m_RecordingActiv;
 	};
 
+	typedef std::map<int, FFmpegInteropExtRT::MediaSampleOutputDevice*> MapConfigOptions;
 
-	
 
 }

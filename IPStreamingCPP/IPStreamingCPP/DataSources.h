@@ -124,6 +124,11 @@ namespace IPStreamingCPP
 		{
 			Platform::String^ get() ;
 		}
+		property Platform::String^ VisibleItemWatchRecording
+		{
+			Platform::String^ get();
+		}
+
 	};
 
 	[Windows::UI::Xaml::Data::Bindable]

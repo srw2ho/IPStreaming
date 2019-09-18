@@ -13,6 +13,8 @@
 
 #include "StreamingPageParam.h"
 
+
+
 using namespace IPStreamingCPP;
 
 namespace IPStreamingCPP
@@ -30,7 +32,7 @@ namespace IPStreamingCPP
 		Windows::System::Display::DisplayRequest ^m_displayRequest;
 		int m_displayRequestCnt;
 
-
+	
 
 
 	public:
@@ -86,8 +88,13 @@ namespace IPStreamingCPP
 		void WriteToAppData();
 
 
-		void UnRegisterEvents();
+		void ClearRessources();
 
+		void OnstartMovementStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args);
+	
+		//
+		void OnStopMovementStreaming(Platform::Object ^sender, Platform::String ^args);
+		void OnChangeMovement(Platform::Object ^sender, Windows::Foundation::Collections::PropertySet ^args);
 
 	};
 

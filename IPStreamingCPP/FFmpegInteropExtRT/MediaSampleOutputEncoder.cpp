@@ -45,8 +45,9 @@ MediaSampleEncoding::MediaSampleEncoding(AVFormatContext* inputFormaCtx) {
 	m_pAvCodecCtx = nullptr;
 	m_frameNumber = 0;
 	m_samples_count = 0;
-	m_Inputpts = 0;
-	m_Outputpts = 0;
+	m_pts = 0;
+	m_dts= 0;
+//	m_Outputdts = 0;
 	m_state = 0;
 //	m_Overrunpts = 0;
 
@@ -285,7 +286,9 @@ void MediaSampleEncoding::rescaleEncodePacket(AVPacket*enc_pkt) {
 	//av_packet_rescale_ts(enc_pkt, m_pAvEnCodecCtx->time_base, m_pAvFormatCtx->streams[m_streamIndex]->codec->time_base);
 	av_packet_rescale_ts(enc_pkt, m_pAvEnCodecCtx->time_base, m_pAvCodecCtx->time_base);
 	enc_pkt->stream_index = m_streamIndex;
-	m_Outputpts = enc_pkt->pts;
+	m_pts = enc_pkt->pts;
+	m_dts = enc_pkt->pts;
+	//m_Outputdts = enc_pkt->dts;
 
 	
 		
@@ -302,9 +305,9 @@ AVFrame* MediaSampleEncoding::prepare_write_frame(FramePacket* Packet)
 	int ret;
 
 
-	if (frame != nullptr) {
-		m_Inputpts = frame->pts;
-	}
+	//if (frame != nullptr) {
+	//	m_Inputpts = frame->pts;
+	//}
 
 
 	if (getMediaType() == AVMEDIA_TYPE_VIDEO)

@@ -9,8 +9,11 @@
 #include "MainPage.xaml.h"
 //#include "DataSources.h"
 
+
+
 using namespace IPStreamingCPP;
 using namespace FFmpegInteropExtRT;
+using namespace RecordingListener;
 
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -103,6 +106,7 @@ void StreamingPage::ReadFromAppData()
 	this->_toggleSwitchOutPutMJpegStream = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchOutPutMJpegStream"));
 	this->_toggleSwitchOutPutMuxer = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchOutPutMuxer"));
 
+	
 	this->_toggleSwitchVideoDecode = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchVideoDecode"));
 	this->_toggleSwitchAudioDecode = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchAudioDecode"));
 
@@ -117,6 +121,25 @@ void StreamingPage::ReadFromAppData()
 
 
 
+	this->_toggleSwitchMovementWatcher = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchMovementWatcher"));;
+
+	this->_toggleSwitchMuxCopyInput = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_toggleSwitchMuxCopyInput"));;
+
+	this->_HostNameMovementWatcher = safe_cast <ItemStringViewModel^>(_datasources->getDataSource("_HostNameMovementWatcher"));;
+
+	this->_PortMovementWatcher= safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_PortMovementWatcher"));;
+
+	this->_InputPin1MovementWatcher= safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_InputPin1MovementWatcher"));;
+
+	this->_InputPin1MovementWatcherActiv = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_InputPin1MovementWatcherActiv"));;
+
+	this->_RecordingOnMovement = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_RecordingOnMovement"));;
+
+
+	this->_MovementRecordingTimeSecs = safe_cast <HourViewModel^>(_datasources->getDataSource("_MovementRecordingTimeSecs"));
+
+
+	
 
 	this->outputMpegStreamUrl->Text = L"Willi-PC:3000";
 	this->_localHostName = L"localhost";
@@ -162,7 +185,10 @@ void StreamingPage::WriteToAppData()
 
 void StreamingPage::OnPropertyChanged(Platform::String^ info)
 {
+	
 	PropertyChanged(this, ref new PropertyChangedEventArgs(info));
+
+
 	
 }
 
