@@ -46,26 +46,8 @@ with extensions as follow:
 - After Client request founded OnVif Cients are returned  (information item like IP Adress, http-Web-Adress, DNS-Name) to requester. So returned information  can be further used for reading out streaming url of Onvif Devives or for PTZ controlling.
 - direct accessing to local Onvif Devices in UWP-App was not possible. "System.ServiceModel.Discovery" is not available in UWP, therefore function was be outsourced in own win32 .Net App implementation. First, OnVifDiscoveryApp.exe must be started before any OnVif discovery request from IPStreamingCPP can be responsed.
  
-# Actual Problem in Release Version of IPStreamingCpp (C++ UWP)
-I use OnVifUniversal .Net Library as reference in IPStreamingCPP (C++ UWP). There are a problem regarding .Net native building. 
-In Release Version, I am not able to connect OnVif camera, rejected with exception (ServiceModel::CommunicationException, System::Net::Http::HttpRequestException).
-If I try Connection with Debug-Version instead there are no problems, connection is established.
-I think .Net Online Compiler ICL load at time the right moduls/library.
-If I use OnVifUniversal .Net Library as reference in own .Net Release (UWP-App), no connections problems. 
-.Net natvive Building must be differenct between C++ and .Net App.
 
-While building the project in IPStreamingCPP (C++ UWP) Release the native compiler throws an warning. This warning comes only when I use OnVifUniversal in C++ UWP, using OnVifUniversal in .NET App no warning while building.
-Warning while .Net native Compilation:
-2>CSC : warning : Ungültiger Suchpfad 'lib\um\x64' in 'LIB-Umgebungsvariable' -- 'Das System kann den angegebenen Pfad nicht finden. '.
-2>Processing application code
-2> Resources.System.Linq.Expressions.rd.xml(35): warning : ILTransform_0027: Method 'CreateLambda' within 'System.Linq.Expressions.Expression' could not be found.
-2> Resources.System.Linq.Expressions.rd.xml(91): warning : ILTransform_0027: Method 'ParameterIsAssignable' within 'System.Linq.Expressions.Expression' could not be found.
 
-Up to now I have no idea what is the reason for that. Does anyone have a idea or could help?
-
-Workaround (no solution) for Native building:	IPStreamingCPP.vcxproj: setting 'UseDotNetNativeToolchain>false</UseDotNetNativeToolchain' in Release building.
-The benefit is, that in release version ffmpeg-streaming and viewing on display is much more faster as in debug version.
-
-Short progam explanation in FFmpegInteropExt.pdf.
+Short progam explanation in FFmpegInteropExt.pdf (not actual).
 
 Type errors are to apologize.
