@@ -1,6 +1,9 @@
 # IPStreaming (UWP-Project divided in two packages IPStreamingCPP and OnVifUniversal)
 Extended FFmpegInterop in conjunction with OnVif capable IP cameras for recording / remuxing ffmpeg input streams
 
+# Screenshot with 3 active cameras
+![Screenshot](IPStreaming.png)
+
 Created with Visual Studio 2017
 
 Usable for Raperry Pi: with streaming rate (640x480)@10fps, no audio, only 1 camera active (tested with  Pi 3 B and standard Touch Display 800x480), rtsp-input of IP camera (AMCREST 1080P) are remuxed to output file in local APP storage folder. Streaming settings are configured, that each hour a new file are created, older files than 72 hours are deleted automatically.
