@@ -182,7 +182,8 @@ namespace OnVifServices
 
             try
             {
-                TimeZone timeZone = null;
+              //  TimeZone timeZone = null;
+                OnvifDevice.TimeZone timeZone = null;
                 if (m_SystemDateTime.TimeZone!=null)
                 {
                     timeZone = m_SystemDateTime.TimeZone;
