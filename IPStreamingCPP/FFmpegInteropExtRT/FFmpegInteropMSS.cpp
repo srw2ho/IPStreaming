@@ -237,8 +237,11 @@ HRESULT FFmpegInteropMSS::CreateMediaStreamSource(String^ uri, bool forceAudioDe
 
 	if (SUCCEEDED(hr))
 	{
-		std::wstring uriW(uri->Begin());
-		std::string uriA(uriW.begin(), uriW.end());
+		//std::wstring uriW(uri->Begin());
+		//std::string uriA(uriW.begin(), uriW.end());
+
+		std::string uriA = PlatFormStringtoStdString(uri);
+
 		charStr = uriA.c_str();
 
 		avFormatCtx->interrupt_callback.opaque = (void*)m_ptimeouthandler;
@@ -781,14 +784,17 @@ HRESULT FFmpegInteropMSS::ParseOptions(PropertySet^ ffmpegOptions)
 		while (options->HasCurrent)
 		{
 			String^ key = options->Current->Key;
-			std::wstring keyW(key->Begin());
-			std::string keyA(keyW.begin(), keyW.end());
+			//std::wstring keyW(key->Begin());
+			//std::string keyA(keyW.begin(), keyW.end());
+
+			std::string keyA = PlatFormStringtoStdString(key);
 			const char* keyChar = keyA.c_str();
 
 			// Convert value from Object^ to const char*. avformat_open_input will internally convert value from const char* to the correct type
 			String^ value = options->Current->Value->ToString();
-			std::wstring valueW(value->Begin());
-			std::string valueA(valueW.begin(), valueW.end());
+			//std::wstring valueW(value->Begin());
+			//std::string valueA(valueW.begin(), valueW.end());
+			std::string valueA = PlatFormStringtoStdString(value);
 			const char* valueChar = valueA.c_str();
 
 			// Add key and value pair entry
