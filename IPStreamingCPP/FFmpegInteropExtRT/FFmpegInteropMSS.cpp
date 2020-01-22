@@ -736,6 +736,26 @@ HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
 			videoSampleProvider = ref new H264SampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
 		}
 	}
+
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_MPEG2VIDEO && !forceVideoDecode)
+	{
+		auto videoProperties = ref new VideoEncodingProperties();
+		videoProperties->Subtype = MediaEncodingSubtypes::Mpeg2;
+		videoProperties->ProfileId = avVideoCodecCtx->profile;
+		videoProperties->Height = avVideoCodecCtx->height;
+		videoProperties->Width = avVideoCodecCtx->width;
+		videoSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
+	}
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_VP9 && Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent("Windows.Media.MediaProperties.MediaEncodingSubtypes", "Vp9") && !forceVideoDecode)
+	{
+		auto videoProperties = ref new VideoEncodingProperties();
+		videoProperties->Subtype = MediaEncodingSubtypes::Vp9;
+		videoProperties->ProfileId = avVideoCodecCtx->profile;
+		videoProperties->Height = avVideoCodecCtx->height;
+		videoProperties->Width = avVideoCodecCtx->width;
+		videoSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
+	}
+
 	else
 	{
 		videoProperties = VideoEncodingProperties::CreateUncompressed(MediaEncodingSubtypes::Nv12, avVideoCodecCtx->width, avVideoCodecCtx->height);
