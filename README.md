@@ -60,7 +60,8 @@ In case you downloaded yasm 64-bit version you'll also need Visual C++ Redistrib
 After Installing WinRT-FFmpeg Compilation guide build fmmpeg Libs and Dlls
 use powershell and go into folder /IPStraeamingCPP
 call into powershell shell the following command:
-
+note : external ffmpeg-libs are not used for IPStraeming, therefore yod do not need building of external Libs 
+(Build-FFmpeg.ps1 -BuildLib 0)
 for ARM-Build
 ps> ./Build-FFmpeg.ps1 -BuildLib 0 -Platforms ARM 
 
