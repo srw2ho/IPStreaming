@@ -46,7 +46,29 @@ with extensions as follow:
 - After Client request founded OnVif Cients are returned  (information item like IP Adress, http-Web-Adress, DNS-Name) to requester. So returned information  can be further used for reading out streaming url of Onvif Devives or for PTZ controlling.
 - direct accessing to local Onvif Devices in UWP-App was not possible. "System.ServiceModel.Discovery" is not available in UWP, therefore function was be outsourced in own win32 .Net App implementation. First, OnVifDiscoveryApp.exe must be started before any OnVif discovery request from IPStreamingCPP can be responsed.
  
+ 
+# Building FFmpeg Version for using for WinRT
+see here FFMpeg Build under link (https://github.com/ffmpeginteropx/FFmpegInteropX)
+-BuildScript Build-FFmpeg.ps1 is copy from them
 
+Now that you have the FFmpeg source code, please follow the instructions on how to install MSYS2, YASM and gas-preprocessor on the FFmpeg for WinRT Compilation guide (https://trac.ffmpeg.org/wiki/CompilationGuide/WinRT). Follow the setup instruction very carefully (including installation guide on MSYS2 website) to avoid build issues!! Be very careful not to miss a single step. If you have problems building ffmpeg, go through these steps again, since chances are high that you missed some detail.
+Note
+In case you downloaded yasm 64-bit version you'll also need Visual C++ Redistributable for Visual Studio 1010. 
+
+This package is usually installed with VS 2017 but not with VS2019. In case it's missing yasm will ouput this error message while building ffmpeg:
+
+After Installing WinRT-FFmpeg Compilation guide:
+use powershell and go into folder /IPStraeamingCPP
+call into powershell shell the following command:
+
+for ARM-Build
+ps> ./Build-FFmpeg.ps1 -BuildLib 0 -Platforms ARM 
+
+for X64-Build
+ps> ./Build-FFmpeg.ps1 -BuildLib 0 -Platforms x64
+
+for Building All Platforms
+ps> ./Build-FFmpeg.ps1 -BuildLib 0 
 
 Short progam explanation in FFmpegInteropExt.pdf (not actual).
 
