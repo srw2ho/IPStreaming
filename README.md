@@ -53,11 +53,11 @@ see here FFMpeg Build under link (https://github.com/ffmpeginteropx/FFmpegIntero
 
 Now that you have the FFmpeg source code, please follow the instructions on how to install MSYS2, YASM and gas-preprocessor on the FFmpeg for WinRT Compilation guide (https://trac.ffmpeg.org/wiki/CompilationGuide/WinRT). Follow the setup instruction very carefully (including installation guide on MSYS2 website) to avoid build issues!! Be very careful not to miss a single step. If you have problems building ffmpeg, go through these steps again, since chances are high that you missed some detail.
 Note
+
 In case you downloaded yasm 64-bit version you'll also need Visual C++ Redistributable for Visual Studio 2010. 
 
-This package is usually installed with VS 2017 but not with VS2019. In case it's missing yasm will ouput this error message while building ffmpeg:
 
-After Installing WinRT-FFmpeg Compilation guide:
+After Installing WinRT-FFmpeg Compilation guide build fmmpeg Libs and Dlls
 use powershell and go into folder /IPStraeamingCPP
 call into powershell shell the following command:
 
