@@ -170,9 +170,10 @@ FFMpegOutputDevice::FFMpegOutputDevice(Platform::String^ deviceName, AVFormatCon
 	m_pAvOutFormatCtx = nullptr;
 	m_ptimeouthandler = new timeout_handler(10);
 	m_bopenDevice = false;
-
-	std::wstring valueW = deviceName->Data();
-	m_strFileName = std::string(valueW.begin(), valueW.end());
+	
+	//std::wstring valueW = deviceName->Data();
+	//m_strFileName = std::string(valueW.begin(), valueW.end());
+	m_strFileName = PlatFormStringtoStdString(deviceName);
 
 	m_ffmpegOptions = ffmpegOutputOptions;
 
@@ -279,10 +280,15 @@ bool FFMpegOutputDevice::ParseConfigOptions()
 			options->MoveNext();
 		}
 
-		std::wstring valueW = folder->Data();
-		m_strFolderPath = std::string(valueW.begin(), valueW.end());
-		valueW = outputformat->Data();
-		m_strOutputFormat = std::string(valueW.begin(), valueW.end());
+		//std::wstring valueW = folder->Data();
+		//m_strFolderPath = std::string(valueW.begin(), valueW.end());
+		m_strFolderPath = PlatFormStringtoStdString(folder);
+
+			
+		//valueW = outputformat->Data();
+		//m_strOutputFormat = std::string(valueW.begin(), valueW.end());
+
+		m_strOutputFormat = PlatFormStringtoStdString(outputformat);
 	}
 
 	return ret;
@@ -350,14 +356,18 @@ bool FFMpegOutputDevice::ParseOptions()
 		while (options->HasCurrent)
 		{
 			Platform::String^ key = options->Current->Key;
-			std::wstring keyW(key->Begin());
-			std::string keyA(keyW.begin(), keyW.end());
+			//std::wstring keyW(key->Begin());
+			//std::string keyA(keyW.begin(), keyW.end());
+
+			std::string keyA = PlatFormStringtoStdString(key);
 			const char* keyChar = keyA.c_str();
 
 			// Convert value from Object^ to const char*. avformat_open_input will internally convert value from const char* to the correct type
 			Platform::String^ value = options->Current->Value->ToString();
-			std::wstring valueW(value->Begin());
-			std::string valueA(valueW.begin(), valueW.end());
+			//std::wstring valueW(value->Begin());
+			//std::string valueA(valueW.begin(), valueW.end());
+
+			std::string valueA = PlatFormStringtoStdString(value);
 			const char* valueChar = valueA.c_str();
 
 			// Add key and value pair entry

@@ -237,8 +237,11 @@ HRESULT FFmpegInteropMSS::CreateMediaStreamSource(String^ uri, bool forceAudioDe
 
 	if (SUCCEEDED(hr))
 	{
-		std::wstring uriW(uri->Begin());
-		std::string uriA(uriW.begin(), uriW.end());
+		//std::wstring uriW(uri->Begin());
+		//std::string uriA(uriW.begin(), uriW.end());
+
+		std::string uriA = PlatFormStringtoStdString(uri);
+
 		charStr = uriA.c_str();
 
 		avFormatCtx->interrupt_callback.opaque = (void*)m_ptimeouthandler;
@@ -733,6 +736,26 @@ HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
 			videoSampleProvider = ref new H264SampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
 		}
 	}
+
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_MPEG2VIDEO && !forceVideoDecode)
+	{
+		auto videoProperties = ref new VideoEncodingProperties();
+		videoProperties->Subtype = MediaEncodingSubtypes::Mpeg2;
+		videoProperties->ProfileId = avVideoCodecCtx->profile;
+		videoProperties->Height = avVideoCodecCtx->height;
+		videoProperties->Width = avVideoCodecCtx->width;
+		videoSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
+	}
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_VP9 && Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent("Windows.Media.MediaProperties.MediaEncodingSubtypes", "Vp9") && !forceVideoDecode)
+	{
+		auto videoProperties = ref new VideoEncodingProperties();
+		videoProperties->Subtype = MediaEncodingSubtypes::Vp9;
+		videoProperties->ProfileId = avVideoCodecCtx->profile;
+		videoProperties->Height = avVideoCodecCtx->height;
+		videoProperties->Width = avVideoCodecCtx->width;
+		videoSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
+	}
+
 	else
 	{
 		videoProperties = VideoEncodingProperties::CreateUncompressed(MediaEncodingSubtypes::Nv12, avVideoCodecCtx->width, avVideoCodecCtx->height);
@@ -781,14 +804,17 @@ HRESULT FFmpegInteropMSS::ParseOptions(PropertySet^ ffmpegOptions)
 		while (options->HasCurrent)
 		{
 			String^ key = options->Current->Key;
-			std::wstring keyW(key->Begin());
-			std::string keyA(keyW.begin(), keyW.end());
+			//std::wstring keyW(key->Begin());
+			//std::string keyA(keyW.begin(), keyW.end());
+
+			std::string keyA = PlatFormStringtoStdString(key);
 			const char* keyChar = keyA.c_str();
 
 			// Convert value from Object^ to const char*. avformat_open_input will internally convert value from const char* to the correct type
 			String^ value = options->Current->Value->ToString();
-			std::wstring valueW(value->Begin());
-			std::string valueA(valueW.begin(), valueW.end());
+			//std::wstring valueW(value->Begin());
+			//std::string valueA(valueW.begin(), valueW.end());
+			std::string valueA = PlatFormStringtoStdString(value);
 			const char* valueChar = valueA.c_str();
 
 			// Add key and value pair entry

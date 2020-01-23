@@ -38,7 +38,8 @@
 #include <ppltasks.h>
 #include <wrl.h>
 #include <robuffer.h>
-
+#include <cvt/wstring>
+#include <codecvt>
 //
 // Asserts
 //
@@ -124,13 +125,34 @@ inline Platform::String^ StringFromAscIIChars(char* chars)
 // mit new erzeugter char* must be deleted with delete
 inline  char* StringtoAscIIChars(Platform::String^stringRT) {
 
-	std::wstring fooW(stringRT->Begin());
-	std::string fooA(fooW.begin(), fooW.end());
-	size_t len = fooA.length() + sizeof(char);
+	//std::wstring fooW(stringRT->Begin());
+	//std::string fooA(fooW.begin(), fooW.end());
+
+	stdext::cvt::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+	std::string stringUtf8 = convert.to_bytes(stringRT->Data());
+	const char* rawCstring = stringUtf8.c_str();
+
+	size_t len = stringUtf8.length() + sizeof(char);
 	char* charStr = new char[len];
-	memcpy(charStr, fooA.c_str(), len);
+	memcpy(charStr, stringUtf8.c_str(), len);
+
+	//size_t len = fooA.length() + sizeof(char);
+	//char* charStr = new char[len];
+	//memcpy(charStr, fooA.c_str(), len);
 
 	return charStr;
+
+}
+inline std::string PlatFormStringtoStdString(Platform::String^ stringRT) {
+
+	//const std::wstring fooW(stringRT->Begin());
+	//const std::string fooA(fooW.begin(),  fooW.end());
+
+	stdext::cvt::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
+	std::string stringUtf8 = convert.to_bytes(stringRT->Data());
+	//const char* rawCstring = stringUtf8.c_str();
+
+	return stringUtf8;
 
 }
 /*

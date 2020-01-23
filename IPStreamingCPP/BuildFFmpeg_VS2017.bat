@@ -64,15 +64,15 @@ echo:
 echo Checking CPU architecture...
 
 if %PROCESSOR_ARCHITECTURE%==x86 (
-    set Comp_x86=x86 uwp 10.0.15063.0
-    set Comp_x64=x86_amd64 uwp 10.0.15063.0
-    set Comp_ARM=x86_arm uwp 10.0.15063.0
-    set Comp_ARM64=x86_arm64 uwp 10.0.15063.0
+    set Comp_x86=x86 uwp 10.0.17763.0
+    set Comp_x64=x86_amd64 uwp 10.0.17763.0
+    set Comp_ARM=x86_arm uwp 10.0.17763.0
+    set Comp_ARM64=x86_arm64 uwp 10.0.17763.0
 ) else (
-    set Comp_x86=amd64_x86 uwp 10.0.15063.0
-    set Comp_x64=amd64 uwp 10.0.15063.0
-    set Comp_ARM=amd64_arm uwp 10.0.15063.0
-    set Comp_ARM64=amd64_arm64 uwp 10.0.15063.0
+    set Comp_x86=amd64_x86 uwp 10.0.17763.0
+    set Comp_x64=amd64 uwp 10.0.17763.0
+    set Comp_ARM=amd64_arm uwp 10.0.17763.0
+    set Comp_ARM64=amd64_arm64 uwp 10.0.17763.0
 )
 
 :: Export full current PATH from environment into MSYS2
@@ -157,7 +157,7 @@ rem for /r %libs%\build\libzlib\licenses %%f in (*.*) do copy /Y "%%f" %libs%\li
 rem copy /Y %libs%\build\libzlib\lib\%ARCH%\libzlib_winrt.lib %libs%\lib\zlib.lib
 rem copy /Y %libs%\build\libzlib\lib\%ARCH%\libzlib_winrt.pdb %libs%\lib\zlib.pdb
 
-rem mmsbuild Libs\bzip2\SMP\libbz2.vcxproj -p:OutDir="%~dp0%libs%\build\\";Configuration=ReleaseWinRT;Platform=%ARCH% || goto error
+rem msbuild Libs\bzip2\SMP\libbz2.vcxproj -p:OutDir="%~dp0%libs%\build\\";Configuration=ReleaseWinRT;Platform=%ARCH% || goto error
 rem for /r %libs%\build\libbz2\include %%f in (*.h) do copy /Y "%%f" %libs%\include\
 rem for /r %libs%\build\libbz2\licenses %%f in (*.*) do copy /Y "%%f" %libs%\licenses\
 rem copy /Y %libs%\build\libbz2\lib\%ARCH%\libbz2_winrt.lib  %libs%\lib\bz2.lib

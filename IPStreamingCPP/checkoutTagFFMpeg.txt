@@ -1,0 +1,21 @@
+
+cd FFMpeg
+
+git fetch –all
+
+git checkout n4.2.2
+
+cd..
+cd..
+git add IPStreamingCPP//FFmpeg
+
+git commit -m "update von n4.2.1 to n4.2.2"
+
+git push
+
+git submodule status
+
+
+
+
+
