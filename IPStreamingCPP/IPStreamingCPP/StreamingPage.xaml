@@ -52,8 +52,8 @@
                         <ToggleSwitch Width="155" DataContext="{Binding SelectedItem, ElementName=inputsourceurl, Mode=TwoWay}" Header="Enable Audio" OffContent="OFF" OnContent="ON" IsOn="{Binding Path  = SelectedItem.InputAudio.AudioEnabled, ElementName=inputsourceurl, Mode=TwoWay}"/>
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0" Orientation="Horizontal" >
-                        <ToggleSwitch Width="155" x:Name="toggleSwitchVideoDecode" Header="Force Decode Video" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchVideoDecode.ValueasBool, Mode=TwoWay}"/>
-                        <ToggleSwitch Width="155" x:Name="toggleSwitchAudioDecode" Header="Force Decode Audio" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchAudioDecode.ValueasBool, Mode=TwoWay}"/>
+                        <ToggleSwitch Width="155" x:Name="toggleSwitchVideoDecode" Header="Decode FFMpeg Video" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchVideoDecode.ValueasBool, Mode=TwoWay}"/>
+                        <ToggleSwitch Width="155" x:Name="toggleSwitchAudioDecode" Header="Decode FFMpeg Audio" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchAudioDecode.ValueasBool, Mode=TwoWay}"/>
                     </StackPanel>
                     <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" >
                         <AppBarButton x:Name="startRecording" Content="Start Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="startRecording_Click" Width="110" Icon="Play" Label="Start Recording" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
