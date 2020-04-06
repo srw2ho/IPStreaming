@@ -94,9 +94,6 @@ void MainPage::PivotMediaLoaded(Platform::Object^ sender, Windows::UI::Xaml::Rou
 			streamingPageParam->MediaStreamElement = media;
 			streamingPageParam->MediaCurrentStateChangedRegister= streamingPageParam->MediaStreamElement->CurrentStateChanged += ref new Windows::UI::Xaml::RoutedEventHandler(this, &MainPage::MediaElement_OnCurrentStateChanged);
 			streamingPageParam->MediaFailedRegister= streamingPageParam->MediaStreamElement->MediaFailed += ref new Windows::UI::Xaml::ExceptionRoutedEventHandler(this, &MainPage::MediaElement_OnMediaFailed);
-
-	
-
 		}
 
 	}

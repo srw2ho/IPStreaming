@@ -30,6 +30,7 @@ namespace FFmpegInteropExtRT
 	private:
 		bool m_bHasSentExtradata;
 	internal:
+		virtual HRESULT DecodeAVPacket(DataWriter^ dataWriter, AVPacket* avPacket, int64_t& framePts, int64_t& frameDuration) override;
 		virtual HRESULT WriteAVPacketToStream(DataWriter^ writer, AVPacket* avPacket) override;
 		virtual HRESULT WriteNALPacket(DataWriter^ dataWriter, AVPacket* avPacket);
 		virtual HRESULT GetSPSAndPPSBuffer(DataWriter^ dataWriter, byte* buf, int length);

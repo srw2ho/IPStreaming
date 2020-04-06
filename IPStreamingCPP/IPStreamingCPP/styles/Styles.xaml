@@ -315,7 +315,7 @@
 
     <Style x:Key="NavMenuItemContainerStyle" TargetType="ListViewItem">
         <Setter Property="MinWidth" Value="{StaticResource SplitViewCompactPaneThemeLength}"/>
-        <Setter Property="Height" Value="48"/>
+        <Setter Property="Height" Value="60"/>
         <Setter Property="Padding" Value="0"/>
         <Setter Property="UseSystemFocusVisuals" Value="True" />
         <Setter Property="Template">

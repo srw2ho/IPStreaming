@@ -34,14 +34,44 @@ H264SampleProvider::~H264SampleProvider()
 {
 }
 void H264SampleProvider::Flush()
-{
+{		
 	MediaSampleProvider::Flush();
 	m_bHasSentExtradata = false;
+}
+
+
+HRESULT H264SampleProvider::DecodeAVPacket(DataWriter^ dataWriter, AVPacket* avPacket, int64_t& framePts, int64_t& frameDuration)
+{
+	HRESULT hr = S_OK;
+	// srw2ho, 05.04.2020: for reducing IP-streaming latency we start with a key-Frame
+	// ohther frames are skipped
+	if (!m_bHasSentExtradata) {
+
+		if (avPacket->flags & AV_PKT_FLAG_KEY)
+		{
+			hr = S_OK;
+			m_bHasSentExtradata = true;
+		}
+		else {
+			hr = S_FALSE;
+		}
+
+	}
+
+	if (hr==S_OK)
+	{
+		hr = MediaSampleProvider::DecodeAVPacket(dataWriter, avPacket, framePts,  frameDuration);
+	}
+
+	// For the simple case of compressed samples, each packet is a sample
+
+	return hr;
 }
 
 HRESULT H264SampleProvider::WriteAVPacketToStream(DataWriter^ dataWriter, AVPacket* avPacket)
 {
 	HRESULT hr = S_OK;
+
 	if (!m_bHasSentExtradata)
 	{
 		dataWriter = ref new DataWriter();

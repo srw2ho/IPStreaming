@@ -235,6 +235,9 @@ bool StreamingPageParam::startUriStreaming()
 				//		options->Insert("packet-buffering", 0);
 
 			}
+			else {
+
+			}
 
 		}
 
@@ -246,7 +249,7 @@ bool StreamingPageParam::startUriStreaming()
 	
 		if (m_MainFrame != nullptr)
 		{
-			m_MainFrame->Dispatcher->RunAsync(CoreDispatcherPriority::High, ref new DispatchedHandler([this, inpSource, uri, options, forceDecodeAudio, forceDecodeVideo]() {
+			m_MainFrame->Dispatcher->RunAsync(CoreDispatcherPriority::High, ref new DispatchedHandler([this, rtsliveStream, inpSource, uri, options, forceDecodeAudio, forceDecodeVideo]() {
 //				m_FFmpegMSS = m_FFmpegMSS->StartFFmpegInteropMSSFromStream(this->Stream, forceDecodeAudio, forceDecodeVideo, nullptr);
 				m_FFmpegMSS = m_FFmpegMSS->StartFFmpegInteropMSSFromUri(uri, forceDecodeAudio, forceDecodeVideo, options);
 
@@ -257,6 +260,8 @@ bool StreamingPageParam::startUriStreaming()
 
 					if (mss)
 					{
+						//srw2ho, 05.04.20120; reduced init waiting tie time for replay, reduced latency for IP-Streaming
+						m_mediaElement->RealTimePlayback = rtsliveStream;
 						// Pass MediaStreamSource to Media Element
 						m_mediaElement->SetMediaStreamSource(mss);
 						restartStreamingTimer(inpSource); // Restart Start Streaming after time in adjustments

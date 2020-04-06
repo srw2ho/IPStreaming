@@ -74,7 +74,8 @@ MediaStreamSample^ MediaSampleProvider::GetNextSample()
 
 	HRESULT hr = S_OK;
 
-	MediaStreamSample^ sample;
+	MediaStreamSample^ sample = nullptr;
+
 	if (m_isEnabled)
 	{
 		DataWriter^ dataWriter = ref new DataWriter();
@@ -206,7 +207,8 @@ HRESULT MediaSampleProvider::GetNextPacket(DataWriter ^ writer, LONGLONG & pts, 
 			if (!frameComplete)
 			{
 				m_isDiscontinuous = true;
-				if (allowSkip && errorCount++ < 10)
+				//if (allowSkip && errorCount++ < 10)
+				if (allowSkip && errorCount++ < 60)
 				{
 					// skip a few broken packets (maybe make this configurable later)
 					DebugMessage(L"Skipping broken packet\n");
