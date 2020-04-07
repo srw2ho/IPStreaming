@@ -32,7 +32,7 @@ namespace IPStreamingCPP
 		Windows::System::Display::DisplayRequest ^m_displayRequest;
 		int m_displayRequestCnt;
 
-	
+		FFmpegInteropExtRT::CodecReader^ m_CodecReader;
 
 
 	public:

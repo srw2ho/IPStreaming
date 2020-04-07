@@ -60,6 +60,12 @@ MainPage::MainPage()
 	m_applicationResumingEventToken =
 		Application::Current->Resuming += ref new EventHandler<Object^>(this, &MainPage::Application_Resuming);
 
+	m_CodecReader =  ref new FFmpegInteropExtRT::CodecReader();
+	m_CodecReader->ReadInstalledVideoDecoderCodecsAsync();
+
+
+
+
 }
 
 MainPage::~MainPage()
@@ -233,6 +239,7 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 		param->MovementRecording->HostName = "WilliRaspiPlus";
 		param->MovementRecording->Port = 3000;
 
+		param->CodecReader = this->m_CodecReader;
 		// Movement-Recording On
 
 		param->ScenarioView = ref new IPStreamingCPP::ScenarioViewControl();

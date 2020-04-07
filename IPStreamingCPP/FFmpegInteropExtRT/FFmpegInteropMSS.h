@@ -22,6 +22,7 @@
 #include "FFmpegReader.h"
 #include "MediaSampleProvider.h"
 #include "MediaThumbnailData.h"
+#include "CodecReader.h"
 
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -64,7 +65,7 @@ namespace FFmpegInteropExtRT
 	public ref class FFmpegInteropMSS sealed
 	{
 	public:
-		static FFmpegInteropMSS^ CreateFFmpegInteropMSS();
+		static FFmpegInteropMSS^ CreateFFmpegInteropMSS(CodecReader^ reader);
 
 		Windows::Foundation::IAsyncAction ^ DestroyFFmpegAsync();
 		FFmpegInteropMSS^ StartFFmpegInteropMSSFromStream(IRandomAccessStream^ stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions);
@@ -125,7 +126,7 @@ namespace FFmpegInteropExtRT
 		int ReadPacket();
 		HRESULT Seek(TimeSpan position);
 	private:
-		FFmpegInteropMSS();
+		FFmpegInteropMSS(CodecReader^ reader);
 
 		HRESULT CreateMediaStreamSource(IRandomAccessStream^ stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions, MediaStreamSource^ mss);
 		HRESULT CreateMediaStreamSource(String^ uri, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions);
@@ -137,6 +138,7 @@ namespace FFmpegInteropExtRT
 		void OnStarting(MediaStreamSource ^sender, MediaStreamSourceStartingEventArgs ^args);
 		void OnSampleRequested(MediaStreamSource ^sender, MediaStreamSourceSampleRequestedEventArgs ^args);
 		void OnMediaClosed(Windows::Media::Core::MediaStreamSource ^sender, MediaStreamSourceClosedEventArgs^ args);
+		bool IsVideoCodecSupported(bool forceVideoDecode, AVCodecID  codercID);
 
 		MediaStreamSource^ mss;
 		Windows::Foundation::EventRegistrationToken startingRequestedToken;
@@ -175,5 +177,6 @@ namespace FFmpegInteropExtRT
 		FFmpegReader^ m_pReader;
 		timeout_handler * m_ptimeouthandler;
 		bool m_isFirstSeek;
+		CodecReader^ m_CodecReader;
 	};
 }

@@ -47,6 +47,7 @@ StreamingPageParam::StreamingPageParam()
 //	m_SplitView = nullptr;
 	m_Muxerconfigoptions = ref new Windows::Foundation::Collections::PropertySet();
 	m_Recording = nullptr;
+	m_CodecReader = nullptr;
 
 }
 
@@ -244,7 +245,7 @@ bool StreamingPageParam::startUriStreaming()
 
 
 
-		m_FFmpegMSS = FFmpegInteropMSS::CreateFFmpegInteropMSS();
+		m_FFmpegMSS = FFmpegInteropMSS::CreateFFmpegInteropMSS(m_CodecReader);
 		m_FFmpegMSS->startStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, FFmpegInteropMSSInputParamArgs^>(this, &StreamingPageParam::OnstartStreaming); // callback to
 	
 		if (m_MainFrame != nullptr)
@@ -307,7 +308,7 @@ bool StreamingPageParam::startFileStreaming()
 		bool forceDecodeAudio = m_DataSourceparam->_toggleSwitchAudioDecode->ValueasBool;
 		bool forceDecodeVideo = m_DataSourceparam->_toggleSwitchVideoDecode->ValueasBool;
 
-		m_FFmpegMSS = FFmpegInteropMSS::CreateFFmpegInteropMSS();
+		m_FFmpegMSS = FFmpegInteropMSS::CreateFFmpegInteropMSS(m_CodecReader);
 		m_FFmpegMSS->startStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, FFmpegInteropMSSInputParamArgs^ >(this, &StreamingPageParam::OnstartStreaming);
 
 		if (m_MainFrame != nullptr)

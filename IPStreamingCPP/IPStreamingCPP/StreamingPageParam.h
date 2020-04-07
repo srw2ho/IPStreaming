@@ -7,6 +7,7 @@
 
 #include "DataSources.h"
 
+#include "CodecReader.h"
 
 
 //#include "MainPage.xaml.h"
@@ -214,6 +215,7 @@ namespace IPStreamingCPP
 		
 		Windows::Foundation::Collections::PropertySet^ m_Muxerconfigoptions;
 //		Platform::String^  m_RecordingState;
+		FFmpegInteropExtRT::CodecReader^ m_CodecReader;
 	
 	internal:
 
@@ -274,6 +276,12 @@ namespace IPStreamingCPP
 		{
 			Platform::String^ get() { return this->m_KeyName; }
 			void set(Platform::String^ value) { this->m_KeyName = value; };
+		}
+
+		property FFmpegInteropExtRT::CodecReader^ CodecReader
+		{
+			FFmpegInteropExtRT::CodecReader^ get() { return this->m_CodecReader; }
+			void set(FFmpegInteropExtRT::CodecReader^ value) { this->m_CodecReader = value; };
 		}
 
 

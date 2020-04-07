@@ -42,6 +42,7 @@
     <ClCompile Include="CameraServer\Connection.cpp" />
     <ClCompile Include="CameraServer\DebuggerLogger.cpp" />
     <ClCompile Include="CameraServer\IPCamera.cpp" />
+    <ClCompile Include="CodecReader.cpp" />
     <ClCompile Include="FFmpegInteropLogging.cpp" />
     <ClCompile Include="FFmpegInteropMSS.cpp" />
     <ClCompile Include="FFmpegReader.cpp" />
@@ -67,6 +68,7 @@
     <ClInclude Include="CameraServer\Connection.h" />
     <ClInclude Include="CameraServer\DebuggerLogger.h" />
     <ClInclude Include="CameraServer\IPCamera.h" />
+    <ClInclude Include="CodecReader.h" />
     <ClInclude Include="EventBroadCaster.h" />
     <ClInclude Include="FFmpegInteropLogging.h" />
     <ClInclude Include="FFmpegInteropMSS.h" />

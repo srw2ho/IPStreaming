@@ -53,7 +53,7 @@ static int64_t FileStreamSeek(void* ptr, int64_t pos, int whence);
 static bool isRegistered = false;
 
 // Initialize an FFmpegInteropObject
-FFmpegInteropMSS::FFmpegInteropMSS()
+FFmpegInteropMSS::FFmpegInteropMSS(CodecReader^ reader)
 	: avDict(nullptr)
 	, avIOCtx(nullptr)
 	, avFormatCtx(nullptr)
@@ -79,6 +79,9 @@ FFmpegInteropMSS::FFmpegInteropMSS()
 		isRegistered = true;
 	}
 	m_isFirstSeek = true;
+	m_CodecReader = reader;
+
+
 }
 
 FFmpegInteropMSS::~FFmpegInteropMSS()
@@ -144,9 +147,9 @@ Windows::Foundation::IAsyncAction ^ FFmpegInteropMSS::DestroyFFmpegAsync() {
 	});
 }
 
-FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSS()
+FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSS(CodecReader^ reader)
 {
-	auto interopMSS = ref new FFmpegInteropMSS();
+	auto interopMSS = ref new FFmpegInteropMSS(reader);
 	return interopMSS;
 }
 FFmpegInteropMSS^ FFmpegInteropMSS::StartFFmpegInteropMSSFromStream(IRandomAccessStream^ stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions) {
@@ -174,7 +177,7 @@ FFmpegInteropMSS^ FFmpegInteropMSS::StartFFmpegInteropMSSFromUri(String^ uri, bo
 
 FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSSFromStream(IRandomAccessStream^ stream, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions)
 {
-	auto interopMSS = ref new FFmpegInteropMSS();
+	auto interopMSS = ref new FFmpegInteropMSS(nullptr);
 	if (FAILED(interopMSS->CreateMediaStreamSource(stream, forceAudioDecode, forceVideoDecode, ffmpegOptions,nullptr)))
 	{
 		// We failed to initialize, clear the variable to return failure
@@ -191,7 +194,7 @@ FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSSFromStream(IRandomAcce
 
 FFmpegInteropMSS^ FFmpegInteropMSS::CreateFFmpegInteropMSSFromUri(String^ uri, bool forceAudioDecode, bool forceVideoDecode, PropertySet^ ffmpegOptions)
 {
-	auto interopMSS = ref new FFmpegInteropMSS();
+	auto interopMSS = ref new FFmpegInteropMSS(nullptr);
 	if (FAILED(interopMSS->CreateMediaStreamSource(uri, forceAudioDecode, forceVideoDecode, ffmpegOptions)))
 	{
 		// We failed to initialize, clear the variable to return failure
@@ -698,11 +701,22 @@ HRESULT FFmpegInteropMSS::CreateAudioStreamDescriptor(bool forceAudioDecode)
 	return (audioStreamDescriptor != nullptr && audioSampleProvider != nullptr) ? S_OK : E_OUTOFMEMORY;
 }
 
+
+//VideoCodec for HWAccelerator
+bool FFmpegInteropMSS::IsVideoCodecSupported(bool forceVideoDecode, AVCodecID  codercID)
+{
+	bool bret = false;
+	if (m_CodecReader == nullptr) return false;
+	return m_CodecReader->IsVideoCodecSupported(forceVideoDecode,codercID);
+
+}
+
 HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
 {
 	VideoEncodingProperties^ videoProperties;
 
-	if (avVideoCodecCtx->codec_id == AV_CODEC_ID_H264 && !forceVideoDecode)
+//	if (avVideoCodecCtx->codec_id == AV_CODEC_ID_H264 && !forceVideoDecode)
+	if (avVideoCodecCtx->codec_id == AV_CODEC_ID_H264 && IsVideoCodecSupported(forceVideoDecode, AV_CODEC_ID_H264) )
 	{
 		videoProperties = VideoEncodingProperties::CreateH264();
 		videoProperties->ProfileId = avVideoCodecCtx->profile;
@@ -719,7 +733,9 @@ HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
 			videoSampleProvider = ref new H264SampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
 		}
 	}
-	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_HEVC && Windows::Foundation::Metadata::ApiInformation::IsMethodPresent("Windows.Media.MediaProperties.VideoEncodingProperties", "CreateHevc") && !forceVideoDecode)
+//	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_HEVC && Windows::Foundation::Metadata::ApiInformation::IsMethodPresent("Windows.Media.MediaProperties.VideoEncodingProperties", "CreateHevc") && !forceVideoDecode)
+
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_HEVC && Windows::Foundation::Metadata::ApiInformation::IsMethodPresent("Windows.Media.MediaProperties.VideoEncodingProperties", "CreateHevc") && IsVideoCodecSupported(forceVideoDecode, AV_CODEC_ID_HEVC))
 	{
 		videoProperties = VideoEncodingProperties::CreateHevc();
 		videoProperties->ProfileId = avVideoCodecCtx->profile;
@@ -737,7 +753,8 @@ HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
 		}
 	}
 
-	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_MPEG2VIDEO && !forceVideoDecode)
+//	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_MPEG2VIDEO && !forceVideoDecode)
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_MPEG2VIDEO && IsVideoCodecSupported(forceVideoDecode, AV_CODEC_ID_MPEG2VIDEO))
 	{
 		auto videoProperties = ref new VideoEncodingProperties();
 		videoProperties->Subtype = MediaEncodingSubtypes::Mpeg2;
@@ -746,10 +763,22 @@ HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
 		videoProperties->Width = avVideoCodecCtx->width;
 		videoSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
 	}
-	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_VP9 && Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent("Windows.Media.MediaProperties.MediaEncodingSubtypes", "Vp9") && !forceVideoDecode)
+//	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_VP9 && Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent("Windows.Media.MediaProperties.MediaEncodingSubtypes", "Vp9") && !forceVideoDecode)
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_VP9 && Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent("Windows.Media.MediaProperties.MediaEncodingSubtypes", "Vp9") && IsVideoCodecSupported(forceVideoDecode, AV_CODEC_ID_VP9))
+
 	{
 		auto videoProperties = ref new VideoEncodingProperties();
 		videoProperties->Subtype = MediaEncodingSubtypes::Vp9;
+		videoProperties->ProfileId = avVideoCodecCtx->profile;
+		videoProperties->Height = avVideoCodecCtx->height;
+		videoProperties->Width = avVideoCodecCtx->width;
+		videoSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avVideoCodecCtx, this->m_pOutPutEncoding);
+	}
+//	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_VP8 && Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent("Windows.Media.MediaProperties.MediaEncodingSubtypes", "Vp8") && !forceVideoDecode)
+	else if (avVideoCodecCtx->codec_id == AV_CODEC_ID_VP8 && Windows::Foundation::Metadata::ApiInformation::IsPropertyPresent("Windows.Media.MediaProperties.MediaEncodingSubtypes", "Vp8") && IsVideoCodecSupported(forceVideoDecode, AV_CODEC_ID_VP8))
+	{
+		auto videoProperties = ref new VideoEncodingProperties();
+		videoProperties->Subtype = Windows::Media::Core::CodecSubtypes::VideoFormatVP80;
 		videoProperties->ProfileId = avVideoCodecCtx->profile;
 		videoProperties->Height = avVideoCodecCtx->height;
 		videoProperties->Width = avVideoCodecCtx->width;
