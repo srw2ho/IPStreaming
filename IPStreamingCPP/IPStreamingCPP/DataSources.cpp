@@ -542,9 +542,9 @@ inputSource::inputSource(Platform::String^ IDName, String^ InputHostName, int po
 	m_portNr = portNr;
 	m_User = User;
 	m_Password = Password;
-	m_CameraManufactorer = "AMCREST";
-	m_CameraVersion = "V1.0";
-	m_CameraModel = "IP2M-841W-EGD-DE";
+	m_CameraManufactorer = "UserDefined";
+	m_CameraVersion = "...";
+	m_CameraModel = "...";
 	m_SerialNumber = "...";
 	m_CameraVersion = "...";
 	m_HardwareId = "...";
@@ -558,7 +558,6 @@ inputSource::inputSource(Platform::String^ IDName, String^ InputHostName, int po
 
 	this->m_VideoInput = ref new VideoInput(getCompositePropertyIDName(IDName, -1));
 	this->m_AudioInput = ref new AudioInput(getCompositePropertyIDName(IDName, -1));
-
 
 }
 
@@ -604,21 +603,21 @@ void inputSource::FFmpegProbeSize::set(int value)
 void inputSource::createUriPath()
 {
 	wchar_t buffer[200];
-	if (m_CameraManufactorer == "AMCREST") {
-		
-		if ("AMCREST.Sub_0" == this->DataSourceIDName)
+	if (m_CameraManufactorer == "UserDefined") {
+		//if ("UserDefined.Sub_0" == this->DataSourceIDName)
 		{//  hight resolution
-			swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"rtsp://%s:%s@%s:%d/cam/realmonitor?channel=1&subtype=%d", m_User->Data(), m_Password->Data(), m_InputHostName->Data(), m_portNr, 0);
+			m_InputKey = "Stream_xx";
+			swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"rtsp://%s:%s@%s:%d/cam/%s", m_User->Data(), m_Password->Data(), m_InputHostName->Data(), m_portNr, m_InputKey->Data());
 			m_InputsourceUri = ref new Platform::String(buffer);
-			m_InputKey = m_InputsourceUri;
+		
 		}
 
-		if ("AMCREST.Sub_1" == this->DataSourceIDName)
-		{//low resolution
-			swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"rtsp://%s:%s@%s:%d/cam/realmonitor?channel=1&subtype=%d", m_User->Data(), m_Password->Data(), m_InputHostName->Data(), m_portNr, 1);
-			m_InputsourceUri = ref new Platform::String(buffer);
-			m_InputKey = m_InputsourceUri;
-		}
+		//if ("UserDefined.Sub_1" == this->DataSourceIDName)
+		//{//low resolution
+		//	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"rtsp://%s:%s@%s:%d/cam/realmonitor?channel=1&subtype=%d", m_User->Data(), m_Password->Data(), m_InputHostName->Data(), m_portNr, 1);
+		//	m_InputsourceUri = ref new Platform::String(buffer);
+		//	m_InputKey = "Stream_02";
+		//}
 
 
 	}
@@ -627,6 +626,7 @@ void inputSource::createUriPath()
 
 bool inputSource::writeSettingsToLocalStorage(ApplicationDataCompositeValue^ composite, int Idx)
 {
+
 	bool bok = DataSourceItemBase::writeSettingsToLocalStorage(composite, Idx);
 	bok = composite->Insert(getCompositePropertyIDName("m_InputsourceUri", Idx), dynamic_cast<PropertyValue^>(PropertyValue::CreateString(m_InputsourceUri))); // with PW and user
 
@@ -746,7 +746,7 @@ bool inputSource::readSettingsfromLocalStorage(ApplicationDataCompositeValue^ co
 
 		this->m_VideoInput->readSettingsfromLocalStorage(composite, Idx);
 		this->m_AudioInput->readSettingsfromLocalStorage(composite, Idx);
-		createUriPath();
+	//	createUriPath();
 	}
 
 	return bok;
@@ -772,6 +772,7 @@ Platform::String^ inputSource::VisibleItem::get()
 {
 	//const wchar_t *wdata = m_IDName->Data();
 	wchar_t buffer[200];
+
 	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"%s:( %s )", m_DataSourceIDName->Data(), m_InputHostName->Data());
 //	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"%s", m_InputHostName->Data());
 
@@ -783,11 +784,9 @@ Platform::String^ inputSource::VisibleItem::get()
 }
 Platform::String^ inputSource::VisibleStreamUri::get()
 {
-	//const wchar_t *wdata = m_IDName->Data();Height
 	wchar_t buffer[200]; 
-	
+
 	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"%s.Res(%d x %d)@Fps(%f)", m_InputHostName->Data(), this->InputVideo->Resolution->Width, this->InputVideo->Resolution->Height, this->InputVideo->FPS);
-	//	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"%s", m_InputHostName->Data());
 
 	return ref new Platform::String(buffer);
 
@@ -1143,26 +1142,26 @@ void inputSourceViewModel::initdefaults()
 
 	SelectedIndex = -1;
 
+	//inputSource^ inpSource = ref new inputSource("AMCREST.Sub_0", "AMC000UY_89WJ0B", 554,"admin", "admin");
+	//inpSource->createUriPath();
+	//this->Items->Append(inpSource);
 
-	inputSource^ inpSource = ref new inputSource("AMCREST.Sub_0", "AMC000UY_89WJ0B", 554,"admin", "willi");
-	inpSource->createUriPath();
-	this->Items->Append(inpSource);
-
-	
-	inpSource = ref new inputSource("AMCREST.Sub_1", "AMC000UY_89WJ0B", 554, "admin", "willi");
-	inpSource->createUriPath();
-	this->Items->Append(inpSource);
+	//
+	//inpSource = ref new inputSource("AMCREST.Sub_1", "AMC000UY_89WJ0B", 554, "admin", "admin");
+	//inpSource->createUriPath();
+	//this->Items->Append(inpSource);
 	
 	//only for testing
-	inpSource = ref new inputSource("AMCREST.Sub_0", "192.168.1.230", 554, "admin", "willi");
+	inputSource^ inpSource = ref new inputSource("UserDefined.Sub_0", "192.168.1.230", 554, "admin", "admin");
 	inpSource->createUriPath();
 	this->Items->Append(inpSource);
 
-	inpSource = ref new inputSource("AMCREST.Sub_1", "192.168.1.230", 554, "admin", "willi");
+	inpSource = ref new inputSource("UserDefined.Sub_1", "192.168.1.230", 554, "admin", "admin");
 	inpSource->createUriPath();
 	this->Items->Append(inpSource);
 
 	
+
 }
 
 
@@ -1422,6 +1421,7 @@ void DataSources::writeSettingsToLocalStorage()
 	for (unsigned int i = 0; i < m_DataSources->Size;i++) {
 		DataSourceBase^ base = m_DataSources->GetAt(i);
 		base->SetContainerIDName(m_DataSourcesIDName); //ID vom Container wird gesetzt
+
 		base->writeSettingsToLocalStorage();
 	}
 

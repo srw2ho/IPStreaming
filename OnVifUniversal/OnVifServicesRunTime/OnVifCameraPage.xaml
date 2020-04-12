@@ -44,7 +44,7 @@
             <Setter Property="FontSize" Value="10"/>
         </Style>
     </Page.Resources>
-    
+
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Margin="0,0,-0,0">
 
         <Grid.ColumnDefinitions>
@@ -52,7 +52,7 @@
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="2*"/>
         </Grid.ColumnDefinitions>
-        
+
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup x:Name="WindowSizeStates">
                 <VisualState>
@@ -68,7 +68,7 @@
                         <Setter Target="OnVifDisovery.Style"  Value= "{StaticResource AppBarButtonStyleLarge}"/>
                         <Setter Target="editButton.Style"  Value= "{StaticResource ListViewStyleLarge}"/>
                     </VisualState.Setters>
-                    
+
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -92,39 +92,43 @@
             <StackPanel Orientation="Vertical" >
 
 
-            <StackPanel x:Name="DataInputPanel"   Orientation="Vertical">
-                <TextBox x:Name="devideIPAdress"  DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.CameraIPAdress, ElementName=cameraGridView}" Header="Device IPAddress" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"/>
-                <TextBox x:Name="deviceUser" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.User, ElementName=cameraGridView}" Header="User" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"  />
-                <PasswordBox x:Name="devicePassword" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Password="{Binding SelectedItem.Password, ElementName=cameraGridView}" Header="Password"  Margin="0,0,0,0"  VerticalAlignment="Top" />
-
-            </StackPanel>
-            <StackPanel Margin="0,10" Orientation="Vertical">
-                <TextBlock Text="Add / Delete / Edit Camera"/>
-                <StackPanel Margin="0,10" Orientation="Horizontal">
-                    <AppBarButton x:Name="addButton" Label="Add" Icon="Add"  Click="{x:Bind ButtonAddDevice}"/>
-                    <AppBarButton x:Name="deleteButton" Label ="Delete" Icon="Delete" Click="{x:Bind ButtonDeleteDevice}"/>
-                    <AppBarButton x:Name="editButton" Label ="Edit" Icon="Edit"  Click="{x:Bind ButtonEditDevice}"/>
+                <StackPanel x:Name="DataInputPanel"   Orientation="Vertical">
+                    <TextBox x:Name="devideIPAdress"  DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.CameraIPAdress, ElementName=cameraGridView}" Header="Device IPAddress" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="deviceUser" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.User, ElementName=cameraGridView}" Header="User" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"  />
+                    <PasswordBox x:Name="devicePassword" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Password="{Binding SelectedItem.Password, ElementName=cameraGridView}" Header="Password"  Margin="0,0,0,0"  VerticalAlignment="Top" />
 
                 </StackPanel>
-
-                <TextBlock Text="Recovery OnVif-Devices"/>
                 <StackPanel Margin="0,10" Orientation="Vertical">
-                    <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Add / Delete / Edit Camera"/>
+                    <StackPanel Margin="0,10" Orientation="Horizontal">
+                        <AppBarButton x:Name="addButton" Label="Add" Icon="Add"  Click="{x:Bind ButtonAddDevice}"/>
+                        <AppBarButton x:Name="deleteButton" Label ="Delete" Icon="Delete" Click="{x:Bind ButtonDeleteDevice}"/>
+                        <AppBarButton x:Name="editButton" Label ="Save" Icon="Edit"  Click="{x:Bind ButtonEditDevice}"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,10" Orientation="Horizontal">
+                        <AppBarButton x:Name="moveUpButton" Label ="Up" Icon="Upload"  Click="{x:Bind ButtonMoveUpDevice}"/>
+                        <AppBarButton x:Name="moveDownButton" Label ="Down" Icon="Download"  Click="{x:Bind ButtonMoveDownDevice}"/>
+
+                    </StackPanel>
+
+                    <TextBlock Text="Recovery OnVif-Devices"/>
+                    <StackPanel Margin="0,10" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal">
 
                             <AppBarButton Label="recovery OnVif Devices" IsEnabled ="{x:Bind DiscoveryClients.IsNotWorking, Mode=OneWay}" Icon="Camera"  Click="{x:Bind ButtonRecoveryDevices}"/>
-                        <AppBarButton x:Name="AddOnVifDNS" IsEnabled="{x:Bind DiscoveryClients.IsDNSNameSelected, Mode=OneWay}" Label="Add OnVif DNS Name" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
-                        <AppBarButton x:Name="AddOnVifIP"  IsEnabled="{x:Bind DiscoveryClients.IsUrlHostNameSelected, Mode=OneWay}" Label="Add OnVif IPAdress" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
+                            <AppBarButton x:Name="AddOnVifDNS" IsEnabled="{x:Bind DiscoveryClients.IsDNSNameSelected, Mode=OneWay}" Label="Add OnVif DNS Name" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
+                            <AppBarButton x:Name="AddOnVifIP"  IsEnabled="{x:Bind DiscoveryClients.IsUrlHostNameSelected, Mode=OneWay}" Label="Add OnVif IPAdress" Icon="Add"  Click="{x:Bind ButtonAddOnVifSelectedDevice}"/>
 
-                        <!--
+                            <!--
 
                         <CheckBox IsChecked="{x:Bind DiscoveryClients.IsConnected}" />
                                                 -->
-                     </StackPanel>
+                        </StackPanel>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="*"/>
-                             </Grid.ColumnDefinitions>
+                            </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" >
                                 <TextBox  HorizontalContentAlignment="Stretch" Text="{x:Bind DiscoveryClients.ListenPort,Mode=TwoWay}" Header="Listen Port"  VerticalAlignment="Top"/>
                                 <TextBox  Width="Auto"  HorizontalContentAlignment="Stretch"  Text="{x:Bind DiscoveryClients.RequestTimeOut,Mode=TwoWay}" Header="RequestTimeOut" VerticalAlignment="Top" />
@@ -134,11 +138,11 @@
                             </StackPanel>
                         </Grid>
 
-                </StackPanel>
-                <StackPanel>
+                    </StackPanel>
+                    <StackPanel>
 
-                    <ListView  x:Name ="OnVifDisovery" SelectionMode="Single"  IsItemClickEnabled = "False" ItemsSource="{x:Bind DiscoveryClients.EndPoints}"  SelectedIndex="{x:Bind DiscoveryClients.SelectedIndex, Mode=TwoWay}" SelectionChanged="{x:Bind OnVifDisoverySelectionChanged, Mode=OneWay}" >
-                 
+                        <ListView  x:Name ="OnVifDisovery" SelectionMode="Single"  IsItemClickEnabled = "False" ItemsSource="{x:Bind DiscoveryClients.EndPoints}"  SelectedIndex="{x:Bind DiscoveryClients.SelectedIndex, Mode=TwoWay}" SelectionChanged="{x:Bind OnVifDisoverySelectionChanged, Mode=OneWay}" >
+
                             <ListView.ItemTemplate>
                                 <DataTemplate x:DataType="OnVifServicesRunTime:WSEndpoint">
                                     <Grid>
@@ -150,7 +154,7 @@
                                         <StackPanel  Margin="5,0" Grid.Column="1" Orientation="Vertical">
                                             <TextBlock Foreground="Blue"  Text="{x:Bind UrlHostName }" TextWrapping="Wrap"  VerticalAlignment="Top"/>
                                             <TextBlock Foreground="Blue"  Text="{x:Bind DNSName }"  TextWrapping="Wrap"   VerticalAlignment="Top"/>
-                                    </StackPanel>
+                                        </StackPanel>
                                     </Grid>
                                 </DataTemplate>
 
@@ -160,11 +164,11 @@
                         </ListView>
 
 
+                    </StackPanel>
+
+
                 </StackPanel>
-
-
             </StackPanel>
-        </StackPanel>
         </ScrollViewer>
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto">
             <Frame x:Name="CameraFrame"  Margin="0,0,0,0"  />
@@ -173,11 +177,11 @@
         <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
 
 
-            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Margin="5,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
                 <TextBlock Text= "Added Cameras" />
-              
-    
+
+
                 <GridView  x:Name ="cameraGridView" SelectionMode="Single" Tapped="cameraGridViewTapped" IsItemClickEnabled = "False" ItemsSource="{x:Bind CameraViewModel.Cameras}"  SelectedIndex="{x:Bind CameraViewModel.SelectedIndex, Mode=TwoWay}" SelectionChanged="{x:Bind CameraSelectionChanged, Mode=OneWay}" >
                     <GridView.ItemTemplate>
                         <DataTemplate x:DataType="OnVifServicesRunTime:OnVifCamera">
@@ -185,9 +189,9 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="4*"/>
-              
+
                                 </Grid.ColumnDefinitions>
-                 
+
                                 <StackPanel Grid.Column="0" Background="{StaticResource ListViewItemPlaceholderBackgroundThemeBrush}">
                                     <Image  Source="{x:Bind CameraImageSource , Mode=OneWay}" Stretch="UniformToFill" />
                                 </StackPanel>
@@ -211,24 +215,24 @@
                         </DataTemplate>
                     </GridView.ItemTemplate>
 
-                         
+
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid  GroupPadding="0,0,0,0"/>
                         </ItemsPanelTemplate>
                     </GridView.ItemsPanel>
-       
+
 
                     <GridView.Items>
                         <x:String>One</x:String>
                         <GridViewItem>Two</GridViewItem>
                     </GridView.Items>
-    
+
 
                 </GridView>
 
             </StackPanel>
- 
+
 
         </ScrollViewer>
     </Grid>

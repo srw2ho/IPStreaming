@@ -67,6 +67,45 @@ namespace OnVifServicesRunTime
             return true;
 
         }
+        public bool moveUpDevice()
+        {
+            OnVifCamera camera= getSelectedCamera(); // actual Selected
+            if (camera != null)
+            {
+                int Idx = this.SelectedIndex;
+                if (Idx > 0)
+                {
+                    this.Cameras.RemoveAt(Idx);
+                    this.Cameras.Insert(Idx - 1, camera);
+                    this.SelectedIndex = Idx - 1;
+                }
+
+
+            }
+
+            return true;
+
+        }
+        public bool moveDownDevice()
+        {
+            OnVifCamera camera = getSelectedCamera(); // actual Selected
+            if (camera != null)
+            {
+                int Idx = this.SelectedIndex;
+                if (Idx + 1 < this.Cameras.Count)
+                {
+                    this.Cameras.RemoveAt(Idx);
+                    this.Cameras.Insert(Idx + 1, camera);
+                    this.SelectedIndex = Idx + 1;
+
+                }
+
+            }
+
+            return true;
+
+        }
+
         public bool addDevice(string IPAdress, string User, string Password)
         {
             OnVifCamera camera = getCameraByIPAdress(IPAdress);

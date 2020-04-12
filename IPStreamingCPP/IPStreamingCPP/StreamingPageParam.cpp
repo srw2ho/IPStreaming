@@ -654,11 +654,40 @@ void StreamingPageParam::takeParametersFromCamera()
 {
 	m_DataSourceparam->SetParams(this->DataSources);
 
-	if (this->OnVifCamera->ProfileEncodings->Size == 0) return;
-
 	inputSourceViewModel^ uris = this->m_DataSourceparam->_inputSourceUri;
 	if (uris == nullptr) return;
 	inputSource^ source;
+
+	size_t Idx = 0;
+
+
+	if (this->OnVifCamera->ProfileEncodings->Size == 0) {
+		// srw2ho: IP-Camera-Adress setzen
+		while ((source = uris->getInputSourceByIdx(Idx)) != nullptr)
+		{
+			bool setUri = false;
+			if (source->HostName != this->OnVifCamera->CameraIPAdress) {
+				source->HostName = this->OnVifCamera->CameraIPAdress;
+				setUri = true;
+			}
+			if (source->Password != this->OnVifCamera->Password) {
+				source->Password = this->OnVifCamera->Password;
+				setUri = true;
+			}
+			if (source->User != this->OnVifCamera->User) {
+				source->User = this->OnVifCamera->User;
+				setUri = true;
+			}
+
+			if (setUri) {
+				source->createUriPath();
+			}
+
+			Idx++;
+		}
+		return;
+	}
+
 	Platform::Collections::Vector<inputSource^>^ foundedItems = ref new Platform::Collections::Vector<inputSource^>();
 
 	for each (auto var in this->OnVifCamera->ProfileEncodings) {
@@ -698,8 +727,7 @@ void StreamingPageParam::takeParametersFromCamera()
 
 	if (foundedItems->Size == 0) return;
 
-	unsigned int Idx = 0;
-
+	Idx = 0;
 
 	while ((source = uris->getInputSourceByIdx(Idx)) != nullptr)
 	{

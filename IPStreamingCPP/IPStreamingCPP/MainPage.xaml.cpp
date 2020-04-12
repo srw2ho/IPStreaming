@@ -252,6 +252,7 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 		item = ref new ScenarioItem("OnVifCamera", tt, Symbol::Edit, param->OnVifCamera);
 		param->ScenarioView->Items->Append(item);
 
+
 		param->takeParametersFromCamera(); // Camera-Parameter werden übernommen
 		m_StreamingPageParamControl->Items->Append(param);
 

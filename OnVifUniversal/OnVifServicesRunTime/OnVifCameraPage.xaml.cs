@@ -131,10 +131,20 @@ namespace OnVifServicesRunTime
         }
 
 
-     
         public void ButtonEditDevice(object sender, RoutedEventArgs e)
         {
             this.CameraViewModel.editDevice(this.devideIPAdress.Text, this.deviceUser.Text, this.devicePassword.Password);
+        }
+
+
+
+        public void ButtonMoveUpDevice(object sender, RoutedEventArgs e)
+        {
+            this.CameraViewModel.moveUpDevice();
+        }
+        public void ButtonMoveDownDevice(object sender, RoutedEventArgs e)
+        {
+            this.CameraViewModel.moveDownDevice();
         }
 
         protected override void OnNavigatingFrom(NavigatingCancelEventArgs e)

@@ -233,6 +233,11 @@ void StreamingPage::inputURIBoxKeyUp(Platform::Object^ sender, Windows::UI::Xaml
 	// Only respond when the text box is not empty and after Enter key is pressed
 	if (e->Key == Windows::System::VirtualKey::Enter && !uri->IsEmpty())
 	{
+		// srw2ho, 10.04.2020, overtake input
+		IPStreamingCPP::inputSource^ inpSource = this->_inputSourceUri->geSelectedInputSource();
+		if (inpSource != nullptr) {
+			inpSource->InputsourceUri =this->inpurturl->Text;
+		}
 		starturiRecording();
 		e->Handled = true;
 	}
