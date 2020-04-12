@@ -1,11 +1,21 @@
 #include "pch.h"
 #include "CodecReader.h"
 
+
+FFmpegInteropExtRT::CodecReader::CodecReader() {
+}
+
+FFmpegInteropExtRT::CodecReader::~CodecReader() {
+
+};
+
 //// this works, but it takes 500ms on first call, so not using it right now...
 IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledVideoDecoderCodecsAsync()
 {
 
 	return create_async([this]()->void {
+
+
 
 		m_SupportedVideoCodecs.clear();
 		//
@@ -33,7 +43,7 @@ IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledVideoDecoderCodecsAs
 					}
 				}
 			}
-			catch (Exception ^ exception)
+			catch (Exception^ exception)
 			{
 
 
@@ -42,6 +52,7 @@ IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledVideoDecoderCodecsAs
 			});
 		});
 
+
 }
 
 IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledAudioDecoderCodecsAsync()
@@ -49,7 +60,7 @@ IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledAudioDecoderCodecsAs
 
 	return create_async([this]()->void {
 		m_SupportedAudioCodecs.clear();
-		String^ Guid = CodecSubtypes::VideoFormatH264;
+
 
 		auto query = ref new CodecQuery();
 		create_task(query->FindAllAsync(CodecKind::Video, CodecCategory::Decoder, "")).then([this](task<IVectorView<CodecInfo^ >^> tskcodecs) {
@@ -73,7 +84,7 @@ IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledAudioDecoderCodecsAs
 					}
 				}
 			}
-			catch (Exception ^ exception)
+			catch (Exception^ exception)
 			{
 
 

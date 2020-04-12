@@ -7,6 +7,7 @@ using namespace Windows::Media::Core;
 using namespace Windows::System;
 using namespace Concurrency;
 
+
 extern "C"
 {
 #include <libavformat/avformat.h>
@@ -22,6 +23,8 @@ namespace FFmpegInteropExtRT
 		InstalledCodecs m_SupportedVideoCodecs;
 		InstalledCodecs m_SupportedAudioCodecs;
 	public:
+		CodecReader();
+		virtual ~CodecReader();
 		IAsyncAction^ ReadInstalledVideoDecoderCodecsAsync();
 		IAsyncAction^ ReadInstalledAudioDecoderCodecsAsync();
 		bool IsVideoDecoderCodecInstalled(String^ subTypeGUID);
