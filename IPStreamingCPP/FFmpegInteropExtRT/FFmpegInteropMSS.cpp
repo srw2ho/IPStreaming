@@ -674,7 +674,7 @@ HRESULT FFmpegInteropMSS::ConvertCodecName(const char* codecName, String^ *outpu
 
 HRESULT FFmpegInteropMSS::CreateAudioStreamDescriptor(bool forceAudioDecode)
 {
-	if (avAudioCodecCtx->codec_id == AV_CODEC_ID_AAC && !forceAudioDecode)
+	if (avAudioCodecCtx->codec_id == AV_CODEC_ID_AAC && IsAudioCodecSupported(forceAudioDecode, AV_CODEC_ID_AAC) )
 	{
 		if (avAudioCodecCtx->extradata_size == 0)
 		{
@@ -686,7 +686,7 @@ HRESULT FFmpegInteropMSS::CreateAudioStreamDescriptor(bool forceAudioDecode)
 		}
 		audioSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx,this->m_pOutPutEncoding);
 	}
-	else if (avAudioCodecCtx->codec_id == AV_CODEC_ID_MP3 && !forceAudioDecode)
+	else if (avAudioCodecCtx->codec_id == AV_CODEC_ID_MP3 && IsAudioCodecSupported(forceAudioDecode, AV_CODEC_ID_MP3))
 	{
 		audioStreamDescriptor = ref new AudioStreamDescriptor(AudioEncodingProperties::CreateMp3(avAudioCodecCtx->sample_rate, avAudioCodecCtx->channels, (unsigned int)avAudioCodecCtx->bit_rate));
 		audioSampleProvider = ref new MediaSampleProvider(m_pReader, avFormatCtx, avAudioCodecCtx, this->m_pOutPutEncoding);
@@ -710,6 +710,15 @@ bool FFmpegInteropMSS::IsVideoCodecSupported(bool forceVideoDecode, AVCodecID  c
 	return m_CodecReader->IsVideoCodecSupported(forceVideoDecode,codercID);
 
 }
+
+bool FFmpegInteropMSS::IsAudioCodecSupported(bool AudioVideoDecode, AVCodecID  codercID)
+{
+	bool bret = false;
+	if (m_CodecReader == nullptr) return false;
+	return m_CodecReader->IsAudioCodecSupported(AudioVideoDecode, codercID);
+
+}
+
 
 HRESULT FFmpegInteropMSS::CreateVideoStreamDescriptor(bool forceVideoDecode)
 {

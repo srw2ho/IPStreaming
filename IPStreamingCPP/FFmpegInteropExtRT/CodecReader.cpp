@@ -3,29 +3,130 @@
 
 
 FFmpegInteropExtRT::CodecReader::CodecReader() {
+	m_query = ref new Windows::Media::Core::CodecQuery();
 }
 
 FFmpegInteropExtRT::CodecReader::~CodecReader() {
 
 };
 
-//// this works, but it takes 500ms on first call, so not using it right now...
+
+Concurrency::task<bool> FFmpegInteropExtRT::CodecReader::GetAudioDecoderCodecAsync(Platform::String^ subTypeGUID)
+{
+		auto tsk = Concurrency::create_task(m_query->FindAllAsync(CodecKind::Audio, CodecCategory::Decoder, subTypeGUID)).then([this](task<IVectorView<CodecInfo^ >^> tskcodecs) {
+			try
+			{
+				auto codecs = tskcodecs.get();
+			
+				for each (auto codec in codecs)
+				{
+					if (codec->IsTrusted)
+					{
+
+						auto types = codec->Subtypes;
+						for each (auto type in types)
+						{
+							m_SupportedAudioCodecs[type] = codec;
+
+						}
+
+					}
+				}
+				return true;
+			}
+			catch (Exception^ exception)
+			{
+				return false;
+
+			}
+
+			});
+		return tsk;
+
+
+}
+
+
+
+Concurrency::task<bool> FFmpegInteropExtRT::CodecReader::GetVideoDecoderCodecAsync(Platform::String^ subTypeGUID)
+{
+	auto tsk = Concurrency::create_task(m_query->FindAllAsync(CodecKind::Video, CodecCategory::Decoder, subTypeGUID)).then([this](task<IVectorView<CodecInfo^ >^> tskcodecs) {
+		try
+		{
+			auto codecs = tskcodecs.get();
+
+			for each (auto codec in codecs)
+			{
+				if (codec->IsTrusted)
+				{
+
+					auto types = codec->Subtypes;
+					for each (auto type in types)
+					{
+						m_SupportedVideoCodecs[type] = codec;
+
+					}
+
+				}
+			}
+			return true;
+		}
+		catch (Exception^ exception)
+		{
+			return false;
+
+		}
+
+		});
+	return tsk;
+
+
+}
+
+IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadUsedVideoDecoderCodecsAsync()
+{
+
+	return create_async([this]()->void {
+		m_SupportedVideoCodecs.clear();
+
+		GetVideoDecoderCodecAsync(CodecSubtypes::VideoFormatH264);
+		GetVideoDecoderCodecAsync(CodecSubtypes::VideoFormatHevc);
+		GetVideoDecoderCodecAsync(CodecSubtypes::VideoFormatHevcES);
+		GetVideoDecoderCodecAsync(CodecSubtypes::VideoFormatMpeg2);
+		GetVideoDecoderCodecAsync(CodecSubtypes::VideoFormatVP90);
+		GetVideoDecoderCodecAsync(CodecSubtypes::VideoFormatVP80);
+
+	});
+
+}
+
+IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadUsedAudioDecoderCodecsAsync()
+{
+
+	return create_async([this]()->void {
+		m_SupportedAudioCodecs.clear();
+
+		GetAudioDecoderCodecAsync(CodecSubtypes::AudioFormatAac);
+		GetAudioDecoderCodecAsync(CodecSubtypes::AudioFormatMP3);
+	});
+
+}
+
+
+
 IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledVideoDecoderCodecsAsync()
 {
 
 	return create_async([this]()->void {
-
-
-
 		m_SupportedVideoCodecs.clear();
-		//
+	
 
-		auto query = ref new CodecQuery();
-		create_task(query->FindAllAsync(CodecKind::Video, CodecCategory::Decoder, "")).then([this](task<IVectorView<CodecInfo^ >^> tskcodecs) {
+//		auto ve  = m_query->FindAllAsync(CodecKind::Video, CodecCategory::Decoder, nullptr);
+		//	auto query = ref new Windows::Media::Core::CodecQuery();
+		Concurrency::create_task(m_query->FindAllAsync(CodecKind::Video, CodecCategory::Decoder, "")).then([this](task<IVectorView<CodecInfo^ >^ > tskcodecs) {
 			try
 			{
 				auto codecs = tskcodecs.get();
-
 				for each (auto codec in codecs)
 				{
 					//	 std::map<String^, CodecInfo^> m_SupportedVideoCodecs;
@@ -52,7 +153,6 @@ IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledVideoDecoderCodecsAs
 			});
 		});
 
-
 }
 
 IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledAudioDecoderCodecsAsync()
@@ -60,10 +160,9 @@ IAsyncAction^ FFmpegInteropExtRT::CodecReader::ReadInstalledAudioDecoderCodecsAs
 
 	return create_async([this]()->void {
 		m_SupportedAudioCodecs.clear();
-
-
-		auto query = ref new CodecQuery();
-		create_task(query->FindAllAsync(CodecKind::Video, CodecCategory::Decoder, "")).then([this](task<IVectorView<CodecInfo^ >^> tskcodecs) {
+	
+	//	auto query = ref new Windows::Media::Core::CodecQuery();
+		Concurrency::create_task(m_query->FindAllAsync(CodecKind::Audio, CodecCategory::Decoder, "")).then([this](task<IVectorView<CodecInfo^ >^> tskcodecs) {
 			try
 			{
 				auto codecs = tskcodecs.get();
@@ -155,7 +254,24 @@ bool FFmpegInteropExtRT::CodecReader::IsVideoCodecSupported(bool forceVideoDecod
 }
 bool FFmpegInteropExtRT::CodecReader::IsAudioCodecSupported(bool forceAudioDecode, AVCodecID  codercID)
 {
+	bool bret = false;
 	if (forceAudioDecode) return false;
-	return true;
+
+	switch (codercID) {
+	case AV_CODEC_ID_AAC: {
+		bret = IsAudioDecoderCodecInstalled(CodecSubtypes::AudioFormatAac);
+		break;
+	}
+
+	case AV_CODEC_ID_MP3: {
+
+		bret = IsAudioDecoderCodecInstalled(CodecSubtypes::AudioFormatMP3);
+		break;
+	}
+
+	}
+
+	
+	return bret;
 }
 

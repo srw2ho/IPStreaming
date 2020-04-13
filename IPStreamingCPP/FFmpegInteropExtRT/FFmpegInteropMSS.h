@@ -139,6 +139,7 @@ namespace FFmpegInteropExtRT
 		void OnSampleRequested(MediaStreamSource ^sender, MediaStreamSourceSampleRequestedEventArgs ^args);
 		void OnMediaClosed(Windows::Media::Core::MediaStreamSource ^sender, MediaStreamSourceClosedEventArgs^ args);
 		bool IsVideoCodecSupported(bool forceVideoDecode, AVCodecID  codercID);
+		bool IsAudioCodecSupported(bool AudioVideoDecode, AVCodecID  codercID);
 
 		MediaStreamSource^ mss;
 		Windows::Foundation::EventRegistrationToken startingRequestedToken;

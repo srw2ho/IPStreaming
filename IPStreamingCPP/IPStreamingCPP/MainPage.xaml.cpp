@@ -61,7 +61,11 @@ MainPage::MainPage()
 		Application::Current->Resuming += ref new EventHandler<Object^>(this, &MainPage::Application_Resuming);
 
 	m_CodecReader =  ref new FFmpegInteropExtRT::CodecReader();
-	m_CodecReader->ReadInstalledVideoDecoderCodecsAsync();
+	// srw2ho: crashin case of first call, but only one computer m_CodecReader->ReadInstalledVideoDecoderCodecsAsync();
+	// readonly used Video codecs
+	m_CodecReader->ReadUsedVideoDecoderCodecsAsync();
+	m_CodecReader->ReadUsedAudioDecoderCodecsAsync();
+
 
 
 
