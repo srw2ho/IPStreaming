@@ -90,11 +90,20 @@ namespace IPStreamingCPP
 
 		void ClearRessources();
 
-		void OnstartMovementStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args);
+		void OnstartMovementStreaming(Platform::Object ^sender, Windows::Foundation::Collections::PropertySet ^args);
 	
 		//
 		void OnStopMovementStreaming(Platform::Object ^sender, Platform::String ^args);
 		void OnChangeMovement(Platform::Object ^sender, Windows::Foundation::Collections::PropertySet ^args);
+
+
+	//	void OnChangeAMCRESTEventMovement(Platform::Object^ sender, Windows::Foundation::Collections::PropertySet^ args);
+	//	void OnStopAMCRESTEventStreaming(Platform::Object^ sender, Platform::String^ args);
+
+	//	void OnStartAMCRESTEventStreaming(Platform::Object^ sender, Windows::Foundation::Collections::PropertySet^ args);
+	//	bool checkForMovement(Windows::Foundation::Collections::PropertySet^ args);
+		bool checkForEvents(StreamingPageParam^ streamingPageParam);
+
 
 	};
 

@@ -48,6 +48,8 @@ StreamingPageParam::StreamingPageParam()
 	m_Muxerconfigoptions = ref new Windows::Foundation::Collections::PropertySet();
 	m_Recording = nullptr;
 	m_CodecReader = nullptr;
+	m_AmcrestMotion = nullptr;
+
 
 }
 
@@ -67,7 +69,10 @@ StreamingPageParam::~StreamingPageParam()
 	{
 		delete m_Recording;
 	}
-	
+	if (m_AmcrestMotion != nullptr) {
+
+		delete m_AmcrestMotion;
+	}
 	/*
 	if (m_datasources != nullptr) {
 		delete m_datasources;
@@ -87,24 +92,41 @@ void StreamingPageParam::NotifyPropertyChanged(Platform::String^ prop)
 */
 
 
+void StreamingPageParam::startAMCRESTEventRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions) {
+	if ((m_AmcrestMotion != nullptr)) {
+		m_AmcrestMotion->startProcessingPackagesAsync(inputconfigoptions, this->m_Muxerconfigoptions);
+	}
+}
+void StreamingPageParam::stopAMCRESTEventRecording() {
+
+
+	if (m_AmcrestMotion != nullptr) {
+		auto tsk = m_AmcrestMotion->stopProcessingPackagesAsync();
+	//	create_task(tsk).get();
+	}
+
+}
+
 
 void StreamingPageParam::startMovementRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions) {
 
 	if (m_Recording != nullptr) {
-	//	m_OnStartMovementStreaming = m_Recording->startStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Windows::Networking::Sockets::StreamSocket ^>(this, &IPStreamingCPP::StreamingPageParam::OnstartMovementStreaming);
-	//	m_OnStopMovementStreaming = m_Recording->stopStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, Platform::String ^>(this, &IPStreamingCPP::StreamingPageParam::OnstopMovementStreaming);
-
+	
 		m_Recording->startProcessingPackagesAsync(inputconfigoptions, this->m_Muxerconfigoptions);
 
 
 	}
+
 }		
 void StreamingPageParam::stopMovementRecording() {
 
 
+	if (m_Recording != nullptr) {
 
-	m_Recording->stopProcessingPackagesAsync();
-	
+		auto tsk = m_Recording->stopProcessingPackagesAsync();
+	//	create_task(tsk).get();
+	}
+		
 
 }
 
@@ -138,6 +160,14 @@ void StreamingPageParam::ClearRessources()
 		stopMovementRecording();
 
 	}
+	if (m_AmcrestMotion != nullptr) {
+		m_AmcrestMotion->stopStreaming -= m_OnStopAMCRESEventStreaming;
+		m_AmcrestMotion->startStreaming -= m_OnStartAMCRESEventStreaming;
+		m_AmcrestMotion->ChangeMovement -= m_OnChangeAMCRESEventStreaming;
+		stopAMCRESTEventRecording();
+
+	}
+
 
 
 
@@ -161,6 +191,9 @@ StreamingPageParam ^ StreamingPageParam::createStreamingPageParam(Platform::Stri
 	m_stream = nullptr;
 //	m_SplitView = nullptr;
 	m_Recording = ref new RecordingListener::Recording();
+
+	m_AmcrestMotion = ref new AmcrestMotionDetection::AmcrestMotion();
+
 	return this;
 }
 
@@ -450,7 +483,7 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 				int width = 640;
 				int64_t bit_rate = 800000;
 
-
+			
 				Fps^ selectedfps = m_DataSourceparam->_outputMPegfps->getSelectedFps();
 				if (selectedfps != nullptr)fps = selectedfps->FPS;
 				Resolution^ selectedResolution = m_DataSourceparam->_outputMPegresolution->getSelectedResolution();
@@ -516,13 +549,27 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 				bool recordingOnMovement = m_DataSourceparam->_RecordingOnMovement->ValueasBool;
 
 				bool MovementActiv = m_DataSourceparam->_toggleSwitchMovementWatcher->ValueasBool;
-				if (MovementActiv) {
+				bool CameraEventsActiv = m_DataSourceparam->_CameraEvents->ValueasBool;
+
+				if (MovementActiv || CameraEventsActiv) {
 					PropertySet^ inputOptions = ref new PropertySet();
+					inputOptions->Insert("CameraName", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(this->m_OnVifCamera->CameraIPAdress)));
+					inputOptions->Insert("Password", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(this->m_OnVifCamera->Password)));
+					inputOptions->Insert("User", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(this->m_OnVifCamera->User)));
+
 					inputOptions->Insert("HostName", dynamic_cast<PropertyValue^>(PropertyValue::CreateString(m_DataSourceparam->_HostNameMovementWatcher->Value)));
 					inputOptions->Insert("Port", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(m_DataSourceparam->_PortMovementWatcher->Value)));
 					inputOptions->Insert("GPIOTyp.input_1", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(m_DataSourceparam->_InputPin1MovementWatcher->Value)));
 					inputOptions->Insert("GPIOTyp.input_1.Activ", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(m_DataSourceparam->_InputPin1MovementWatcherActiv->Value)));
-					this->startMovementRecording(inputOptions);
+					if (CameraEventsActiv) {
+						this->startAMCRESTEventRecording(inputOptions);
+					}
+					else if (MovementActiv) {
+						this->startMovementRecording(inputOptions);
+					}
+				
+
+
 				}
 
 				if (recordingOnMovement)
@@ -756,6 +803,7 @@ void StreamingPageParam::takeParametersFromCamera()
 void StreamingPageParam::clearRecording()
 {
 	stopMovementRecording();
+	stopAMCRESTEventRecording();
 
 	if (m_FFmpegMSS != nullptr)
 	{
@@ -856,6 +904,7 @@ void StreamingPageParam::ReadFromAppData()
 
 	ItemValueViewModel^ _RecordingOnMovement = ref new  ItemValueViewModel("_RecordingOnMovement");
 
+	ItemValueViewModel^ _CameraEvents = ref new  ItemValueViewModel("_CameraEvents");
 
 	HourViewModel^ _MovementRecordingTimeSecs = ref new  HourViewModel("_MovementRecordingTimeSecs");
 
@@ -897,6 +946,7 @@ void StreamingPageParam::ReadFromAppData()
 	_datasources->AddDataSource(_InputPin1MovementWatcher);
 	_datasources->AddDataSource(_InputPin1MovementWatcherActiv);
 	_datasources->AddDataSource(_RecordingOnMovement);
+	_datasources->AddDataSource(_CameraEvents);
 	
 	_datasources->AddDataSource(_MovementRecordingTimeSecs);
 
@@ -931,6 +981,7 @@ StreamingPageParamControl::StreamingPageParamControl()
 {
 	this->m_Items = ref new Platform::Collections::Vector<StreamingPageParam^>();
 	m_SelectedIndex = -1;
+	m_DataCompositeIDName = ref new Platform::String (L"StreamingPageParamControl");
 }
 
 StreamingPageParamControl::~StreamingPageParamControl()
@@ -1006,5 +1057,62 @@ StreamingPageParam^ StreamingPageParamControl::getSelectedItem()
 }
 
 
+Windows::Storage::ApplicationDataCompositeValue^ StreamingPageParamControl::getCompositeValue()
+{
+	Windows::Storage::ApplicationDataCompositeValue^ DataSourcecomposite;
 
+	Windows::Storage::ApplicationDataContainer^ localSettings = Windows::Storage::ApplicationData::Current->LocalSettings;
+	bool keyok = localSettings->Values->HasKey(m_DataCompositeIDName);
+
+	if (keyok) {
+
+		DataSourcecomposite = (Windows::Storage::ApplicationDataCompositeValue^)localSettings->Values->Lookup(m_DataCompositeIDName);
+	}
+	else {
+		DataSourcecomposite = ref new Windows::Storage::ApplicationDataCompositeValue();
+
+	}
+
+	return DataSourcecomposite;
+
+
+}
+
+Windows::Storage::ApplicationDataCompositeValue^ StreamingPageParamControl::deleteCompositeValue()
+{
+	//	if (m_DataSourcecomposite == nullptr) return nullptr;
+	Windows::Storage::ApplicationDataContainer^ localSettings = Windows::Storage::ApplicationData::Current->LocalSettings;
+	Windows::Storage::ApplicationDataCompositeValue^ DataSourcecomposite;
+
+	if (localSettings->Values->HasKey(m_DataCompositeIDName)) {
+
+		localSettings->Values->Remove(m_DataCompositeIDName);
+		DataSourcecomposite = nullptr;
+	}
+
+	return DataSourcecomposite;
+
+
+}
+
+void StreamingPageParamControl::writeSettingsToLocalStorage() {
+	deleteCompositeValue();
+	Windows::Storage::ApplicationDataContainer^ localSettings = Windows::Storage::ApplicationData::Current->LocalSettings;
+
+	Windows::Storage::ApplicationDataCompositeValue^ composite = getCompositeValue();
+	bool bok = composite->Insert("m_SelectedIndex", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(m_SelectedIndex)));
+
+	bool write = localSettings->Values->Insert(m_DataCompositeIDName, composite);
+
+}
+
+void StreamingPageParamControl::readSettingsfromLocalStorage() {
+	Windows::Storage::ApplicationDataCompositeValue^ composite = getCompositeValue();
+	Object^ ref = composite->Lookup("m_SelectedIndex");
+	if (ref != nullptr) {
+		m_SelectedIndex = safe_cast<IPropertyValue^>(ref)->GetInt32();
+	}
+	else m_SelectedIndex = -1;
+
+}
 

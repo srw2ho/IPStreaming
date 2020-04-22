@@ -101,6 +101,9 @@ void FFmpegInteropExtRT::FFMpegOutputDevice::delayRecording(FFMpegOutputDevice*p
 void FFmpegInteropExtRT::FFMpegOutputDevice::OnMapChanged(Windows::Foundation::Collections::IObservableMap<Platform::String ^, Platform::Object ^> ^sender, Windows::Foundation::Collections::IMapChangedEventArgs<Platform::String ^> ^event)
 {
 	
+	if ((event->Key != L"m_MovementActivated") && (event->Key != L"m_MovementActiv")) return;
+	
+
 	MapConfigOptions::const_iterator it;
 	int nHashCode = 0;
 	PropertySet^ configOptions = safe_cast<PropertySet^>(sender);
@@ -114,6 +117,7 @@ void FFmpegInteropExtRT::FFMpegOutputDevice::OnMapChanged(Windows::Foundation::C
 	{
 		FFmpegInteropExtRT::FFMpegOutputDevice * pOutputDevice = (FFmpegInteropExtRT::FFMpegOutputDevice*)it->second;
 		if (pOutputDevice != nullptr) {
+
 			if (configOptions->HasKey("m_MovementActiv") && configOptions->HasKey("m_MovementActivated") && configOptions->HasKey("m_RecordingActivTimeinSec")) {
 				Platform::Object^ isActivvalue = configOptions->Lookup("m_MovementActiv");
 				Platform::Object^ isActatedvalue = configOptions->Lookup("m_MovementActivated");

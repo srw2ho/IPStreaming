@@ -163,6 +163,11 @@ namespace IPStreamingCPP
 			IPStreamingCPP::ItemValueViewModel^ get() { return _RecordingOnMovement; };
 		}
 
+		property IPStreamingCPP::ItemValueViewModel^ CameraEvents
+		{
+			IPStreamingCPP::ItemValueViewModel^ get() { return _CameraEvents; };
+		}
+
 	
 
 
@@ -230,7 +235,7 @@ namespace IPStreamingCPP
 		IPStreamingCPP::ItemValueViewModel^ _InputPin1MovementWatcher;
 		IPStreamingCPP::ItemValueViewModel^ _InputPin1MovementWatcherActiv;
 		IPStreamingCPP::ItemValueViewModel^ _RecordingOnMovement;
-
+		IPStreamingCPP::ItemValueViewModel^ _CameraEvents;
 		IPStreamingCPP::HourViewModel ^ _MovementRecordingTimeSecs;
 
 		Windows::System::Threading::ThreadPoolTimer ^ _restartStreamingTimer;

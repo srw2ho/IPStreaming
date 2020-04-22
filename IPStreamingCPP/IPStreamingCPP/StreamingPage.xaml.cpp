@@ -135,6 +135,8 @@ void StreamingPage::ReadFromAppData()
 
 	this->_RecordingOnMovement = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_RecordingOnMovement"));;
 
+	this->_CameraEvents = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_CameraEvents"));;
+
 
 	this->_MovementRecordingTimeSecs = safe_cast <HourViewModel^>(_datasources->getDataSource("_MovementRecordingTimeSecs"));
 

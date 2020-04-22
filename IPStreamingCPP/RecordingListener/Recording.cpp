@@ -181,6 +181,7 @@ Concurrency::task<void> Recording::doProcessPackages()
 			}
 
 		}
+		DisableMovementActivated();
 
 	}, token);
 
@@ -261,6 +262,11 @@ void Recording::cancelPackageAsync()
 
 
 }
+//muss vom gleichen Thread wie die "m_MovementActiv" - Events erfolgen
+void Recording::DisableMovementActivated() {
+
+	m_outputconfigoptions->Insert("m_MovementActivated", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(0)));
+}
 
 Windows::Foundation::IAsyncAction ^ Recording::startProcessingPackagesAsync(Windows::Foundation::Collections::PropertySet^ inputconfigoptions, Windows::Foundation::Collections::PropertySet^ outputconfigoptions) {
 
@@ -288,6 +294,7 @@ void Recording::stopProcessingPackages()
 	try {
 
 		m_bProcessingPackagesStarted = false;
+
 		m_pSocketListener->CancelConnections();// alle Connections schliessen
 
 		cancelPackageAsync();
@@ -296,8 +303,8 @@ void Recording::stopProcessingPackages()
 	//	Sleep(100);
 		// Darf nicht in UI-Thread aufgerufen werden-> Blockiert UI-Thread-> gibt Exception
 		m_ProcessingPackagesTsk.wait();
+
 		m_Movement = false;
-		m_outputconfigoptions->Insert("m_MovementActivated", dynamic_cast<PropertyValue^>(PropertyValue::CreateInt32(0)));
 		ChangeMovement(this, m_outputconfigoptions);
 
 //		clearGPIOs();
@@ -389,10 +396,10 @@ void RecordingListener::Recording::OnOnClientConnected(Windows::Networking::Sock
 }
 
 
-void RecordingListener::Recording::OnstartStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args)
+void RecordingListener::Recording::OnstartStreaming(Platform::Object^ sender, Windows::Networking::Sockets::StreamSocket^ args)
 {
 	m_FailedConnectionCount = 0;
-	this->startStreaming(this, args);
+	this->startStreaming(this, m_outputconfigoptions);
 	//throw ref new Platform::NotImplementedException();
 }
 

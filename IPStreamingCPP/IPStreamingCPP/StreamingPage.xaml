@@ -70,10 +70,9 @@
                          </StackPanel>
 
                         <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
-                            <ToggleSwitch Width="155" x:Name="toggleSwitchMovementWatcher" Header="Movement Watcher" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchMovementWatcher.ValueasBool, Mode=TwoWay}"/>
-                            <ToggleSwitch Width="155" x:Name="recordingOnMovement" Header="Record on Movement" OffContent="OFF" OnContent="ON" IsOn="{x:Bind RecordingOnMovement.ValueasBool, Mode=TwoWay}"/>
-
-          
+                            <ToggleSwitch Width="101" x:Name="toggleSwitchMovementWatcher" Header="Movement Watcher" IsEnabled="{x:Bind toggleCameraEvents.IsOn, Mode=OneWay,Converter= {StaticResource ValueToBool},ConverterParameter= Negation}" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchMovementWatcher.ValueasBool, Mode=TwoWay}"/>
+                            <ToggleSwitch Width="101" x:Name="toggleCameraEvents" Header="Camera Events (AMCREST)" IsEnabled="{x:Bind toggleSwitchMovementWatcher.IsOn, Mode=OneWay,Converter= {StaticResource ValueToBool},ConverterParameter= Negation}"  OffContent="OFF" OnContent="ON" IsOn="{x:Bind CameraEvents.ValueasBool, Mode=TwoWay}"/>
+                            <ToggleSwitch Width="101" x:Name="recordingOnMovement" Header="Record on Movement" OffContent="OFF" OnContent="ON" IsOn="{x:Bind RecordingOnMovement.ValueasBool, Mode=TwoWay}"/>
                         </StackPanel>
                         <StackPanel  Orientation="Horizontal" Margin="0,0,0,0">
                             <TextBox FontSize ="14" Text="{x:Bind HostNameMovementWatcher.Value, Mode=TwoWay}" IsEnabled="{x:Bind toggleSwitchMovementWatcher.IsOn, Mode=OneWay}"  PlaceholderText="localhost" Width="155" InputScope="Text"  Margin="0,0,0,0"  Header="Hostname Movement"  HorizontalAlignment="Left" />

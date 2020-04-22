@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2010
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPStreamingCPP", "IPStreamingCPP\IPStreamingCPP.vcxproj", "{F0F7FC6A-DAAD-46C8-B372-3335F73E31AD}"
 EndProject
@@ -26,6 +26,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TimeConversion", "..\..\SharedSources\TimeConversion\TimeConversion\TimeConversion.vcxitems", "{5A207D16-AC3F-4E21-A7FB-58F53B2126C8}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GPIODriver", "..\..\SharedSources\GPIODriver\GPIODriver.vcxitems", "{0EF219F8-50D1-4FAA-9FB4-30A1C357B92A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AmcrestMotionDetection", "AmcrestMotionDetection\AmcrestMotionDetection.vcxproj", "{B6068304-1C7D-4C33-9329-28BF14298D8A}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -279,6 +281,30 @@ Global
 		{BFBC6B2B-8E6F-43E5-AA7B-F550C1C44D78}.Release|x64.Build.0 = Release|x64
 		{BFBC6B2B-8E6F-43E5-AA7B-F550C1C44D78}.Release|x86.ActiveCfg = Release|Win32
 		{BFBC6B2B-8E6F-43E5-AA7B-F550C1C44D78}.Release|x86.Build.0 = Release|Win32
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|ARM.ActiveCfg = Debug|ARM
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|ARM.Build.0 = Debug|ARM
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|ARM64.ActiveCfg = Debug|ARM64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|ARM64.Build.0 = Debug|ARM64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|x64.ActiveCfg = Debug|x64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|x64.Build.0 = Debug|x64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|x86.ActiveCfg = Debug|Win32
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug.Net Native|x86.Build.0 = Debug|Win32
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|ARM.ActiveCfg = Debug|ARM
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|ARM.Build.0 = Debug|ARM
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|ARM64.ActiveCfg = Debug|ARM64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|ARM64.Build.0 = Debug|ARM64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|x64.ActiveCfg = Debug|x64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|x64.Build.0 = Debug|x64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|x86.ActiveCfg = Debug|Win32
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Debug|x86.Build.0 = Debug|Win32
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|ARM.ActiveCfg = Release|ARM
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|ARM.Build.0 = Release|ARM
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|ARM64.ActiveCfg = Release|ARM64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|ARM64.Build.0 = Release|ARM64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|x64.ActiveCfg = Release|x64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|x64.Build.0 = Release|x64
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|x86.ActiveCfg = Release|Win32
+		{B6068304-1C7D-4C33-9329-28BF14298D8A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

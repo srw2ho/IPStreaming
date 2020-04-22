@@ -38,7 +38,7 @@ namespace RecordingListener
 		virtual ~Recording();
 		event Windows::Foundation::TypedEventHandler<Platform::Object^, Windows::Foundation::Collections::PropertySet^  >^ ChangeMovement;
 
-		event Windows::Foundation::TypedEventHandler<Platform::Object^, Windows::Networking::Sockets::StreamSocket^  >^ startStreaming;
+		event Windows::Foundation::TypedEventHandler<Platform::Object^, Windows::Foundation::Collections::PropertySet^  >^ startStreaming;
 		event Windows::Foundation::TypedEventHandler<Platform::Object^, Platform::String ^>^ stopStreaming;
 		event Windows::Foundation::TypedEventHandler<Platform::Object^, Platform::String ^> ^ Failed;
 		Windows::Foundation::IAsyncAction ^ startProcessingPackagesAsync(Windows::Foundation::Collections::PropertySet^ inputconfigoptions, Windows::Foundation::Collections::PropertySet^ outputconfigoptions);
@@ -77,5 +77,6 @@ namespace RecordingListener
 		void clearGPIOs();
 		void startProcessingPackages(Windows::Foundation::Collections::PropertySet^ inputconfigoptions, Windows::Foundation::Collections::PropertySet^ outputconfigoptions);
 		void stopProcessingPackages();
+		void DisableMovementActivated();
     };
 }

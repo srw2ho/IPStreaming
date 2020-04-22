@@ -59,6 +59,7 @@ namespace IPStreamingCPP
 		ItemValueViewModel^ _InputPin1MovementWatcher;
 		ItemValueViewModel^ _InputPin1MovementWatcherActiv;
 		ItemValueViewModel^ _RecordingOnMovement;
+		ItemValueViewModel^ _CameraEvents;
 		HourViewModel ^ _MovementRecordingTimeSecs;
 
 		bool _init;
@@ -114,6 +115,7 @@ namespace IPStreamingCPP
 			this->_InputPin1MovementWatcherActiv = nullptr;
 			this->_MovementRecordingTimeSecs = nullptr;
 			this->_RecordingOnMovement = nullptr;
+			this->_CameraEvents = nullptr;
 
 		}
 		void SetParams(IPStreamingCPP::DataSources ^ _datasources)
@@ -174,6 +176,7 @@ namespace IPStreamingCPP
 
 			this->_RecordingOnMovement = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_RecordingOnMovement"));;
 
+			this->_CameraEvents = safe_cast <ItemValueViewModel^>(_datasources->getDataSource("_CameraEvents"));;;
 
 			_init = true;
 		}
@@ -196,6 +199,7 @@ namespace IPStreamingCPP
 		FFmpegInteropExtRT::CameraServer ^ m_pCameraServer;
 		IPStreamingCPP::DataSources ^ m_datasources;
 		RecordingListener::Recording ^ m_Recording;
+		AmcrestMotionDetection::AmcrestMotion^ m_AmcrestMotion;
 
 		Windows::System::Threading::ThreadPoolTimer ^ m_restartStreamingTimer;
 		IPStreamingCPP::DataSourceparam ^ m_DataSourceparam;
@@ -210,6 +214,10 @@ namespace IPStreamingCPP
 		Windows::Foundation::EventRegistrationToken m_OnStartMovementStreaming;
 		Windows::Foundation::EventRegistrationToken m_OnStopMovementStreaming;
 		Windows::Foundation::EventRegistrationToken m_OnChangeMovementStreaming;
+
+		Windows::Foundation::EventRegistrationToken m_OnStartAMCRESEventStreaming;
+		Windows::Foundation::EventRegistrationToken m_OnStopAMCRESEventStreaming;
+		Windows::Foundation::EventRegistrationToken m_OnChangeAMCRESEventStreaming;
 
 		IPStreamingCPP::ScenarioViewControl ^  m_ScenarioViewControl;
 		
@@ -252,6 +260,22 @@ namespace IPStreamingCPP
 		{
 			void set(Windows::Foundation::EventRegistrationToken value) { this->m_OnChangeMovementStreaming = value; };
 		}
+
+		property Windows::Foundation::EventRegistrationToken OnStartAMCRESEventStreaming
+		{
+			void set(Windows::Foundation::EventRegistrationToken value) { this->m_OnStartAMCRESEventStreaming = value; };
+		}
+
+		property Windows::Foundation::EventRegistrationToken OnStopAMCRESEventStreaming
+		{
+			void set(Windows::Foundation::EventRegistrationToken value) { this->m_OnStopAMCRESEventStreaming = value; };
+		}
+
+		property Windows::Foundation::EventRegistrationToken OnChangeAMCRESEventStreaming
+		{
+			void set(Windows::Foundation::EventRegistrationToken value) { this->m_OnChangeAMCRESEventStreaming = value; };
+		}
+
 
 
 	
@@ -303,6 +327,13 @@ namespace IPStreamingCPP
 			RecordingListener::Recording ^ get() { return this->m_Recording; }
 			void set(RecordingListener::Recording ^ value) { this->m_Recording = value;  };
 		}
+	
+
+		property AmcrestMotionDetection::AmcrestMotion^ AmcrestMotion
+		{
+			AmcrestMotionDetection::AmcrestMotion^ get() { return this->m_AmcrestMotion; }
+			void set(AmcrestMotionDetection::AmcrestMotion^ value) { this->m_AmcrestMotion = value; };
+		}
 
 
 		property IPStreamingCPP::DataSourceparam ^ DataSourceparam
@@ -351,6 +382,9 @@ namespace IPStreamingCPP
 
 		void startMovementRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions);
 		void stopMovementRecording();
+		void startAMCRESTEventRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions);
+		void stopAMCRESTEventRecording();
+
 	internal:
 
 
@@ -379,6 +413,7 @@ namespace IPStreamingCPP
 	{
 		Platform::Collections::Vector<StreamingPageParam^>^ m_Items;
 		unsigned int m_SelectedIndex;
+		Platform::String^ m_DataCompositeIDName;
 
 	public:
 		StreamingPageParamControl();
@@ -398,6 +433,12 @@ namespace IPStreamingCPP
 			int get();
 			void set(int value);
 		}
+		void writeSettingsToLocalStorage();
+		void readSettingsfromLocalStorage();
+
+		Windows::Storage::ApplicationDataCompositeValue^ getCompositeValue();
+		Windows::Storage::ApplicationDataCompositeValue^ deleteCompositeValue();
+
 	};
 }
 #endif // A_H

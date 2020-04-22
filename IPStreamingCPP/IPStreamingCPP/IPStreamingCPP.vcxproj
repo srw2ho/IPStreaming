@@ -400,6 +400,9 @@
     <ProjectReference Include="..\..\OnVifUniversal\OnVifServicesRunTime\OnVifServicesRunTime.csproj">
       <Project>{93b8d9ee-5d1e-4bc4-a285-bc479e4516e1}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\AmcrestMotionDetection\AmcrestMotionDetection.vcxproj">
+      <Project>{b6068304-1c7d-4c33-9329-28bf14298d8a}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\FFmpegInteropExtRT\FFmpegInteropExtRT.vcxproj">
       <Project>{02499880-5c26-4603-bf00-1d063d5e1e76}</Project>
     </ProjectReference>
