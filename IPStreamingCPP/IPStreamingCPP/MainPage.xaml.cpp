@@ -79,9 +79,9 @@ MainPage::~MainPage()
 	Application::Current->Resuming -= m_applicationResumingEventToken;
 
 
-	clearRecording();
+//	clearRecording();
 
-	ReleaseAllRequestedDisplay();
+//	ReleaseAllRequestedDisplay();
 
 	delete m_StreamingPageParamControl;
 
@@ -184,6 +184,7 @@ void MainPage::Application_Suspending(Object^ sender, Windows::ApplicationModel:
 	{
 		this->ClearRessources();
 		this->clearRecording();
+
 		this->ReleaseAllRequestedDisplay();
 
 		this->WriteToAppData(); // write App data in case of Suspending
@@ -276,15 +277,20 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 	Page::OnNavigatedTo(e);
 
 }
+
 void MainPage::OnNavigatingFrom(Windows::UI::Xaml::Navigation::NavigatingCancelEventArgs^ e)
 {
+	//e->Cancel = !ressourdel;
 	// Handling of this event is included for completeness, as it will only fire when navigating between pages and this sample only includes one page
 	this->ClearRessources();
 	this->clearRecording();
+
 	this->ReleaseAllRequestedDisplay();
-		this->WriteToAppData();
+	this->WriteToAppData();
 	m_StreamingPageParamControl->writeSettingsToLocalStorage();
 	Page::OnNavigatingFrom(e);
+
+
 }
 
 
@@ -493,13 +499,38 @@ void MainPage::MediaElement_OnMediaFailed(Platform::Object^ sender, Windows::UI:
 
 	//	throw ref new Platform::NotImplementedException();
 }
+
 void MainPage::clearRecording()
 {
-
 	for each (auto var in this->m_StreamingPageParamControl->Items)
 	{
-		var->clearRecording();
+		auto tsk = var->clearRecording();
 	}
+
+}
+
+concurrency::task<void> MainPage::clearRecordingAsync()
+{
+
+	auto tsk = create_task([this]()->void {
+		try {
+
+			for each (auto var in this->m_StreamingPageParamControl->Items)
+			{
+				auto tsk = var->clearRecording();
+				tsk.wait();
+			}
+		}
+		catch (Exception^ exception)
+		{
+			bool bexception = true;
+		}
+
+		});
+
+	return tsk;
+
+
 	//	this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 }
 

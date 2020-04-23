@@ -368,10 +368,11 @@ namespace IPStreamingCPP
 		StreamingPageParam();
 		virtual ~StreamingPageParam();
 
-		void clearRecording();
+
 		void restartStreamingTimer(inputSource ^ inpSource);
 		void OnstartStreaming(Platform::Object ^sender, FFmpegInteropMSSInputParamArgs^ args);
 		bool startUriStreaming();
+	
 		bool startFileStreaming();
 		bool stopStreaming();
 
@@ -381,19 +382,20 @@ namespace IPStreamingCPP
 		void DisplayErrorMessage(Platform::String^ title, Platform::String^ message);
 
 		void startMovementRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions);
-		void stopMovementRecording();
+		Windows::Foundation::IAsyncAction^ stopMovementRecording();
 		void startAMCRESTEventRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions);
-		void stopAMCRESTEventRecording();
+		Windows::Foundation::IAsyncAction^ stopAMCRESTEventRecording();
 
 	internal:
 
-
+		concurrency::task<void>  clearRecording();
 		void SetStream(IRandomAccessStream^ stream) { this->m_stream = stream; }
 		std::vector<std::wstring> splitintoArray(const std::wstring& s, const std::wstring& delim);
 		int64_t CalculateBitrate(double inputfps, int fps, int height, int width, int motion);
 
 
 	private:
+		bool setstartUriStreaming();
 		
 	//	void OnstartMovementStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args);
 	//	void OnstopMovementStreaming(Platform::Object ^sender, Platform::String ^args);

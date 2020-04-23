@@ -97,13 +97,10 @@ void StreamingPageParam::startAMCRESTEventRecording(Windows::Foundation::Collect
 		m_AmcrestMotion->startProcessingPackagesAsync(inputconfigoptions, this->m_Muxerconfigoptions);
 	}
 }
-void StreamingPageParam::stopAMCRESTEventRecording() {
+Windows::Foundation::IAsyncAction^ StreamingPageParam::stopAMCRESTEventRecording() {
 
-
-	if (m_AmcrestMotion != nullptr) {
-		auto tsk = m_AmcrestMotion->stopProcessingPackagesAsync();
-	//	create_task(tsk).get();
-	}
+	auto tsk = m_AmcrestMotion->stopProcessingPackagesAsync();
+	return tsk;
 
 }
 
@@ -111,23 +108,14 @@ void StreamingPageParam::stopAMCRESTEventRecording() {
 void StreamingPageParam::startMovementRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions) {
 
 	if (m_Recording != nullptr) {
-	
 		m_Recording->startProcessingPackagesAsync(inputconfigoptions, this->m_Muxerconfigoptions);
-
-
 	}
 
 }		
-void StreamingPageParam::stopMovementRecording() {
+Windows::Foundation::IAsyncAction^ StreamingPageParam::stopMovementRecording() {
 
-
-	if (m_Recording != nullptr) {
-
-		auto tsk = m_Recording->stopProcessingPackagesAsync();
-	//	create_task(tsk).get();
-	}
-		
-
+	auto tsk = m_Recording->stopProcessingPackagesAsync();
+	return tsk;
 }
 
 
@@ -157,21 +145,13 @@ void StreamingPageParam::ClearRessources()
 		m_Recording->stopStreaming -= m_OnStopMovementStreaming;
 		m_Recording->startStreaming -= m_OnStartMovementStreaming;
 		m_Recording->ChangeMovement -= m_OnChangeMovementStreaming;
-		stopMovementRecording();
 
 	}
 	if (m_AmcrestMotion != nullptr) {
 		m_AmcrestMotion->stopStreaming -= m_OnStopAMCRESEventStreaming;
 		m_AmcrestMotion->startStreaming -= m_OnStartAMCRESEventStreaming;
 		m_AmcrestMotion->ChangeMovement -= m_OnChangeAMCRESEventStreaming;
-		stopAMCRESTEventRecording();
-
 	}
-
-
-
-
-
 }
 
 StreamingPageParam ^ StreamingPageParam::createStreamingPageParam(Platform::String^ key, Frame^  Main)
@@ -203,12 +183,34 @@ bool StreamingPageParam::startUriStreaming()
 
 
 	//StreamingCPP::DataSources ^ _datasources = safe_cast<IPStreamingCPP::DataSources^>(this->DataSources);
+
+
+
+	auto tsk = clearRecording();
+	
+	tsk.then([this]()->bool {
+
+		return this->setstartUriStreaming();
+
+		}
+
+	);
+
+
+	return true;
+}
+
+bool StreamingPageParam::setstartUriStreaming()
+{
+
+
+	//StreamingCPP::DataSources ^ _datasources = safe_cast<IPStreamingCPP::DataSources^>(this->DataSources);
 	m_DataSourceparam->SetParams(this->DataSources);
 
 	//	StreamingPage ^ streamingpage = (StreamingPage ^)sender;
 	if (this->DataSources != nullptr) {
 
-		clearRecording();
+		//clearRecording();
 		String^ uri = m_DataSourceparam->_inputUri->Value;
 		// Read toggle switches states and use them to setup FFmpeg MSS
 		bool forceDecodeAudio = m_DataSourceparam->_toggleSwitchAudioDecode->ValueasBool;
@@ -226,7 +228,7 @@ bool StreamingPageParam::startUriStreaming()
 
 
 
-		inputSource ^ inpSource = m_DataSourceparam->_inputSourceUri->getInputSourceBySourceUri(uri);
+		inputSource^ inpSource = m_DataSourceparam->_inputSourceUri->getInputSourceBySourceUri(uri);
 		if (inpSource != nullptr) {
 			rtsliveStream = inpSource->LifeStream;
 
@@ -246,7 +248,7 @@ bool StreamingPageParam::startUriStreaming()
 				options->Insert("analyzeduration", analyzeduration); // 5000000 default, now 50 ms
 				options->Insert("probesize", probesize); // 5000000 defaut, smallest value = 32
 
-		
+
 				if (inpSource->InputVideo->VideoEnabled && !inpSource->InputAudio->AudioEnabled)
 				{
 					options->Insert("allowed_media_types", "video"); //  allow only video media type
@@ -256,8 +258,8 @@ bool StreamingPageParam::startUriStreaming()
 					options->Insert("allowed_media_types", "audio"); //  allow only video media type
 				}
 				// sonst alles zulassen
-	
-				
+
+
 
 				options->Insert("fflags", "nobuffer"); //  effect: no delay 
 													   //			options->Insert("flags2", "+export_mvs"); // for movement vectors
@@ -279,12 +281,12 @@ bool StreamingPageParam::startUriStreaming()
 
 
 		m_FFmpegMSS = FFmpegInteropMSS::CreateFFmpegInteropMSS(m_CodecReader);
-		m_FFmpegMSS->startStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object ^, FFmpegInteropMSSInputParamArgs^>(this, &StreamingPageParam::OnstartStreaming); // callback to
-	
+		m_FFmpegMSS->startStreaming += ref new Windows::Foundation::TypedEventHandler<Platform::Object^, FFmpegInteropMSSInputParamArgs^>(this, &StreamingPageParam::OnstartStreaming); // callback to
+
 		if (m_MainFrame != nullptr)
 		{
 			m_MainFrame->Dispatcher->RunAsync(CoreDispatcherPriority::High, ref new DispatchedHandler([this, rtsliveStream, inpSource, uri, options, forceDecodeAudio, forceDecodeVideo]() {
-//				m_FFmpegMSS = m_FFmpegMSS->StartFFmpegInteropMSSFromStream(this->Stream, forceDecodeAudio, forceDecodeVideo, nullptr);
+				//				m_FFmpegMSS = m_FFmpegMSS->StartFFmpegInteropMSSFromStream(this->Stream, forceDecodeAudio, forceDecodeVideo, nullptr);
 				m_FFmpegMSS = m_FFmpegMSS->StartFFmpegInteropMSSFromUri(uri, forceDecodeAudio, forceDecodeVideo, options);
 
 
@@ -305,14 +307,14 @@ bool StreamingPageParam::startUriStreaming()
 					}
 					else
 					{
-						this->DisplayErrorMessage("Cannot open media","startUriStreaming");
+						this->DisplayErrorMessage("Cannot open media", "startUriStreaming");
 					}
 				}
 				else
 				{
-					this->DisplayErrorMessage("Cannot open media","startUriStreaming");
+					this->DisplayErrorMessage("Cannot open media", "startUriStreaming");
 				}
-			}));
+				}));
 
 		}
 
@@ -320,7 +322,6 @@ bool StreamingPageParam::startUriStreaming()
 
 	return true;
 }
-
 void StreamingPageParam::DisplayErrorMessage(Platform::String^ title, Platform::String^ message)
 {
 	// Display error message
@@ -800,10 +801,8 @@ void StreamingPageParam::takeParametersFromCamera()
 }
 
 
-void StreamingPageParam::clearRecording()
+concurrency::task<void> StreamingPageParam::clearRecording()
 {
-	stopMovementRecording();
-	stopAMCRESTEventRecording();
 
 	if (m_FFmpegMSS != nullptr)
 	{
@@ -811,19 +810,47 @@ void StreamingPageParam::clearRecording()
 		MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
 		if (mss != nullptr) {
 			m_mediaElement->Source = nullptr;
-// wsc in this case no changings are fired			m_mediaElement->ClearValue(m_mediaElement->SourceProperty);
 		}
-		m_FFmpegMSS->DestroyFFmpegAsync();
-	//	delete m_FFmpegMSS;
-		m_FFmpegMSS = nullptr;
+
 	}
 
-	if (m_restartStreamingTimer != nullptr) {
+	auto tsk = create_task([this]()->void {
+		try {
+			auto tsk = stopMovementRecording();
+			create_task(tsk).wait();
 
-		m_restartStreamingTimer->Cancel();
-		m_restartStreamingTimer = nullptr;
-	}
+			tsk =stopAMCRESTEventRecording();
+			create_task(tsk).wait();
 
+			if (m_FFmpegMSS != nullptr)
+			{
+		
+				//MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
+				//if (mss != nullptr) {
+				//	//m_mediaElement->Source = nullptr;
+				//	// wsc in this case no changings are fired			m_mediaElement->ClearValue(m_mediaElement->SourceProperty);
+				//}
+				//// tsk = m_FFmpegMSS->DestroyFFmpegAsync();
+				////create_task(tsk).wait();
+
+				delete m_FFmpegMSS;
+				m_FFmpegMSS = nullptr;
+			}
+
+			if (m_restartStreamingTimer != nullptr) {
+
+				m_restartStreamingTimer->Cancel();
+				m_restartStreamingTimer = nullptr;
+			}
+		}
+		catch (Exception^ exception)
+		{
+			bool bexception = true;
+		}
+		
+	});
+	
+	return tsk;
 
 }
 

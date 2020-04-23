@@ -79,6 +79,7 @@ namespace IPStreamingCPP
 
 		void ScenarioPropertyChanged(Platform::Object^ sender, Windows::UI::Xaml::Data::PropertyChangedEventArgs^ e);
 
+		concurrency::task<void> clearRecordingAsync();
 		void clearRecording();
 
 		void ActivateDisplay();

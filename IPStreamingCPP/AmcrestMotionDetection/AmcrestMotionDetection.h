@@ -154,8 +154,10 @@ namespace AmcrestMotionDetection
     public ref class AmcrestMotion sealed
     {
 
+  
         Windows::Web::Http::HttpClient^ m_httpClient;
-        concurrency::cancellation_token_source m_cancellationTokenSource;
+        Windows::Web::Http::Filters::HttpBaseProtocolFilter^ m_filter;
+        concurrency::cancellation_token_source* m_cancellationTokenSource;
         Windows::Storage::Streams::Buffer^ m_readBuffer;
         Windows::Foundation::Uri^ m_resourceAddress;
         std::string m_response;

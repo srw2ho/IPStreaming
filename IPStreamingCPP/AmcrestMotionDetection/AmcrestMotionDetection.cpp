@@ -42,7 +42,7 @@ AmcrestMotion::AmcrestMotion()
 {
 	//m_httpClient = CreateHttpClient();
 	m_httpClient = nullptr;
-	m_cancellationTokenSource = cancellation_token_source();
+	m_cancellationTokenSource = nullptr;
 	this->m_readBuffer = ref new Buffer(1500);
 	m_bProcessingPackagesStarted = false;
 	m_Events = ref new Platform::Collections::Vector<Platform::String^ >();
@@ -53,9 +53,14 @@ AmcrestMotion::AmcrestMotion()
 }
 AmcrestMotion::~AmcrestMotion() {
 
-	if ((m_httpClient != nullptr) && (m_resourceAddress!=nullptr)) {
-		m_httpClient->DeleteAsync(m_resourceAddress);
-	//	delete m_httpClient;
+	if (m_cancellationTokenSource != nullptr)
+	{
+		delete m_cancellationTokenSource;
+
+	}
+
+	if ((m_httpClient != nullptr)) {
+		delete m_httpClient;
 	}
 
 }
@@ -146,41 +151,50 @@ void AmcrestMotion::StopMotionDetection() {
 HttpClient^ AmcrestMotion::CreateHttpClient()
 
 {
-	wchar_t buffer[500];
-	//	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"http://%s/cgi-bin/eventManager.cgi?action=attach&codes=[VideoMotion,MoveDetection,MDResult]", m_HostName->Data());
-	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"http://%s/cgi-bin/eventManager.cgi?action=attach&codes=[All][&keep alive = 20]", m_HostName->Data());
+	if (m_httpClient == nullptr) {
 
 
-	Platform::String^ res = ref new String(buffer);
+		wchar_t buffer[500];
+		//	swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"http://%s/cgi-bin/eventManager.cgi?action=attach&codes=[VideoMotion,MoveDetection,MDResult]", m_HostName->Data());
+		swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"http://%s/cgi-bin/eventManager.cgi?action=attach&codes=[All][&keep alive = 20]", m_HostName->Data());
+		//swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"http://%s/cgi-bin/eventManager.cgi?action=attach&codes=[All]", m_HostName->Data());
 
-	m_resourceAddress = ref new Uri(res);
+
+		Platform::String^ res = ref new String(buffer);
+
+		m_resourceAddress = ref new Uri(res);
 
 
-	HttpBaseProtocolFilter^ filter = ref new HttpBaseProtocolFilter();
-	filter->AllowUI = true;
-	auto pw = ref new PasswordCredential();
-	pw->Resource = res;
+		m_filter = ref new HttpBaseProtocolFilter();
+		m_filter->AllowUI = true;
+		auto pw = ref new PasswordCredential();
+		pw->Resource = res;
 
-	pw->UserName = m_User;
-	pw->Password = m_Password;
+		pw->UserName = m_User;
+		pw->Password = m_Password;
 
-	filter->ServerCredential = pw;
+		m_filter->ServerCredential = pw;
 
-	filter->IgnorableServerCertificateErrors->Append(Windows::Security::Cryptography::Certificates::ChainValidationResult::Expired);
+		m_filter->IgnorableServerCertificateErrors->Append(Windows::Security::Cryptography::Certificates::ChainValidationResult::Expired);
 
-	filter->IgnorableServerCertificateErrors->Append(Windows::Security::Cryptography::Certificates::ChainValidationResult::Untrusted);
+		m_filter->IgnorableServerCertificateErrors->Append(Windows::Security::Cryptography::Certificates::ChainValidationResult::Untrusted);
 
-	filter->IgnorableServerCertificateErrors->Append(Windows::Security::Cryptography::Certificates::ChainValidationResult::InvalidName);
+		m_filter->IgnorableServerCertificateErrors->Append(Windows::Security::Cryptography::Certificates::ChainValidationResult::InvalidName);
 
-	//filter->MaxConnectionsPerServer = 5;
-	//filter->CacheControl->ReadBehavior;
+		//filter->MaxConnectionsPerServer = 5;
+		//filter->CacheControl->ReadBehavior;
 
-	// if not cleared then request does not function one time
-	filter->ClearAuthenticationCache();
-	// if not cleared then request does not function one time
-	m_httpClient = ref new HttpClient(filter);
-	//m_httpClient->DefaultRequestHeaders->Connection->Clear();
-	//m_httpClient->DefaultRequestHeaders->Connection->
+		// if not cleared then request does not function one time
+		m_filter->ClearAuthenticationCache();
+		// if not cleared then request does not function one time
+		m_httpClient = ref new HttpClient(m_filter);
+
+		//m_httpClient->DefaultRequestHeaders->Connection->Clear();
+		//m_httpClient->DefaultRequestHeaders->Connection->
+	}
+	else {
+		m_filter->ClearAuthenticationCache();
+	}
 
 	return m_httpClient;
 
@@ -202,6 +216,12 @@ void AmcrestMotion::DisableMovementActivated() {
 bool AmcrestMotion::doEventsDetection() {
 
 	m_bProcessingPackagesStarted = true;
+	if (m_cancellationTokenSource != nullptr)
+	{
+		delete m_cancellationTokenSource;
+
+	}
+	m_cancellationTokenSource = new cancellation_token_source();
 
 	m_Movement = false;
 	m_ParseState = AmcrestDetectionParseState::ParseHeader;
@@ -216,11 +236,11 @@ bool AmcrestMotion::doEventsDetection() {
 		m_httpClient->SendRequestAsync(request, HttpCompletionOption::ResponseHeadersRead),
 
 
-		m_cancellationTokenSource.get_token()).then([this](HttpResponseMessage^ response)
+		m_cancellationTokenSource->get_token()).then([this](HttpResponseMessage^ response)
 
 			{
 
-				return create_task(response->Content->ReadAsInputStreamAsync(), m_cancellationTokenSource.get_token())
+				return create_task(response->Content->ReadAsInputStreamAsync(), m_cancellationTokenSource->get_token())
 
 					.then([=, this](IInputStream^ stream)
 
@@ -229,7 +249,7 @@ bool AmcrestMotion::doEventsDetection() {
 							startStreaming(this, m_Motionoutput);
 							return this->doReadData(stream);
 
-						}, m_cancellationTokenSource.get_token()).then([=, this](task<IBuffer^ >  tskbuffer)
+						}, m_cancellationTokenSource->get_token()).then([=, this](task<IBuffer^ >  tskbuffer)
 
 							{
 								try
@@ -296,7 +316,7 @@ task<IBuffer^> AmcrestMotion::doReadData(IInputStream^ stream)
 
 		stream->ReadAsync(m_readBuffer, m_readBuffer->Capacity, InputStreamOptions::Partial),
 
-		m_cancellationTokenSource.get_token()).then([=, this](task<IBuffer^> readTask)
+		m_cancellationTokenSource->get_token()).then([=, this](task<IBuffer^> readTask)
 			{
 				IBuffer^ buffer = readTask.get();
 				m_response.clear();
@@ -320,7 +340,10 @@ void AmcrestMotion::CancelEventsDetection()
 
 	m_bProcessingPackagesStarted = false;
 
-	m_cancellationTokenSource.cancel();
+	if (m_cancellationTokenSource != nullptr) {
+		m_cancellationTokenSource->cancel();
+	}
+
 
 	// waiting for end tasks
 	m_ProcessingPackagesTsk.wait();
@@ -331,12 +354,13 @@ void AmcrestMotion::CancelEventsDetection()
 
 
 
-	if ((m_httpClient != nullptr) && (m_resourceAddress != nullptr)) {
-		m_httpClient->DeleteAsync(m_resourceAddress);
-		m_resourceAddress = nullptr;
+	if ((m_httpClient != nullptr)) {
+
+	//	delete m_httpClient;
+	
 	}
 
-	m_cancellationTokenSource = cancellation_token_source();
+
 
 }
 
