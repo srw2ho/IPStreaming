@@ -366,6 +366,9 @@ void MainPage::PivotCameras_SelectionChanged(Platform::Object^ sender, Windows::
 
 
 		}
+		else {
+			this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+		}
 
 	}
 

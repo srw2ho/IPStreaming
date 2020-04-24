@@ -493,7 +493,7 @@ bool AmcrestMotion::doProcessEvents() {
 
 
 	m_Events->Clear();
-
+	bool doMovement = false;
 	if (m_RecognizedEvents.size() > 0) {
 		for (size_t i = 0; i < m_RecognizedEvents.size(); i++) {
 			EventTypeStruc& _event = m_RecognizedEvents.at(i);
@@ -501,10 +501,13 @@ bool AmcrestMotion::doProcessEvents() {
 			if (_event.m_EventType == AmcrestEventType::VideoMotionInfo) continue;
 			if (_event.m_EventType == AmcrestEventType::NewFile) continue;
 			if (_event.m_EventType == AmcrestEventType::VideoMotion) {
+				doMovement = true;
+				m_Movement = _event.m_state == EventState::On;
+
 				if (m_Motionoutput->HasKey("m_MovementActiv")) {
 					Platform::Object^ isActivvalue = m_Motionoutput->Lookup("m_MovementActiv");
 					if (isActivvalue != nullptr) {
-						m_Movement = _event.m_state == EventState::On;
+	
 						bool isActiv = safe_cast<IPropertyValue^>(isActivvalue)->GetBoolean();
 						if ((m_Movement != isActiv || m_FirstProcessEvents)) {// only in case of changes
 
@@ -520,7 +523,10 @@ bool AmcrestMotion::doProcessEvents() {
 			swprintf(&buffer[0], sizeof(buffer) / sizeof(buffer[0]), L"%s=%d, Index = %d", _event.getStringEventType().c_str(), _event.m_state, _event.m_Index);
 			m_Events->Append(ref new String(buffer));
 		}
-		ChangeMovement(this, m_Motionoutput);
+		if (doMovement || (m_Events->Size > 0)) {
+			ChangeMovement(this, m_Motionoutput);
+		}
+
 		m_FirstProcessEvents = false;
 	}
 
