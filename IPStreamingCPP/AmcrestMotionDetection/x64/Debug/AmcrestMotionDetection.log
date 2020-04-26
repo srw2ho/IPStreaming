@@ -1,0 +1,3 @@
+﻿  AmcrestMotionDetection.cpp
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\AmcrestMotionDetection.cpp(521,123): warning C4267: "Argument": Konvertierung von "size_t" nach "unsigned int", Datenverlust möglich
+  AmcrestMotionDetection.vcxproj -> C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\x64\Debug\AmcrestMotionDetection\AmcrestMotionDetection.dll

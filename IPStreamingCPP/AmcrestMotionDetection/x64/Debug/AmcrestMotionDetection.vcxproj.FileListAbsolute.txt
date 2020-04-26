@@ -1,0 +1,17 @@
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\x64\Debug\AmcrestMotionDetection\AmcrestMotionDetection.pri
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\AmcrestMotionDetection.vcxprojAssemblyReference.cache
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\priconfig.xml
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\priconfig.xml.intermediate
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\unfiltered.layout.resfiles
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\unfiltered.layout.resfiles.intermediate
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\filtered.layout.resfiles
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\filtered.layout.resfiles.intermediate
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\excluded.layout.resfiles
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\excluded.layout.resfiles.intermediate
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\resources.resfiles
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\resources.resfiles.intermediate
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\pri.resfiles
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\pri.resfiles.intermediate
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\qualifiers.txt
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\qualifiers.txt.intermediate
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\x64\Debug\MultipleQualifiersPerDimensionFound.txt

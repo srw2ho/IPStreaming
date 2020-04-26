@@ -1,0 +1,9 @@
+﻿  AmcrestMotionDetection.cpp
+C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\AmcrestMotionDetection\AmcrestMotionDetection.cpp(521,123): warning C4267: "Argument": Konvertierung von "size_t" nach "unsigned int", Datenverlust möglich
+     Bibliothek "C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\x64\Release\AmcrestMotionDetection\AmcrestMotionDetection.lib" und Objekt "C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\x64\Release\AmcrestMotionDetection\AmcrestMotionDetection.exp" werden erstellt.
+  Code wird generiert.
+  0 of 3629 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Codegenerierung ist abgeschlossen.
+  AmcrestMotionDetection.vcxproj -> C:\Users\Willi\Documents\GitHubProjects\IPStreaming\IPStreamingCPP\x64\Release\AmcrestMotionDetection\AmcrestMotionDetection.dll

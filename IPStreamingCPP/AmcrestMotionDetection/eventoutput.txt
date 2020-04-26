@@ -1,0 +1,15 @@
+[Pointer] = 0x000002175ae8f51c L"HTTP/1.1 200 OK\r\nCache-Control: no-cache\r\nPragma: no-cache\r\nExpires: Thu, 01 Dec 2099 16:00:00 GMT\r\nConnection: Keep-Alive\r\nContent-Type: multipart/x-mixed-replace; boundary=myboundary\r\n\r\n--myboundary...
+
+--myboundary\r\nContent-Type: text/plain\r\nContent-Length:36\r\nCode=VideoMotion;action=Stop;index=0\r\n\r\n"
+--myboundary\r\nContent-Type: text/plain\r\nContent-Length:37\r\nCode=VideoMotion;action=Start;index=0\r\n\r\n
+--myboundary\r\nContent-Type: text/plain\r\nContent-Length:36\r\nCode=VideoMotion;action=Stop;index=0\r\n\r\n
+
+--myboundary\r\nContent-Type: text/plain\r\nContent-Length:36\r\nCode=VideoMotion;action=Stop;index=0\r\n\r\n"
+--myboundary\r\nContent-Type: text/plain\r\nContent-Length:37\r\nCode=VideoMotion;action=Start;index=0\r\n\r\n"
+--myboundary\r\nContent-Type: text/plain\r\nContent-Length:36\r\nCode=VideoMotion;action=Stop;index=0\r\n\r\n"
+--myboundary\r\nContent-Type: text/plain\r\nContent-Length:37\r\nCode=VideoMotion;action=Start;index=0\r\n\r\n"
+output = 0x000002175c419040 L"--myboundary\r\nContent-Type: text/plain\r\nContent-Length:36\r\nCode=VideoMotion;action=Stop;index=0\r\n\r\n"
+output = 0x000002175c419040 L"--myboundary\r\nContent-Type: text/plain\r\nContent-Length:37\r\nCode=VideoMotion;action=Start;index=0\r\n\r\n"
+output = 0x000002175c419e50 L"--myboundary\r\nContent-Type: text/plain\r\nContent-Length:36\r\nCode=VideoMotion;action=Stop;index=0\r\n\r\n"
+output = 0x000002175c419040 L"--myboundary\r\nContent-Type: text/plain\r\nContent-Length:37\r\nCode=VideoMotion;action=Start;index=0\r\n\r\n"
+output = 0x000002175c41a030 L"--myboundary\r\nContent-Type: text/plain\r\nContent-Length:36\r\nCode=VideoMotion;action=Stop;index=0\r\n\r\n"
