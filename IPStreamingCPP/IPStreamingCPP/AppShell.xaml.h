@@ -26,16 +26,18 @@ namespace IPStreamingCPP
     [Windows::Foundation::Metadata::WebHostHidden]
     public ref class AppShell sealed
     {
+        IPStreamingCPP::App^ m_app;
 		OnVifServicesRunTime::OnVifCameraViewModel ^ m_OnVifCameraViewModel;
     public:
-        AppShell(OnVifServicesRunTime::OnVifCameraViewModel ^ OnVifCameraViewModel);
+     //   AppShell(OnVifServicesRunTime::OnVifCameraViewModel ^ OnVifCameraViewModel);
+        AppShell(IPStreamingCPP::App^ app);
         property Windows::UI::Xaml::Controls::Frame^ AppFrame
         {
             Windows::UI::Xaml::Controls::Frame^ get();
         }
 		property OnVifServicesRunTime::OnVifCameraViewModel^ CameraViewModel
 		{
-			OnVifServicesRunTime::OnVifCameraViewModel^ get() { return m_OnVifCameraViewModel; };
+			OnVifServicesRunTime::OnVifCameraViewModel^ get() { return m_app->CameraViewModel; };
 		}
 
         void OpenNavePane();

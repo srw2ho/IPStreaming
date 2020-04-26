@@ -131,7 +131,7 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                         </StackPanel>
-                        <TextBlock  x:Name="OutputfileFolder" Text="..." HorizontalAlignment="Left" TextWrapping="Wrap" Height="43" FontSize="10"  />
+                        <TextBlock  x:Name="OutputfileFolder" Text="..." HorizontalAlignment="Left" IsTextSelectionEnabled ="True"  TextWrapping="Wrap" Height="43" FontSize="10"  />
                     </StackPanel>
                     <StackPanel Margin="0,0,0,0" Orientation="Horizontal" Height="52">
                         <ToggleSwitch Width="155" x:Name="toggleSwitchOutPutMpegStream" Header="MPegVideo Stream" OffContent="OFF" OnContent="ON" IsOn="{x:Bind ToggleSwitchOutPutMpegStream.ValueasBool, Mode=TwoWay}" Height="57"/>

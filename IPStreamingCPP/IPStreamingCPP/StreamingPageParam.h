@@ -224,7 +224,7 @@ namespace IPStreamingCPP
 		Windows::Foundation::Collections::PropertySet^ m_Muxerconfigoptions;
 //		Platform::String^  m_RecordingState;
 		FFmpegInteropExtRT::CodecReader^ m_CodecReader;
-	
+
 	internal:
 
 		property Windows::Foundation::EventRegistrationToken PropertyChangedEventRegister

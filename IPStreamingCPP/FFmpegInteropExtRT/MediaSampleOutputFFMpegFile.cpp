@@ -190,10 +190,10 @@ FFMpegOutputDevice::FFMpegOutputDevice(Platform::String^ deviceName, AVFormatCon
 	ParseConfigOptions();
 
 	m_ConfigOptionsEvent = m_ConfigOptions->MapChanged += ref new Windows::Foundation::Collections::MapChangedEventHandler<Platform::String ^, Platform::Object ^>(&OnMapChanged);
-	globMapConfigOptions[m_ConfigOptions->GetHashCode()] = this;
+globMapConfigOptions[m_ConfigOptions->GetHashCode()] = this;
 
 
-	m_bMovementActiv = false;
+m_bMovementActiv = false;
 }
 
 FFMpegOutputDevice::~FFMpegOutputDevice()
@@ -232,12 +232,18 @@ FFMpegOutputDevice::~FFMpegOutputDevice()
 	DeleteCriticalSection(&m_CritLock);
 }
 
-
+bool FFMpegOutputDevice::checkDirectoryExists(const wchar_t* dirName) {
+	DWORD attribs = ::GetFileAttributes(dirName);
+	if (attribs == INVALID_FILE_ATTRIBUTES) {
+		return false;
+	}
+	return ((bool) (attribs & FILE_ATTRIBUTE_DIRECTORY));
+}
 
 bool FFMpegOutputDevice::ParseConfigOptions()
 {
 	bool ret = true;
-	
+
 	MediaSampleOutputDevice::ParseConfigOptions();
 	Platform::String^ folder;
 	Platform::String^ outputformat;
@@ -247,16 +253,16 @@ bool FFMpegOutputDevice::ParseConfigOptions()
 	{
 		auto options = m_ConfigOptions->First();
 
-	//	Platform::String^ folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double RecordingInHours
+		//	Platform::String^ folder, int fps, int height, int width, int64_t bit_rate, PropertySet^ ffmpegOutputOptions, Platform::String^ outputformat, double deletefilesOlderFilesinHours, double RecordingInHours
 
 		while (options->HasCurrent)
 		{
 			Platform::String^ key = options->Current->Key;
 			Platform::Object^ value = options->Current->Value;
-			
+
 			if (key == L"m_strFolder") {
 
-				folder = safe_cast<IPropertyValue^>(value)->GetString(); 
+				folder = safe_cast<IPropertyValue^>(value)->GetString();
 			}
 			else if (key == L"m_RecordingActivTimeinSec") {
 				m_RecordingTimeinSec = safe_cast<IPropertyValue^>(value)->GetDouble();
@@ -279,19 +285,15 @@ bool FFMpegOutputDevice::ParseConfigOptions()
 
 			}
 
-			
-
 			options->MoveNext();
 		}
 
-		//std::wstring valueW = folder->Data();
-		//m_strFolderPath = std::string(valueW.begin(), valueW.end());
-		m_strFolderPath = PlatFormStringtoStdString(folder);
-
+		this->m_strFolder = folder + ref new Platform::String(L"\\") + stringToPlatformString(this->m_strFileName);
+		m_strFolderPath = PlatFormStringtoStdString(this->m_strFolder);
+		if (!checkDirectoryExists(this->m_strFolder->Data() )) {
+			int dirOK = _wmkdir(this->m_strFolder->Data()) ;
+		}
 			
-		//valueW = outputformat->Data();
-		//m_strOutputFormat = std::string(valueW.begin(), valueW.end());
-
 		m_strOutputFormat = PlatFormStringtoStdString(outputformat);
 	}
 

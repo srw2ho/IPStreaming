@@ -159,7 +159,9 @@ void StreamingPage::ReadFromAppData()
 
 	}
 
-	this->OutputfileFolder->Text = ApplicationData::Current->LocalFolder->Path;
+	App^ app = (App^)Application::Current;
+	String^ folderPath = app->StreamingFolder;
+	this->OutputfileFolder->Text = folderPath;
 
 
 	if (this->_outputMJpegStreamUrlPort->Value->IsEmpty())

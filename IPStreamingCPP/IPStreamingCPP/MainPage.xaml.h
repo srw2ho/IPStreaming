@@ -33,7 +33,7 @@ namespace IPStreamingCPP
 		int m_displayRequestCnt;
 
 		FFmpegInteropExtRT::CodecReader^ m_CodecReader;
-
+		IPStreamingCPP::App^ m_app;
 
 	public:
 		MainPage();

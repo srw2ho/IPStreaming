@@ -51,6 +51,7 @@ StreamingPageParam::StreamingPageParam()
 	m_AmcrestMotion = nullptr;
 
 
+
 }
 
 StreamingPageParam::~StreamingPageParam()
@@ -507,7 +508,10 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 			}
 
 			if (m_DataSourceparam->_toggleSwitchOutPutMuxer->ValueasBool) {
-				String ^ folderPath = ApplicationData::Current->LocalFolder->Path;
+			//	String ^ folderPath = ApplicationData::Current->LocalFolder->Path;
+				App^ app = (App^)Application::Current;
+				String^ folderPath = app->StreamingFolder;
+				
 				int fps = -1; // take input stream fps
 				int height = 600;
 				int width = 800;

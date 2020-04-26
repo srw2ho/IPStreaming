@@ -37,11 +37,11 @@ namespace IPStreamingCPP
     /// adds callbacks for Back requests and changes in the SplitView's DisplayMode, and
     /// provide the nav menu list with the data to display.
     /// </summary>
-    AppShell::AppShell(OnVifServicesRunTime::OnVifCameraViewModel ^ OnVifCameraViewModel)
+    AppShell::AppShell(IPStreamingCPP::App^ app)
     {
         InitializeComponent();
-
-		m_OnVifCameraViewModel = OnVifCameraViewModel;
+        m_app = app;
+		m_OnVifCameraViewModel = m_app->CameraViewModel;
 
         Loaded += ref new Windows::UI::Xaml::RoutedEventHandler(this, &AppShell::OnLoaded);
 
@@ -65,7 +65,7 @@ namespace IPStreamingCPP
 			ref new NavMenuItem(
 				"Streaming",
 				Symbol::AttachCamera,
-				TypeName(IPStreamingCPP::MainPage::typeid), this->m_OnVifCameraViewModel));
+				TypeName(IPStreamingCPP::MainPage::typeid), this->m_app));
 		
 		
         NavMenuList->ItemsSource = navlist;

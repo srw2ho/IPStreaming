@@ -97,6 +97,7 @@ namespace FFmpegInteropExtRT
 		static void OnMapChanged(Windows::Foundation::Collections::IObservableMap<Platform::String ^, Platform::Object ^> ^sender, Windows::Foundation::Collections::IMapChangedEventArgs<Platform::String ^> ^event);
 		void cancelPendingTimeouts();
 		static void delayRecording(FFMpegOutputDevice*pDevice,double recordingTimeinSec);
+		bool checkDirectoryExists(const wchar_t* dirName);
 	protected:
 		Platform::String^ m_strFolder;
 		AVFormatContext* m_pAvOutFormatCtx;

@@ -56,7 +56,11 @@ App::App()
 
 	Platform::String^ localfolder = Windows::Storage::ApplicationData::Current->LocalFolder->Path;	//for local saving for future
 
+	m_StreamingFolder = localfolder;
+
 	m_OnVifCameraViewModel = ref new OnVifServicesRunTime::OnVifCameraViewModel();
+
+	// win32-file function can not access outside local App Strage createStreamingFolder();
 
 	String^ fileName = L"ffmpegLogFile.txt";
 
@@ -84,6 +88,92 @@ App::~App()
 	}
 
 }
+
+// in Package.appanifest item "VideBibliothek" must be clicked on 
+//void App::createStreamingFolder() {
+//	auto folder = Windows::Storage::StorageLibrary::GetLibraryAsync(Windows::Storage::KnownLibraryId::Videos);
+//	
+//	create_task(folder).then([this](task<StorageLibrary^> ret) {
+//		try {
+//			auto storageLib = ret.get();
+//
+//			bool folderpresent = false;
+//			auto folders = storageLib->Folders;
+//			if (folders->Size > 0) {
+//				auto singlefolder = folders->GetAt(0);
+//				auto CreateFoldertsk = singlefolder->GetFolderAsync(L"IPStreaming");
+//					create_task(CreateFoldertsk).then([=,this](task< StorageFolder^ > desiredtsk) {
+//					try {
+//						auto desired = desiredtsk.get();
+//
+//						if (desired ==nullptr)
+//						{
+//							auto CreateFoldertsk = singlefolder->CreateFolderAsync(L"IPStreaming");
+//							create_task(CreateFoldertsk).then([this](task< StorageFolder^ > desiredtsk) {
+//								try {
+//									auto desired = desiredtsk.get();
+//									m_StreamingFolder = desired->Path;
+//								}
+//								catch (Platform::Exception^ ex) {
+//									bool bok = false;
+//								}
+//
+//								});
+//						}
+//						else {
+//								m_StreamingFolder = desired->Path;
+//						}
+//					
+//					}
+//					catch (Platform::Exception^ ex) {
+//						bool bok = false;
+//					}
+//
+//					});
+//
+//			}
+//			/*
+//			for (unsigned int i = 0; i < folders->Size; i++) {
+//				auto folder = folders->GetAt(i);
+//				Platform::String^ folderName = folder->Name;
+//				if (folder->Name == L"IPStreaming") {
+//					folderpresent = true;
+//					m_StreamingFolder = folder->Path;
+//					break;
+//				}
+//
+//			}
+//			
+//			if (!folderpresent) {
+//				if (folders->Size == 0) return;
+//
+//				auto singlefolder = folders->GetAt(0);
+//				auto CreateFoldertsk = singlefolder->CreateFolderAsync(L"IPStreaming");
+//				create_task(CreateFoldertsk).then([this](task< StorageFolder^ > desiredtsk) {
+//					try {
+//
+//						auto desired = desiredtsk.get();
+//						m_StreamingFolder = desired->Path;
+//					}
+//					catch (Platform::Exception^ ex) {
+//						bool bok = false;
+//					}
+//
+//					});
+//
+//
+//
+//			}
+//			*/
+//
+//		}
+//		catch (Platform::Exception^ ex) {
+//			bool bok = false;
+//		}
+//
+//		});
+//
+//}
 
 void App::WriteLogMessage(String^ message)
 {
@@ -164,8 +254,9 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 		// read Camera settings from local storage
 		m_OnVifCameraViewModel->readDatafromLocalStorage(); 
 
+		
 		// Create a AppShell to act as the navigation context and navigate to the first page
-		shell = ref new AppShell(m_OnVifCameraViewModel);
+		shell = ref new AppShell(this);
 
 		shell->AppFrame->NavigationFailed += ref new Windows::UI::Xaml::Navigation::NavigationFailedEventHandler(this, &App::OnNavigationFailed);
 
@@ -186,7 +277,7 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 		// suppressing the initial entrance animation and configuring the new
 		// page by passing required information as a navigation parameter
 	
-		shell->AppFrame->Navigate(TypeName(IPStreamingCPP::MainPage::typeid), m_OnVifCameraViewModel, ref new Windows::UI::Xaml::Media::Animation::SuppressNavigationTransitionInfo());
+		shell->AppFrame->Navigate(TypeName(IPStreamingCPP::MainPage::typeid), this, ref new Windows::UI::Xaml::Media::Animation::SuppressNavigationTransitionInfo());
 //		shell->AppFrame->Navigate(TypeName(IPStreamingCPP::Views::LandingPage::typeid), e->Arguments, ref new Windows::UI::Xaml::Media::Animation::SuppressNavigationTransitionInfo());
 
 	}

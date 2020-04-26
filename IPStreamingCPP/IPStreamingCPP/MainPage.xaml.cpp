@@ -207,11 +207,11 @@ void MainPage::Application_Resuming(Platform::Object^ sender, Platform::Object^ 
 void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^ e)
 {
 
-
-
-	OnVifCameraViewModel^ onVifCameraViewModel = safe_cast<OnVifCameraViewModel^>(e->Parameter);
-	if (onVifCameraViewModel != nullptr) {
-		this->m_OnVifCameraViewModel = onVifCameraViewModel;
+	IPStreamingCPP::App^ app = safe_cast<IPStreamingCPP::App^>(e->Parameter);
+	m_app = app;
+	//OnVifCameraViewModel^ onVifCameraViewModel = safe_cast<OnVifCameraViewModel^>(e->Parameter);
+	if (app != nullptr) {
+		this->m_OnVifCameraViewModel = app->CameraViewModel;
 	}
 	if (this->m_OnVifCameraViewModel == nullptr) return;
 
