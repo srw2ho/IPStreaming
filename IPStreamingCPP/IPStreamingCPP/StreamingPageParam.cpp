@@ -770,6 +770,12 @@ void StreamingPageParam::takeParametersFromCamera()
 			if (cameradata->HasKey("SerialNumber")) source->SerialNumber = cameradata->Lookup("SerialNumber");
 
 			source->InputsourceUri = var->StreamUrl;
+			
+			if (m_DataSourceparam->_inputUri->Value->IsEmpty()) {
+				// setzen, wenn _inputUri is empty
+				m_DataSourceparam->_inputUri->Value = var->StreamUrl; 
+			}
+
 			source->InputKey = var->StreamUrlOrigin; // origin Url used as Key for refinding
 			source->HostName = this->OnVifCamera->CameraIPAdress;
 			source->InputVideo->Bitrate = var->VideoProfileEncoding->BitrateLimit;
