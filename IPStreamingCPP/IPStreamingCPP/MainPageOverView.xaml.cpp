@@ -321,8 +321,8 @@ void MainPageOverView::Application_Resuming(Platform::Object^ sender, Platform::
 void MainPageOverView::configureCameraGrid()
 {
 
-	auto scaleFactor = m_app->DisplayScaleFactor;
-	auto size = m_app->DisplaySize;
+	auto scaleFactor = m_app->DisplayScaleFactor;	// realized in app.xaml.cpp
+	auto size = m_app->DisplaySize;					// realized in app.xaml.cpp
 
 	double fromTop = 40* scaleFactor; // distance from top
 	double sizeHight;
