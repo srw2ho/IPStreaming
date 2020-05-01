@@ -583,28 +583,25 @@ HRESULT FFmpegInteropMSS::InitFFmpegContext(bool forceAudioDecode, bool forceVid
 				// Set buffer time to 0 for realtime streaming to reduce latency
 				mss->BufferTime = { 0 };
 			}
+
+			//Initialize format context
+			startingRequestedToken = mss->Starting += ref new TypedEventHandler<MediaStreamSource^, MediaStreamSourceStartingEventArgs^>(this, &FFmpegInteropMSS::OnStarting);
+			sampleRequestedToken = mss->SampleRequested += ref new TypedEventHandler<MediaStreamSource^, MediaStreamSourceSampleRequestedEventArgs^>(this, &FFmpegInteropMSS::OnSampleRequested);
+			MediaClosedToken = mss->Closed += ref new TypedEventHandler<MediaStreamSource^, MediaStreamSourceClosedEventArgs^>(this, &FFmpegInteropMSS::OnMediaClosed);
+
+	
 			FFmpegInteropMSSInputParamArgs^ inputparams = nullptr;
 
 			if (avVideoCodecCtx != nullptr) {
-		//		avVideoCodecCtx->
 				double fps = av_q2d(avFormatCtx->streams[videoStreamIndex]->r_frame_rate);
-			
-			//	float fps = (float)av_q2intfloat(avFormatCtx->streams[videoStreamIndex]->r_frame_rate);
 				int height = avVideoCodecCtx->height;
 				int width = avVideoCodecCtx->width;
 				inputparams = ref new FFmpegInteropMSSInputParamArgs(fps, height, width);
 			}
 
-		
-		//	av_dump_format(avFormatCtx, 0, avFormatCtx->filename, 0);//dump input
-			av_dump_format(avFormatCtx, 0, avFormatCtx->url, 0);//dump input
-
 			this->startStreaming(this, inputparams); // Callback to MediaPlayder Source
 
-			//Initialize format context
-			startingRequestedToken = mss->Starting += ref new TypedEventHandler<MediaStreamSource ^, MediaStreamSourceStartingEventArgs ^>(this, &FFmpegInteropMSS::OnStarting);
-			sampleRequestedToken = mss->SampleRequested += ref new TypedEventHandler<MediaStreamSource ^, MediaStreamSourceSampleRequestedEventArgs ^>(this, &FFmpegInteropMSS::OnSampleRequested);
-			MediaClosedToken = mss->Closed += ref new TypedEventHandler<MediaStreamSource ^, MediaStreamSourceClosedEventArgs  ^>(this, &FFmpegInteropMSS::OnMediaClosed);
+			av_dump_format(avFormatCtx, 0, avFormatCtx->url, 0);//dump input
 		}
 		else
 		{

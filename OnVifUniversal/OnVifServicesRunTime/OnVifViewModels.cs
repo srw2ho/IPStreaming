@@ -1901,6 +1901,19 @@ namespace OnVifServicesRunTime
 
             }
         }
+        public bool IsCameraViewActiv
+        {
+            get { return m_IsCameraViewActiv; }
+            set
+            {
+                if (m_IsCameraViewActiv != value)
+                {
+                    m_IsCameraViewActiv = value;
+                    RaisePropertyChanged("IsCameraViewActiv");
+                }
+
+            }
+        }
 
 
 
@@ -1922,6 +1935,7 @@ namespace OnVifServicesRunTime
         private Boolean m_IsUrlsReaded;
         private Boolean m_IsProfilesReaded;
         private Boolean m_IsProfilesChanged;
+        private Boolean m_IsCameraViewActiv;
 
         LocalStorageItem m_localStorage;
 
@@ -1957,6 +1971,7 @@ namespace OnVifServicesRunTime
             m_IsUrlsReaded = false;
             m_IsProfilesReaded = false;
             m_IsProfilesChanged = false;
+            m_IsCameraViewActiv = true;
 
 
         }
@@ -1986,6 +2001,8 @@ namespace OnVifServicesRunTime
 
             bok = m_localStorage.writeStringSettingsToLocalStorage(composite, m_localStorage.getCompositePropertyIDName("m_Password", Idx), m_Password);
             bok = m_localStorage.writeStringSettingsToLocalStorage(composite, m_localStorage.getCompositePropertyIDName("m_User", Idx), m_User);
+
+            bok = m_localStorage.writeBoolSettingsToLocalStorage(composite, m_localStorage.getCompositePropertyIDName("m_IsCameraViewActiv", Idx), m_IsCameraViewActiv);
 
             if (this.m_CameraData.ContainsKey("Name")){
                 bok = m_localStorage.writeStringSettingsToLocalStorage(composite, m_localStorage.getCompositePropertyIDName("m_CameraData.Name", Idx), this.m_CameraData["Name"]);
@@ -2043,6 +2060,9 @@ namespace OnVifServicesRunTime
                 bok = m_localStorage.readStringSettingsfromLocalStorage(composite, m_localStorage.getCompositePropertyIDName("m_Password", Idx), out m_Password);
         
                 bok = m_localStorage.readStringSettingsfromLocalStorage(composite, m_localStorage.getCompositePropertyIDName("m_User", Idx), out m_User);
+  
+                bok = m_localStorage.readBoolSettingsfromLocalStorage(composite, m_localStorage.getCompositePropertyIDName("m_IsCameraViewActiv", Idx), out m_IsCameraViewActiv);
+                
 
                 this.CameraData.Clear();
                 string Value;

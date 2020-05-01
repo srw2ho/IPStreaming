@@ -9,6 +9,7 @@
 //#include "CommandBarPage.xaml.h"
 //#include "DrillInPage.xaml.h"
 #include"MainPage.xaml.h"
+#include"MainPageOverView.xaml.h"
 #include "NavMenuItem.h"
 #include "NavMenuListView.h"
 #include "AppShell.xaml.h"
@@ -64,9 +65,17 @@ namespace IPStreamingCPP
 		navlist->Append(
 			ref new NavMenuItem(
 				"Streaming",
-				Symbol::AttachCamera,
+				Symbol::Video,
 				TypeName(IPStreamingCPP::MainPage::typeid), this->m_app));
-		
+	
+     
+		navlist->Append(
+			ref new NavMenuItem(
+				"Streaming-OverView",
+				Symbol::Pictures,
+				TypeName(IPStreamingCPP::MainPageOverView::typeid), this->m_app));
+      
+
 		
         NavMenuList->ItemsSource = navlist;
     }

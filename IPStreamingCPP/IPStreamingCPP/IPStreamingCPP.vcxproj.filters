@@ -133,5 +133,6 @@
     </Page>
     <Page Include="LandingPage.xaml" />
     <Page Include="PageHeader.xaml" />
+    <Page Include="MainPageOverView.xaml" />
   </ItemGroup>
 </Project>

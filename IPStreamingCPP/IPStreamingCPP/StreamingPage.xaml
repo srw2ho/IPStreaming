@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:IPStreamingCPP"   
+    xmlns:triggers="using:IPStreamingCPP.Triggers"
     mc:Ignorable="d">
     
     <Page.Resources>
@@ -14,7 +15,21 @@
     
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-        
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <triggers:DeviceFamiliyTrigger DeviceFamily="Windows.ioT" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="OpenFile.Visibility" Value="Collapsed"/>
+                    </VisualState.Setters>
+                </VisualState>
+   
+            </VisualStateGroup>
+
+
+        </VisualStateManager.VisualStateGroups>
         <Grid.ColumnDefinitions>
 
 
@@ -58,7 +73,7 @@
                     <StackPanel HorizontalAlignment="Left" Orientation="Horizontal" >
                         <AppBarButton x:Name="startRecording" Content="Start Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="startRecording_Click" Width="110" Icon="Play" Label="Start Recording" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
                         <AppBarButton x:Name="stopRecording" Content="Stop Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="stopRecording_Click" Width="110" Icon="Play" Label="Stop Recording" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
-                        <AppBarButton x:Name="OpenFile" Content="Open Local File" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Icon="OpenFile" Click="OpenLocalFile" Width="100" Label="Open local file" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
+                        <AppBarButton x:Name="OpenFile" Visibility="Visible" Content="Open Local File" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Icon="OpenFile" Click="OpenLocalFile" Width="100" Label="Open local file" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
 
                     </StackPanel>
                     <StackPanel Orientation="Vertical" Margin="0,0,0,0" Width ="320" >

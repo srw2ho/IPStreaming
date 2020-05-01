@@ -226,6 +226,9 @@
     <ClInclude Include="LandingPage.xaml.h">
       <DependentUpon>LandingPage.xaml</DependentUpon>
     </ClInclude>
+    <ClInclude Include="MainPageOverView.xaml.h">
+      <DependentUpon>MainPageOverView.xaml</DependentUpon>
+    </ClInclude>
     <ClInclude Include="NavMenuItem.h" />
     <ClInclude Include="NavMenuListView.h" />
     <ClInclude Include="PageHeader.xaml.h">
@@ -253,6 +256,9 @@
     <Page Include="AppShell.xaml" />
     <Page Include="LandingPage.xaml" />
     <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MainPageOverView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="PageHeader.xaml" />
@@ -372,6 +378,9 @@
     </ClCompile>
     <ClCompile Include="MainPage.xaml.cpp">
       <DependentUpon>MainPage.xaml</DependentUpon>
+    </ClCompile>
+    <ClCompile Include="MainPageOverView.xaml.cpp">
+      <DependentUpon>MainPageOverView.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="NavMenuItem.cpp" />
     <ClCompile Include="NavMenuListView.cpp" />

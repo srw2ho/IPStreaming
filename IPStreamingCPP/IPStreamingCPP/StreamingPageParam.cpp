@@ -58,10 +58,10 @@ StreamingPageParam::~StreamingPageParam()
 {
 	
 	if (m_FFmpegMSS != nullptr) {
-		m_FFmpegMSS->DestroyFFmpegAsync();
-		//delete m_FFmpegMSS;
-		m_FFmpegMSS = nullptr;
+	//	m_FFmpegMSS->DestroyFFmpegAsync();
+	//	m_FFmpegMSS = nullptr;
 	}
+
 	if (m_pCameraServer != nullptr) {
 		delete m_pCameraServer;
 	}
@@ -83,14 +83,6 @@ StreamingPageParam::~StreamingPageParam()
 	
 }
 
-/*
-void StreamingPageParam::NotifyPropertyChanged(Platform::String^ prop)
-{
-
-	PropertyChanged(this, ref new PropertyChangedEventArgs(prop));
-
-}
-*/
 
 
 void StreamingPageParam::startAMCRESTEventRecording(Windows::Foundation::Collections::PropertySet^ inputconfigoptions) {
@@ -178,28 +170,54 @@ StreamingPageParam ^ StreamingPageParam::createStreamingPageParam(Platform::Stri
 	return this;
 }
 
-
-bool StreamingPageParam::startUriStreaming()
+concurrency::task<void> StreamingPageParam::startUriStreaming()
 {
 
-
-	//StreamingCPP::DataSources ^ _datasources = safe_cast<IPStreamingCPP::DataSources^>(this->DataSources);
-
-
-
 	auto tsk = clearRecording();
-	
-	tsk.then([this]()->bool {
 
-		return this->setstartUriStreaming();
+	tsk.then([this]() {
+		try {
+			return this->setstartUriStreaming();
+
+		}
+		catch (Exception^ exception)
+		{
+			return false;
+		}
 
 		}
 
 	);
 
 
-	return true;
+	return tsk;
 }
+
+concurrency::task<void> StreamingPageParam::startFileStreaming()
+{
+
+	auto tsk = clearRecording();
+
+	tsk.then([this]() {
+		try {
+			return this->setstartFileStreaming();
+
+		}
+		catch (Exception^ exception)
+		{
+			return false;
+		}
+
+		}
+
+	);
+
+
+	return tsk;
+}
+
+
+
 
 bool StreamingPageParam::setstartUriStreaming()
 {
@@ -295,16 +313,11 @@ bool StreamingPageParam::setstartUriStreaming()
 				{
 					MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
 
-					if (mss)
+					if (mss!=nullptr)
 					{
 						//srw2ho, 05.04.20120; reduced init waiting tie time for replay, reduced latency for IP-Streaming
 						m_mediaElement->RealTimePlayback = rtsliveStream;
-						// Pass MediaStreamSource to Media Element
-						m_mediaElement->SetMediaStreamSource(mss);
 						restartStreamingTimer(inpSource); // Restart Start Streaming after time in adjustments
-						// Close control panel after file open
-						//	Splitter->IsPaneOpen = false;
-						//				return true;
 					}
 					else
 					{
@@ -330,7 +343,7 @@ void StreamingPageParam::DisplayErrorMessage(Platform::String^ title, Platform::
 	errorDialog->ShowAsync();
 }
 
-bool StreamingPageParam::startFileStreaming()
+bool StreamingPageParam::setstartFileStreaming()
 {
 
 
@@ -353,12 +366,8 @@ bool StreamingPageParam::startFileStreaming()
 				if (m_FFmpegMSS != nullptr)
 				{
 					MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
-
-					if (mss)
-					{
-						// Pass MediaStreamSource to Media Element
-						m_mediaElement->SetMediaStreamSource(mss);
-
+					if (mss != nullptr) {
+						m_mediaElement->RealTimePlayback = false;
 					}
 					else
 					{
@@ -377,11 +386,11 @@ bool StreamingPageParam::startFileStreaming()
 	return true;
 	
 }
-bool StreamingPageParam::stopStreaming()
+concurrency::task<void> StreamingPageParam::stopStreaming()
 {
 
-	this->clearRecording();
-	return true;
+	auto tsk =this->clearRecording();
+	return tsk;
 	
 
 }
@@ -392,15 +401,13 @@ void StreamingPageParam::OnstartStreaming(Platform::Object ^sender, FFmpegIntero
 	FFmpegInteropMSS ^ _senderFFmpegMSS = (FFmpegInteropMSS ^)sender;
 	FFmpegInteropMSS ^ _FFmpegMSS = (FFmpegInteropMSS ^)this->getFFmpegInteropMSS();
 
-	if (_senderFFmpegMSS != _FFmpegMSS) {
-
-
-	}
-
 
 	if (_FFmpegMSS != nullptr) {
-
-//IPStreamingCPP::DataSources ^ _datasources = safe_cast<IPStreamingCPP::DataSources^>(this->DataSources);
+		MediaStreamSource^ mss = _senderFFmpegMSS->GetMediaStreamSource();
+		if (mss != nullptr) {
+			m_mediaElement->SetMediaStreamSource(mss);
+		}
+;
 		m_DataSourceparam->SetParams(this->DataSources);
 
 		//	StreamingPage ^ streamingpage = (StreamingPage ^)sender;
@@ -805,18 +812,29 @@ void StreamingPageParam::takeParametersFromCamera()
 }
 
 
+void StreamingPageParam::clearMediaElem()
+{
+	try {
+		if (m_FFmpegMSS != nullptr)
+		{
+			m_mediaElement->Stop();
+			MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
+			if (mss != nullptr) {
+				m_mediaElement->Source = nullptr;
+			}
+
+		}
+	}
+
+	catch (Exception^ exception)
+	{
+		bool bexception = true;
+	}
+
+}
 concurrency::task<void> StreamingPageParam::clearRecording()
 {
 
-	if (m_FFmpegMSS != nullptr)
-	{
-		m_mediaElement->Stop();
-		MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
-		if (mss != nullptr) {
-			m_mediaElement->Source = nullptr;
-		}
-
-	}
 
 	auto tsk = create_task([this]()->void {
 		try {
@@ -828,15 +846,6 @@ concurrency::task<void> StreamingPageParam::clearRecording()
 
 			if (m_FFmpegMSS != nullptr)
 			{
-		
-				//MediaStreamSource^ mss = m_FFmpegMSS->GetMediaStreamSource();
-				//if (mss != nullptr) {
-				//	//m_mediaElement->Source = nullptr;
-				//	// wsc in this case no changings are fired			m_mediaElement->ClearValue(m_mediaElement->SourceProperty);
-				//}
-				//// tsk = m_FFmpegMSS->DestroyFFmpegAsync();
-				////create_task(tsk).wait();
-
 				delete m_FFmpegMSS;
 				m_FFmpegMSS = nullptr;
 			}
@@ -1043,15 +1052,30 @@ void StreamingPageParamControl::SelectionChanged(Platform::Object^ sender, Windo
 
 
 
-int StreamingPageParamControl::SelectedIndex::get() {
+ int StreamingPageParamControl::SelectedIndex::get() {
 	return this->m_SelectedIndex;
 }
-void StreamingPageParamControl::SelectedIndex::set(int value) {
+void StreamingPageParamControl::SelectedIndex::set( int value) {
+	if (this->Items->Size==0)
+	{
+		value = -1;
+	}
+	else
+	if (value >= this->Items->Size) {
+		value = -1;
+	}
+
 	this->m_SelectedIndex = value;
 }
 
 
-
+void StreamingPageParamControl::clearRecording() {
+	for each (auto var in this->Items)
+	{
+		var->clearMediaElem();
+		auto tsk = var->clearRecording();
+	}
+}
 void StreamingPageParamControl::ClearRessources()
 {
 	for each (auto var in this->Items)
@@ -1084,6 +1108,8 @@ StreamingPageParam^ StreamingPageParamControl::getSelectedItem()
 	}
 	if (this->SelectedIndex < Items->Size)	return(StreamingPageParam^)Items->GetAt((unsigned int)SelectedIndex);
 	else return nullptr;
+
+
 
 }
 
@@ -1142,8 +1168,9 @@ void StreamingPageParamControl::readSettingsfromLocalStorage() {
 	Object^ ref = composite->Lookup("m_SelectedIndex");
 	if (ref != nullptr) {
 		m_SelectedIndex = safe_cast<IPropertyValue^>(ref)->GetInt32();
+		this->SelectedIndex = m_SelectedIndex;
 	}
-	else m_SelectedIndex = -1;
+	else this->SelectedIndex = -1;
 
 }
 

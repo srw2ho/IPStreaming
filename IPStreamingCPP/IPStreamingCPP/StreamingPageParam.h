@@ -286,6 +286,8 @@ namespace IPStreamingCPP
 		void ClearRessources();
 	
 
+		property bool IsStreamingEnable {	bool get() { return (m_mediaElement != nullptr); }; }
+		 
 		
 		property ScenarioViewControl^ ScenarioView
 		{
@@ -371,10 +373,11 @@ namespace IPStreamingCPP
 
 		void restartStreamingTimer(inputSource ^ inpSource);
 		void OnstartStreaming(Platform::Object ^sender, FFmpegInteropMSSInputParamArgs^ args);
-		bool startUriStreaming();
+
 	
-		bool startFileStreaming();
-		bool stopStreaming();
+
+
+		void clearMediaElem();
 
 		void WriteToAppData();
 		void ReadFromAppData();
@@ -388,6 +391,9 @@ namespace IPStreamingCPP
 
 	internal:
 
+		concurrency::task<void>  startFileStreaming();
+		concurrency::task<void>  startUriStreaming();
+		concurrency::task<void> stopStreaming();
 		concurrency::task<void>  clearRecording();
 		void SetStream(IRandomAccessStream^ stream) { this->m_stream = stream; }
 		std::vector<std::wstring> splitintoArray(const std::wstring& s, const std::wstring& delim);
@@ -396,6 +402,7 @@ namespace IPStreamingCPP
 
 	private:
 		bool setstartUriStreaming();
+		bool setstartFileStreaming();
 		
 	//	void OnstartMovementStreaming(Platform::Object ^sender, Windows::Networking::Sockets::StreamSocket ^args);
 	//	void OnstopMovementStreaming(Platform::Object ^sender, Platform::String ^args);
@@ -414,7 +421,7 @@ namespace IPStreamingCPP
 	public ref class  StreamingPageParamControl sealed //: Windows::UI::Xaml::DependencyObject
 	{
 		Platform::Collections::Vector<StreamingPageParam^>^ m_Items;
-		unsigned int m_SelectedIndex;
+		 int m_SelectedIndex;
 		Platform::String^ m_DataCompositeIDName;
 
 	public:
@@ -422,6 +429,7 @@ namespace IPStreamingCPP
 		virtual ~StreamingPageParamControl();
 		void SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
 		void ClearRessources();
+		void clearRecording();
 
 		property Windows::Foundation::Collections::IVector<StreamingPageParam^>^ Items {
 			Windows::Foundation::Collections::IVector<StreamingPageParam^>^ Items::get() { return this->m_Items; };
@@ -430,10 +438,10 @@ namespace IPStreamingCPP
 		StreamingPageParam^ getSelectedItem();
 
 		StreamingPageParam^ getItemByOnVifCamera(OnVifServicesRunTime::OnVifCamera^ camera);
-		property int SelectedIndex
+		property  int SelectedIndex
 		{
-			int get();
-			void set(int value);
+			 int get();
+			void set( int value);
 		}
 		void writeSettingsToLocalStorage();
 		void readSettingsfromLocalStorage();

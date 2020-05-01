@@ -269,11 +269,9 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 	}
 	m_StreamingPageParamControl->readSettingsfromLocalStorage();
 
-	if (this->m_OnVifCameraViewModel->Cameras->Size == 0) m_StreamingPageParamControl->SelectedIndex = -1;
+	if (this->m_StreamingPageParamControl->Items->Size == 0) m_StreamingPageParamControl->SelectedIndex = -1;
 	else if (m_StreamingPageParamControl->SelectedIndex < 0) m_StreamingPageParamControl->SelectedIndex = 0;
 
-
-	//param->ScenarioView->SelectedIndex = 0;
 	Page::OnNavigatedTo(e);
 
 }
@@ -299,21 +297,22 @@ void MainPage::OnNavigatingFrom(Windows::UI::Xaml::Navigation::NavigatingCancelE
 void MainPage::startUriStreaming(Platform::Object^ sender, IPStreamingCPP::StreamingPageParam^ data)
 {
 	IPStreamingCPP::StreamingPageParam^ streamingPageParam = safe_cast<IPStreamingCPP::StreamingPageParam^>(data);
-	bool boK = streamingPageParam->startUriStreaming();
-	Splitter->IsPaneOpen = !boK;
+	auto  tsk= streamingPageParam->startUriStreaming();
+	Splitter->IsPaneOpen = false;
 }
 
 void MainPage::startFileStreaming(Platform::Object^ sender, IPStreamingCPP::StreamingPageParam^ data)
 {
 	IPStreamingCPP::StreamingPageParam^ streamingPageParam = safe_cast<IPStreamingCPP::StreamingPageParam^>(data);
-	bool boK = streamingPageParam->startFileStreaming();
-	Splitter->IsPaneOpen = !boK;
+	auto boK = streamingPageParam->startFileStreaming();
+	Splitter->IsPaneOpen = false;
 
 }
 
 void MainPage::stopStreaming(Platform::Object^ sender, IPStreamingCPP::StreamingPageParam^ data)
 {
 	IPStreamingCPP::StreamingPageParam^ streamingPageParam = safe_cast<IPStreamingCPP::StreamingPageParam^>(data);
+	streamingPageParam->clearMediaElem();
 	streamingPageParam->stopStreaming();
 
 }
@@ -325,6 +324,7 @@ void MainPage::stopRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::
 {
 	StreamingPageParam^ streamingPageParam = m_StreamingPageParamControl->getSelectedItem();
 	if (streamingPageParam != nullptr) {
+		streamingPageParam->clearMediaElem();
 		streamingPageParam->stopStreaming();
 	}
 
@@ -337,8 +337,8 @@ void MainPage::startRecording_Click(Platform::Object^ sender, Windows::UI::Xaml:
 
 	StreamingPageParam^ streamingPageParam = m_StreamingPageParamControl->getSelectedItem();
 	if (streamingPageParam != nullptr) {
-		bool boK = streamingPageParam->startUriStreaming();
-		Splitter->IsPaneOpen = !boK;
+		auto boK = streamingPageParam->startUriStreaming();
+		Splitter->IsPaneOpen = false;
 	}
 
 }

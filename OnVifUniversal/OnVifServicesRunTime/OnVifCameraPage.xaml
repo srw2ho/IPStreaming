@@ -96,6 +96,7 @@
                     <TextBox x:Name="devideIPAdress"  DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.CameraIPAdress, ElementName=cameraGridView}" Header="Device IPAddress" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"/>
                     <TextBox x:Name="deviceUser" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Text="{Binding SelectedItem.User, ElementName=cameraGridView}" Header="User" TextWrapping="Wrap"  Margin="0,0,0,0" VerticalAlignment="Top"  />
                     <PasswordBox x:Name="devicePassword" DataContext="{Binding SelectedItem, ElementName=cameraGridView, Mode=TwoWay}" Password="{Binding SelectedItem.Password, ElementName=cameraGridView}" Header="Password"  Margin="0,0,0,0"  VerticalAlignment="Top" />
+                    <ToggleSwitch Width="101" x:Name="CameraViewActive" Header="Camera in View active" OffContent="OFF" OnContent="ON" IsOn="{Binding SelectedItem.IsCameraViewActiv,ElementName=cameraGridView, Mode=TwoWay}"/>
 
                 </StackPanel>
                 <StackPanel Margin="0,10" Orientation="Vertical">
