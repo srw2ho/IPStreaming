@@ -321,13 +321,14 @@ void MainPageOverView::Application_Resuming(Platform::Object^ sender, Platform::
 void MainPageOverView::configureCameraGrid()
 {
 
-	auto bounds = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView()->VisibleBounds;
-	auto scaleFactor = Windows::Graphics::Display::DisplayInformation::GetForCurrentView()->RawPixelsPerViewPixel;
-	auto size = new Size(bounds.Width * scaleFactor, bounds.Height * scaleFactor);
+	auto scaleFactor = m_app->DisplayScaleFactor;
+	auto size = m_app->DisplaySize;
+
+	double fromTop = 40* scaleFactor; // distance from top
 	double sizeHight;
 
-	if (size->Height>50) sizeHight = size->Height - 50;
-	else sizeHight = size->Height;
+	if (size.Height> fromTop) sizeHight = size.Height - fromTop;
+	else sizeHight = size.Height;
 
 	// Camera__Column_Row
 	if (this->m_StreamingPageParamControl->Items->Size == 1) {

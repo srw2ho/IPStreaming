@@ -267,6 +267,7 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 
 		}
 	}
+	readDisplaySize();
 
 	// Place our app shell in the current Window
 	Window::Current->Content = shell;
@@ -285,6 +286,13 @@ void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEvent
 	// Ensure the current window is active
 	Window::Current->Activate();
 }
+void App::readDisplaySize() {
+	auto bounds = Windows::UI::ViewManagement::ApplicationView::GetForCurrentView()->VisibleBounds;
+	auto scaleFactor = Windows::Graphics::Display::DisplayInformation::GetForCurrentView()->RawPixelsPerViewPixel;
+	m_DisplaySize = Size(bounds.Width * scaleFactor, bounds.Height * scaleFactor);
+	m_DisplayScaleFactor = scaleFactor;
+}
+
 /*
 void App::OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ e)
 {

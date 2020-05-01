@@ -22,7 +22,8 @@ namespace IPStreamingCPP
 		OnVifServicesRunTime::OnVifCameraViewModel^ m_OnVifCameraViewModel;
 		Platform::String^ m_StreamingFolder;
 
-
+		Windows::Foundation::Size m_DisplaySize;
+		double m_DisplayScaleFactor;
 	protected:
 		virtual void OnLaunched(Windows::ApplicationModel::Activation::LaunchActivatedEventArgs^ args) override;
 
@@ -42,11 +43,23 @@ namespace IPStreamingCPP
 			Platform::String^ get() { return m_StreamingFolder; };
 		}
 
+		property Windows::Foundation::Size DisplaySize
+		{
+			Windows::Foundation::Size get() { return m_DisplaySize; };
+		}
+
+		property double DisplayScaleFactor
+		{
+			double get() { return m_DisplayScaleFactor; };
+		}
+
+
 
 		virtual ~App();
 	private:
 		void OnSuspending(Platform::Object^ sender, Windows::ApplicationModel::SuspendingEventArgs^ e);
 		void OnNavigationFailed(Platform::Object ^sender, Windows::UI::Xaml::Navigation::NavigationFailedEventArgs ^e);
+		void readDisplaySize();
 	//	void UnhandledException(Platform::Object ^ sender, Windows::UI::Xaml::UnhandledExceptionEventArgs^ e);
 	//	void createStreamingFolder();
 
