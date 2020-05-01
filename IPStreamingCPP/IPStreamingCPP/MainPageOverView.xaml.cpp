@@ -55,6 +55,7 @@ using namespace Windows::Networking::Connectivity;
 using namespace Windows::UI::Xaml::Interop;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
+const unsigned int MAX_SUPPORTED_CAMERAS = 10;
 
 MainPageOverView::MainPageOverView()
 {
@@ -445,6 +446,10 @@ void MainPageOverView::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEv
 		m_StreamingPageParamControl->Items->Append(param);
 
 		setMediaElem(m_StreamingPageParamControl->Items->Size - 1);
+
+		if (m_StreamingPageParamControl->Items->Size >= MAX_SUPPORTED_CAMERAS) {
+			break;
+		}
 	}
 
 	m_selectedCameraPanel = nullptr;
