@@ -116,6 +116,7 @@ namespace IPStreamingCPP
 	//	Windows::UI::Xaml::Controls::Image^ getMovementImageByStreamingParam(IPStreamingCPP::StreamingPageParam^ data);
 		void buildMovementMap(MediaElement^ MediaStreamElement);
 		void startCameraViewing(IPStreamingCPP::StreamingPageParam^ data);
+		void stopCameraViewing(IPStreamingCPP::StreamingPageParam^ data);
 		void CameraPicture_Tapped(Platform::Object^ sender, Windows::UI::Xaml::Input::TappedRoutedEventArgs^ e);
 		void unselectCameraPanel(StackPanel^ panel);
 		void selectCameraPanel(StackPanel^ panel);

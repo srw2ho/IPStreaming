@@ -505,12 +505,12 @@ void MainPageOverView::stopStreaming(Platform::Object^ sender, IPStreamingCPP::S
 	streamingPageParam->clearMediaElem();
 	streamingPageParam->stopStreaming();
 
+	stopCameraViewing(streamingPageParam);
+	//StackPanel^ panel = getStackPanelByStreamingParam(streamingPageParam);
 
-	StackPanel^ panel = getStackPanelByStreamingParam(streamingPageParam);
-
-	if (panel != nullptr) {
-		panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
-	}
+	//if (panel != nullptr) {
+	//	panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+	//}
 
 
 }
@@ -525,12 +525,12 @@ void MainPageOverView::stopallRecording_Click(Platform::Object^ sender, Windows:
 
 			for each (auto var in m_StreamingPageParamControl->Items)
 			{
+				stopCameraViewing(var);
+				//StackPanel^ panel = getStackPanelByStreamingParam(var);
 
-				StackPanel^ panel = getStackPanelByStreamingParam(var);
-
-				if (panel != nullptr) {
-					panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
-				}
+				//if (panel != nullptr) {
+				//	panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+				//}
 			}
 
 			}));
@@ -570,11 +570,12 @@ void MainPageOverView::stopRecording_Click(Platform::Object^ sender, Windows::UI
 		tsk.then([=, this]()->bool {
 
 			this->Dispatcher->RunAsync(CoreDispatcherPriority::High, ref new DispatchedHandler([=, this]() {
-				StackPanel^ panel = getStackPanelByStreamingParam(streamingPageParam);
-				if (panel != nullptr) {
-					panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+				stopCameraViewing(streamingPageParam);
+				//StackPanel^ panel = getStackPanelByStreamingParam(streamingPageParam);
+				//if (panel != nullptr) {
+				//	panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 
-				}
+				//}
 
 				}));
 
@@ -756,6 +757,13 @@ void MainPageOverView::MediaElement_OnMediaFailed(Platform::Object^ sender, Wind
 void MainPageOverView::clearRecording()
 {
 	m_StreamingPageParamControl->clearRecording();
+	for each (auto var in this->m_StreamingPageParamControl->Items)
+	{
+		stopCameraViewing(var);
+	}
+
+	
+
 
 }
 
@@ -832,6 +840,15 @@ void MainPageOverView::startCameraViewing(IPStreamingCPP::StreamingPageParam^ da
 	}
 
 }
+
+void MainPageOverView::stopCameraViewing(IPStreamingCPP::StreamingPageParam^ data) {
+	StackPanel^ panel = getStackPanelByStreamingParam(data);
+	if (panel != nullptr) {
+		panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+	}
+
+}
+
 
 
 void IPStreamingCPP::MainPageOverView::OnChangeMovement(Platform::Object^ sender, Windows::Foundation::Collections::PropertySet^ args)
