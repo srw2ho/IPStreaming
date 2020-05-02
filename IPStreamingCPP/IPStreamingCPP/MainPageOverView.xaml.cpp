@@ -121,21 +121,18 @@ void MainPageOverView::buildMovementMap(MediaElement^ MediaStreamElement)
 					break;
 				}
 
-				Grid^ grid = dynamic_cast<Grid^>(uivar);
-				if (grid != nullptr) {
-					for (unsigned int k = 0; k < grid->Children->Size; k++) {
-						UIElement^ uivar = grid->Children->GetAt(k);
-						//Image^ image = dynamic_cast<Image^>(uivar);
-						//if (image != nullptr) {
-						//	m_Movement.m_MovementImage = image;
-						//}
+				//Grid^ grid = dynamic_cast<Grid^>(uivar);
+				//if (grid != nullptr) {
+				//	for (unsigned int k = 0; k < grid->Children->Size; k++) {
+				//		UIElement^ uivar = grid->Children->GetAt(k);
+	
 
-						if (uivar == MediaStreamElement) {
-							m_MovementMap[MediaStreamElement->GetHashCode()] = stackPanel;
-							break;
-						}
-					}
-				}
+				//		if (uivar == MediaStreamElement) {
+				//			m_MovementMap[MediaStreamElement->GetHashCode()] = stackPanel;
+				//			break;
+				//		}
+				//	}
+				//}
 
 
 			}
@@ -325,10 +322,10 @@ void MainPageOverView::configureCameraGrid()
 	auto scaleFactor = m_app->DisplayScaleFactor;	// realized in app.xaml.cpp
 	auto size = m_app->DisplaySize;					// realized in app.xaml.cpp
 
-	double fromTop = 40* scaleFactor; // distance from top
+	double fromTop = 40 * scaleFactor; // distance from top
 	double sizeHight;
 
-	if (size.Height> fromTop) sizeHight = size.Height - fromTop;
+	if (size.Height > fromTop) sizeHight = size.Height - fromTop;
 	else sizeHight = size.Height;
 
 	// Camera__Column_Row
@@ -461,17 +458,13 @@ void MainPageOverView::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEv
 	else if (m_StreamingPageParamControl->SelectedIndex < 0) m_StreamingPageParamControl->SelectedIndex = 0;
 
 
-
-
-
 	Page::OnNavigatedTo(e);
 
 }
 
 void MainPageOverView::OnNavigatingFrom(Windows::UI::Xaml::Navigation::NavigatingCancelEventArgs^ e)
 {
-	//e->Cancel = !ressourdel;
-	// Handling of this event is included for completeness, as it will only fire when navigating between pages and this sample only includes one page
+
 	this->ClearRessources();
 	this->clearRecording();
 
@@ -628,7 +621,6 @@ void MainPageOverView::PivotCameras_SelectionChanged(Platform::Object^ sender, W
 			StackPanel^ panel = getStackPanelByStreamingParam(param);
 			if (panel != nullptr) {
 				selectCameraPanel(panel);
-				//	panel->Focus = true;
 			}
 
 
@@ -663,42 +655,36 @@ void MainPageOverView::ScenarioPropertyChanged(Platform::Object^ sender, Windows
 	}
 
 
-
 }
 
 void MainPageOverView::ScenarioControl_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
 {
 
-	//NotifyUser(String.Empty, NotifyType.StatusMessage);
 
 	ListView^ scenarioListBox = dynamic_cast<ListView^>(sender);
 
 	ScenarioItem^ item = dynamic_cast<ScenarioItem^>(scenarioListBox->SelectedItem);
 	if (item != nullptr) {
 
-		//		if (ScenarioFrame->CurrentSourcePageType.Name != item->TypeClassName.Name)
-		{
+		if (item->TypeClassName.Name == Windows::UI::Xaml::Interop::TypeName(OnVifSingleCameraPage::typeid).Name) {
 
+			VisualStateManager::GoToState(this, "SetOpenPaneBig", true);
+		}
+		else {
+			VisualStateManager::GoToState(this, "SetOpenPaneDefault", true);
+		}
 
-			if (item->TypeClassName.Name == Windows::UI::Xaml::Interop::TypeName(OnVifSingleCameraPage::typeid).Name) {
+		ScenarioFrame->Navigate(item->TypeClassName, item->Object);
+		StreamingPage^ page = dynamic_cast<StreamingPage^>(ScenarioFrame->Content);
 
-				VisualStateManager::GoToState(this, "SetOpenPaneBig", true);
-			}
-			else {
-				VisualStateManager::GoToState(this, "SetOpenPaneDefault", true);
-			}
-
-			ScenarioFrame->Navigate(item->TypeClassName, item->Object);
-			StreamingPage^ page = dynamic_cast<StreamingPage^>(ScenarioFrame->Content);
-
-			if (page != nullptr) {
-				page->startUriStreaming += ref new  Windows::Foundation::TypedEventHandler<Platform::Object^, IPStreamingCPP::StreamingPageParam^>(this, &MainPageOverView::startUriStreaming);
-				page->startFileStreaming += ref new  Windows::Foundation::TypedEventHandler<Platform::Object^, IPStreamingCPP::StreamingPageParam^>(this, &MainPageOverView::startFileStreaming);
-				page->stopStreaming += ref new  Windows::Foundation::TypedEventHandler<Platform::Object^, IPStreamingCPP::StreamingPageParam^>(this, &MainPageOverView::stopStreaming);
-
-			}
+		if (page != nullptr) {
+			page->startUriStreaming += ref new  Windows::Foundation::TypedEventHandler<Platform::Object^, IPStreamingCPP::StreamingPageParam^>(this, &MainPageOverView::startUriStreaming);
+			page->startFileStreaming += ref new  Windows::Foundation::TypedEventHandler<Platform::Object^, IPStreamingCPP::StreamingPageParam^>(this, &MainPageOverView::startFileStreaming);
+			page->stopStreaming += ref new  Windows::Foundation::TypedEventHandler<Platform::Object^, IPStreamingCPP::StreamingPageParam^>(this, &MainPageOverView::stopStreaming);
 
 		}
+
+
 	}
 
 }
@@ -710,7 +696,6 @@ void MainPageOverView::CameraServerOnFailed(Platform::Object^ sender, FFmpegInte
 	DisplayErrorMessage(message);
 
 
-	//	throw ref new Platform::NotImplementedException();
 }
 
 
@@ -754,7 +739,6 @@ void MainPageOverView::MediaElement_OnCurrentStateChanged(Platform::Object^ send
 		}
 	}
 
-	//	throw ref new Platform::NotImplementedException();
 }
 
 void MainPageOverView::MediaElement_OnMediaFailed(Platform::Object^ sender, Windows::UI::Xaml::ExceptionRoutedEventArgs^ e)
@@ -767,16 +751,11 @@ void MainPageOverView::MediaElement_OnMediaFailed(Platform::Object^ sender, Wind
 	Platform::String^ message = e->ErrorMessage;
 	DisplayErrorMessage(message);
 
-	//	throw ref new Platform::NotImplementedException();
 }
 
 void MainPageOverView::clearRecording()
 {
 	m_StreamingPageParamControl->clearRecording();
-	//for each (auto var in this->m_StreamingPageParamControl->Items)
-	//{
-	//	auto tsk = var->clearRecording();
-	//}
 
 }
 
@@ -836,7 +815,6 @@ void IPStreamingCPP::MainPageOverView::OnStopMovementStreaming(Platform::Object^
 		DisplayErrorMessage(message);
 	}
 
-	//	throw ref new Platform::NotImplementedException();
 }
 
 void IPStreamingCPP::MainPageOverView::OnstartMovementStreaming(Platform::Object^ sender, Windows::Foundation::Collections::PropertySet^ args)
@@ -846,14 +824,6 @@ void IPStreamingCPP::MainPageOverView::OnstartMovementStreaming(Platform::Object
 
 
 
-//void IPStreamingCPP::MainPageOverView::OnStopAMCRESTEventStreaming(Platform::Object^ sender, Platform::String^ args)
-//{
-//	if (args != nullptr) { // stop movement with error
-//		Platform::String^ message = "AMCREST-Event Watcher: " + args;
-//		DisplayErrorMessage(message);
-//	}
-//
-//}
 
 void MainPageOverView::startCameraViewing(IPStreamingCPP::StreamingPageParam^ data) {
 	StackPanel^ panel = getStackPanelByStreamingParam(data);
@@ -861,59 +831,55 @@ void MainPageOverView::startCameraViewing(IPStreamingCPP::StreamingPageParam^ da
 		panel->Visibility = Windows::UI::Xaml::Visibility::Visible;
 	}
 
-	//Windows::UI::Xaml::Controls::Image^ movementimage = getMovementImageByStreamingParam(data);
-	//if (movementimage != nullptr) {
-	//	movementimage->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
-	//}
 }
 
 
 void IPStreamingCPP::MainPageOverView::OnChangeMovement(Platform::Object^ sender, Windows::Foundation::Collections::PropertySet^ args)
 {
 
-	//AmcrestMotion^ recording = dynamic_cast<AmcrestMotion^>(sender);
+
 	bool dodetect = false;
 	StreamingPageParam^ streamingPageParam = nullptr;
 
+
+	for each (auto var in this->m_StreamingPageParamControl->Items)
 	{
-		for each (auto var in this->m_StreamingPageParamControl->Items)
-		{
-			if (var->AmcrestMotion == sender) {
-				streamingPageParam = var;
-				break;
-			}
-			if (var->MovementRecording == sender) {
-				streamingPageParam = var;
-				break;
-			}
+		if (var->AmcrestMotion == sender) {
+			streamingPageParam = var;
+			break;
 		}
-
-		if (streamingPageParam != nullptr) {
-			//if (streamingPageParam->AmcrestMotion == recording)
-			{
-				Windows::ApplicationModel::Core::CoreApplication::MainView->CoreWindow->Dispatcher->RunAsync(
-					CoreDispatcherPriority::Normal,
-					ref new Windows::UI::Core::DispatchedHandler([this, streamingPageParam, args]()
-						{
-							Windows::UI::Xaml::Controls::StackPanel^ mvmPanel= getStackPanelByStreamingParam(streamingPageParam);
-							if (mvmPanel != nullptr) {
-								bool IsMoment = (streamingPageParam->MovementRecording->IsMoment || streamingPageParam->AmcrestMotion->IsMoment);
-								if (IsMoment) {
-									this->selectMovementCameraPanel(mvmPanel);
-								}
-								else
-								{
-									this->unselectMovementCameraPanel(mvmPanel);
-								}
-							}
-
-						}));
-
-			}
+		if (var->MovementRecording == sender) {
+			streamingPageParam = var;
+			break;
 		}
 	}
 
+	if (streamingPageParam != nullptr) {
+		{
+			Windows::ApplicationModel::Core::CoreApplication::MainView->CoreWindow->Dispatcher->RunAsync(
+				CoreDispatcherPriority::Normal,
+				ref new Windows::UI::Core::DispatchedHandler([this, streamingPageParam, args]()
+					{
+						Windows::UI::Xaml::Controls::StackPanel^ mvmPanel = getStackPanelByStreamingParam(streamingPageParam);
+						if (mvmPanel != nullptr) {
+							bool IsMoment = (streamingPageParam->MovementRecording->IsMoment || streamingPageParam->AmcrestMotion->IsMoment);
+							if (IsMoment) {
+								this->selectMovementCameraPanel(mvmPanel);
+							}
+							else
+							{
+								this->unselectMovementCameraPanel(mvmPanel);
+							}
+						}
+
+					}));
+
+		}
+	}
+
+
 }
+// unused in the moment
 bool IPStreamingCPP::MainPageOverView::checkForEvents(StreamingPageParam^ streamingPageParam) {
 
 	Platform::String^ eventset = ref new Platform::String(L"");
@@ -934,13 +900,13 @@ bool IPStreamingCPP::MainPageOverView::checkForEvents(StreamingPageParam^ stream
 }
 
 void MainPageOverView::unselectCameraPanel(StackPanel^ panel) {
-	//return;
+
 	panel->BorderBrush = ref new SolidColorBrush(Windows::UI::Colors::White);
-//	panel->BorderThickness =  Thickness(2);
-	
+	//	panel->BorderThickness =  Thickness(3);
+
 }
 void MainPageOverView::unselectMovementCameraPanel(StackPanel^ panel) {
-	
+
 	auto it = m_SelectedMovementMap.find(panel->GetHashCode());
 	if (it != m_SelectedMovementMap.end()) {
 		m_SelectedMovementMap.erase(it);
@@ -987,7 +953,7 @@ void MainPageOverView::selectCameraPanel(StackPanel^ panel) {
 
 		panel->BorderBrush = ref new SolidColorBrush(Windows::UI::Colors::DarkGray);
 
-		//	panel->BorderThickness =  Thickness(2);
+		//	panel->BorderThickness =  Thickness(3);
 		m_selectedCameraPanel = panel;
 	}
 
@@ -1003,6 +969,7 @@ void IPStreamingCPP::MainPageOverView::CameraPicture_Tapped(Platform::Object^ se
 	StackPanel^ panel = dynamic_cast<StackPanel^> (sender);
 	bool bfound = false;
 	if (panel != nullptr) {
+		// find selected Stackpanel
 		MapMovementMap::iterator it = m_MovementMap.begin();
 		int panelhasCode = -1;
 		while (it != m_MovementMap.end())
@@ -1015,7 +982,7 @@ void IPStreamingCPP::MainPageOverView::CameraPicture_Tapped(Platform::Object^ se
 			it++;
 		}
 
-		// Iterate over the map using Iterator till end.
+
 		if (panelhasCode == -1)return;
 
 		int mediaelemhasCode;

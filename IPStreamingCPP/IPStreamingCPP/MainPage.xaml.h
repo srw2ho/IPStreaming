@@ -73,6 +73,7 @@ namespace IPStreamingCPP
 		void startUriStreaming(Platform::Object ^sender, IPStreamingCPP::StreamingPageParam ^ datasources);
 		void startFileStreaming(Platform::Object ^sender, IPStreamingCPP::StreamingPageParam ^ datasources);
 		void stopStreaming(Platform::Object ^sender, IPStreamingCPP::StreamingPageParam ^ datasources);
+		void stopallRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 
 		void stopRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);
 		void startRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e);

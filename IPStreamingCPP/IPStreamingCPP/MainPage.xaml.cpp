@@ -95,8 +95,6 @@ void MainPage::PivotMediaLoaded(Platform::Object^ sender, Windows::UI::Xaml::Rou
 
 	StreamingPageParam^ streamingPageParam = dynamic_cast<StreamingPageParam^>(PivotCameras->SelectedItem);
 
-	//StreamingPageParam ^ streamingPageParam = m_StreamingPageParamControl->getSelectedItem();
-
 	if (streamingPageParam != nullptr) {
 
 		MediaElement^ media = safe_cast<MediaElement^>(sender);
@@ -221,7 +219,7 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 	}
 	m_StreamingPageParamControl->ClearRessources(); // all previous events unregister
 	m_StreamingPageParamControl->Items->Clear();
-	//int ncount = 0;
+
 	wchar_t buffer[200];
 	for (unsigned int ncount = 0; ncount < this->m_OnVifCameraViewModel->Cameras->Size; ncount++)
 		//for each (auto var in this->m_OnVifCameraViewModel->Cameras)
@@ -278,8 +276,7 @@ void MainPage::OnNavigatedTo(Windows::UI::Xaml::Navigation::NavigationEventArgs^
 
 void MainPage::OnNavigatingFrom(Windows::UI::Xaml::Navigation::NavigatingCancelEventArgs^ e)
 {
-	//e->Cancel = !ressourdel;
-	// Handling of this event is included for completeness, as it will only fire when navigating between pages and this sample only includes one page
+
 	this->ClearRessources();
 	this->clearRecording();
 
@@ -317,8 +314,34 @@ void MainPage::stopStreaming(Platform::Object^ sender, IPStreamingCPP::Streaming
 
 }
 
-//this->startRecording->IsEnabled = true;
-//this->stopRecording->IsEnabled = true;
+void MainPage::stopallRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
+{
+	auto tsk = clearRecordingAsync();
+	tsk.then([this]()->void {
+
+		//this->Dispatcher->RunAsync(CoreDispatcherPriority::High, ref new DispatchedHandler([this]() {
+
+		//	for each (auto var in m_StreamingPageParamControl->Items)
+		//	{
+
+		//		StackPanel^ panel = getStackPanelByStreamingParam(var);
+
+		//		if (panel != nullptr) {
+		//			panel->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
+		//		}
+		//	}
+
+		//	}));
+
+		//return ;
+
+
+		}
+
+	);
+
+
+}
 
 void MainPage::stopRecording_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
 {
@@ -349,7 +372,7 @@ void MainPage::startRecording_Click(Platform::Object^ sender, Windows::UI::Xaml:
 void MainPage::PivotCameras_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e)
 
 {
-	//StreamingPageParam ^ streamingPageParam = m_StreamingPageParamControl->getSelectedItem();
+
 	Pivot^ pivot = dynamic_cast<Pivot^>(sender); // Pivot
 	if (pivot != nullptr) {
 		StreamingPageParam^ param = dynamic_cast<StreamingPageParam^>(pivot->SelectedItem); // Property-Changed by OnVifCamera-Page
@@ -515,6 +538,11 @@ void MainPage::clearRecording()
 concurrency::task<void> MainPage::clearRecordingAsync()
 {
 
+	for each (auto var in this->m_StreamingPageParamControl->Items)
+	{
+		var->clearMediaElem();
+	}
+
 	auto tsk = create_task([this]()->void {
 		try {
 
@@ -536,6 +564,8 @@ concurrency::task<void> MainPage::clearRecordingAsync()
 
 	//	this->detectMovement->Visibility = Windows::UI::Xaml::Visibility::Collapsed;
 }
+
+
 
 void MainPage::ClearRessources()
 {

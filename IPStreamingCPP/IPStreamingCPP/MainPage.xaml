@@ -162,6 +162,8 @@
             </ToggleButton>
             <AppBarButton x:Name="startRecording" Margin="0, 20, 0, 0" Content="Start Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="startRecording_Click" Width="38" Icon="Play" Label="Start" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
             <AppBarButton x:Name="stopRecording"   Margin="0, 20, 0, 0" Content="Stop Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="stopRecording_Click" Width="38" Icon="Play" Label="Stop" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
+            <AppBarButton x:Name="stopallRecording"   Margin="0, 20, 0, 0" Content="Stop all Recording" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Click="stopallRecording_Click" Width="38" Icon="Play" Label="Stop all" ScrollViewer.HorizontalScrollBarVisibility="Visible"/>
+
             <Image Visibility="Visible" x:Name="detectMovement"  Margin="0, 20, 0, 0" Height ="38" Width="38" Source="images\MovementDetection.png"  Stretch="UniformToFill" />
             <!--<TextBlock x:Name="EventsInfo"  Margin="0,20,0,0" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="Wrap" />-->
 
