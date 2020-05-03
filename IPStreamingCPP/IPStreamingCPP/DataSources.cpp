@@ -552,8 +552,11 @@ inputSource::inputSource(Platform::String^ IDName, String^ InputHostName, int po
 	m_InputsourceUri = "";
 	m_InputKey = "";
 	m_bLifeStream = true;
-	m_ffmpegProbeSize = 5000000;// 32 Min , 500000 default
-	m_ffmpegAnalyzeduration = 5000000;
+	//m_ffmpegProbeSize = 5000000;// 32 Min , 500000 default
+	//m_ffmpegAnalyzeduration = 5000000;
+	m_ffmpegProbeSize = 500;// 32 Min , 500000 default
+	m_ffmpegAnalyzeduration = 500;
+
 	m_restartStreamingTimeinHour = -1;
 
 	this->m_VideoInput = ref new VideoInput(getCompositePropertyIDName(IDName, -1));
