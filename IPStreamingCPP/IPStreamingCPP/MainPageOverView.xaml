@@ -116,44 +116,23 @@
                 </VisualState>
             </VisualStateGroup>-->
             <VisualStateGroup>
-                <VisualState x:Name="SetCameraRow0MinValue">
 
-                    <VisualState.Setters>
-                        <Setter Target = "media_0_0.MinHeight"  Value = "800" />
-                        <Setter Target = "media_1_0.MinHeight"  Value = "800" />
-                    </VisualState.Setters>
-                </VisualState>
                 <VisualState x:Name="SetCameraRowsTo0">
-                    <!--<VisualState.StateTriggers>
-
-                                            <AdaptiveTrigger MinWindowWidth="720" />
-
-                                        </VisualState.StateTriggers>-->
                     <VisualState.Setters>
-                        <!--<Setter Target = "media_0_0.MinHeight"  Value = "1000" />
-                        <Setter Target = "media_1_0.MinHeight"  Value = "1000" />-->
-                        
                         <Setter Target="CameraGrid.ColumnDefinitions[1].Width" Value="0"/>
                         <Setter Target="CameraGrid.RowDefinitions[1].Height" Value="0"/>
                         <Setter Target="CameraGrid.RowDefinitions[2].Height" Value="0"/>
                         <Setter Target="CameraGrid.RowDefinitions[3].Height" Value="0"/>
+                        <Setter Target="CameraGrid.RowDefinitions[4].Height" Value="0"/>
 
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="SetCameraRowsTo1">
-                    <!--<VisualState.StateTriggers>
-
-                    <AdaptiveTrigger MinWindowWidth="720" />
-
-                    </VisualState.StateTriggers>-->
                     <VisualState.Setters>
                         <Setter Target="CameraGrid.RowDefinitions[1].Height" Value="0"/>
                         <Setter Target="CameraGrid.RowDefinitions[2].Height" Value="0"/>
                         <Setter Target="CameraGrid.RowDefinitions[3].Height" Value="0"/>
                         <Setter Target="CameraGrid.RowDefinitions[4].Height" Value="0"/>
-
-                        <Setter Target="CameraGrid.RowDefinitions[4].Height" Value="0"/>
-
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="SetCameraRowsTo2">
@@ -165,7 +144,6 @@
                 </VisualState>
                 <VisualState x:Name="SetCameraRowsTo3">
                     <VisualState.Setters>
-
                         <Setter Target="CameraGrid.RowDefinitions[3].Height" Value="0"/>
                         <Setter Target="CameraGrid.RowDefinitions[4].Height" Value="0"/>
                     </VisualState.Setters>
@@ -258,7 +236,7 @@
                         </Grid.RowDefinitions>
 
                         <StackPanel  x:Name ="Camera_0_0" Height="Auto" Visibility="Collapsed"  Margin="0,0,0,0" BorderThickness="3" BorderBrush="White" Padding="0"  Grid.Column="0" Grid.Row="0"  Tapped="CameraPicture_Tapped" >
-                            <MediaElement  x:Name="media_0_0" Grid.Column="0" MinHeight="0" Height="Auto"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill"
+                            <MediaElement  x:Name="media_0_0" Grid.Column="0"  MinHeight="1040"  Height="Auto"   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill"
                                         
                                                AreTransportControlsEnabled="False"
                                                AudioCategory="ForegroundOnlyMedia"
@@ -268,7 +246,7 @@
                         </StackPanel>
                         <StackPanel x:Name ="Camera_1_0" Visibility="Collapsed" Margin="0" BorderThickness="3" BorderBrush="White" Padding="0"  Grid.Column="1" Grid.Row="0" Tapped="CameraPicture_Tapped">
 
-                            <MediaElement Grid.Column="0"  x:Name="media_1_0" MinHeight="0" Height="Auto"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill"
+                            <MediaElement Grid.Column="0"  x:Name="media_1_0"  MinHeight="1040"  Height="Auto"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="UniformToFill"
                                         
                                                AreTransportControlsEnabled="False"
                                                AudioCategory="ForegroundOnlyMedia"
