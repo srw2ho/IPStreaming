@@ -373,18 +373,23 @@ void App::OnSuspending(Object^ sender, SuspendingEventArgs^ e)
 	auto deferral = e->SuspendingOperation->GetDeferral();
 
 
+	//03.05.2020
+	// in case of suspending Events-> all objects must alive
+	// not deleting of objects
+
 	if (m_OnVifCameraViewModel != nullptr) {
 		m_OnVifCameraViewModel->writeDatatoLocalStorage();
-		delete m_OnVifCameraViewModel;
-		m_OnVifCameraViewModel = nullptr;
+
+	//	delete m_OnVifCameraViewModel;
+	//	m_OnVifCameraViewModel = nullptr;
 	}
 
-	if (m_poutout != nullptr)
-	{
-		m_poutout->close();
-		delete m_poutout;
-		m_poutout = nullptr;
-	}
+	//if (m_poutout != nullptr)
+	//{
+	//	m_poutout->close();
+	//	delete m_poutout;
+	//	m_poutout = nullptr;
+	//}
 
 	deferral->Complete();
     //TODO: Save application state and stop any background activity
