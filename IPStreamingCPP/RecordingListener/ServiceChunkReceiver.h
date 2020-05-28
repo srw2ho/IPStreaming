@@ -23,7 +23,8 @@ namespace RecordingListener
 		enum ConsumeDataType {
 			Undef,
 			Binary,
-			String
+			String,
+			MsgPack
 		};
 
 		GPIODriver::GPIOInOut^ m_pGPIOClientInOut;
@@ -47,6 +48,7 @@ namespace RecordingListener
 		int DoProcessChunkMsg(Windows::Storage::Streams::DataReader^ reader);
 		int DoProcessPayloadMsg(Windows::Storage::Streams::DataReader^ reader);
 		int DoProcessStringMsg(Windows::Storage::Streams::DataReader^ reader);
+		int DoProcessPayloadMsgPack(Windows::Storage::Streams::DataReader^ reader);
 	};
 
 }

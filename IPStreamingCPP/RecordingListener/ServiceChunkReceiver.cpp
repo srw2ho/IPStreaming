@@ -95,40 +95,37 @@ namespace RecordingListener
 		return 1;
 
 	}
-	
+	int ServiceChunkReceiver::DoProcessPayloadMsgPack(DataReader^ reader)
+	{
+		unsigned int len = reader->UnconsumedBufferLength;
+		auto byteArry = ref new Platform::Array<byte>(m_chunkBufferSize);
+
+		reader->ReadBytes(byteArry);
+		std::vector<byte> arr(byteArry->begin(), byteArry->end());
+		bool ret = m_pGPIOClientInOut->parse_mpackObjects(arr);
+		return ret ? 1 : -1;
+
+	}
+
 	int ServiceChunkReceiver::DoProcessStringMsg(DataReader^ reader)
 	{
-		Platform::String^  rec = reader->ReadString(m_chunkBufferSize);
+		Platform::String^ rec = reader->ReadString(m_chunkBufferSize);
 		if (rec == ("GPIOServiceClient.Started")) {
 
-			Platform::String^ command = m_pGPIOClientInOut->GetGPIClientSendState();
-			
-			Windows::Storage::Streams::IBuffer^ buf = SocketHelpers::createPayloadBufferfromSendData(command);
+			Windows::Storage::Streams::IBuffer^ buf = m_pGPIOClientInOut->GetGPIClientSendStateBuf();
+			if (buf != nullptr) {
+				this->SendData(buf);
+			}
 			m_acceptingData = true;
-			this->SendData(buf);
+
 
 		}
 		else if (rec == ("GPIOServiceClient.Stopped")) {
-		//	Platform::String^ command = DoCommands();
-		//	Windows::Storage::Streams::IBuffer^ buf = SocketHelpers::createBufferfromSendData(command);
 			m_acceptingData = false;
-		//	this->SendData(buf);
 		}
-		else
-		if (rec == ("GPIOServiceClient.GetData")) {
-
-
-		}
-		else
-		if (rec == ("GPIOServiceClient.LifeCycle")) {
-			std::string command = "GPIOServiceClient.LifeCycle";
-			Windows::Storage::Streams::IBuffer^ buf = SocketHelpers::createBufferfromSendData(command);
-			this->SendData(buf);
-		}
-
-
-		//	m_chunkBufferSize = 0;
 		return 1;
+
+
 
 	}
 
@@ -144,26 +141,34 @@ namespace RecordingListener
 
 			byte checkByte1 = reader->ReadByte();
 			byte checkByte2 = reader->ReadByte();
-
-			if ((checkByte1 == 0x55) && ((checkByte2 == 0x55) || (checkByte2 == 0x50)))  // prufen, ob stream richtig ist
-			// Do Processing - Message
+			bool wrongdata = true;
+			if (checkByte1 == 0x55)  // prufen, ob stream richtig ist
 			{
-
-				if (reader->UnconsumedBufferLength >= readBufferLen) { // notwendige Daten sind da, ansonsten müssen weitere empfangen werden
-					m_chunkBufferSize = readBufferLen;
-					if (checkByte2 == 0x55) {
-						m_ConsumeDataType = ConsumeDataType::String;
-					}
-					else if (checkByte2 == 0x50) {
+				wrongdata = false;
+				if (checkByte2 == 0x55) {
+					m_ConsumeDataType = ConsumeDataType::String;
+				}
+				else
+					if (checkByte2 == 0x50) {
 						m_ConsumeDataType = ConsumeDataType::Binary;
 					}
-				}
+					else
+						if (checkByte2 == 0x51) {
+							m_ConsumeDataType = ConsumeDataType::MsgPack;
+						}
+						else {
+							wrongdata = true;
+						}
 
 			}
-			else
+			if (wrongdata)
 			{ // alles auslesen, neu aufsetzen
-				IBuffer^  chunkBuffer = reader->ReadBuffer(reader->UnconsumedBufferLength);
+				IBuffer^ chunkBuffer = reader->ReadBuffer(reader->UnconsumedBufferLength);
 			}
+			else {
+				m_chunkBufferSize = readBufferLen;
+			}
+
 
 		}
 
