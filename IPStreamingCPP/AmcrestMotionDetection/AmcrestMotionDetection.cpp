@@ -164,14 +164,19 @@ HttpClient^ AmcrestMotion::CreateHttpClient()
 
 		m_resourceAddress = ref new Uri(res);
 
-
 		m_filter = ref new HttpBaseProtocolFilter();
 		m_filter->AllowUI = true;
+
+//		m_filter->MaxVersion = HttpVersion::Http10;
+
 		auto pw = ref new PasswordCredential();
 		pw->Resource = res;
 
 		pw->UserName = m_User;
 		pw->Password = m_Password;
+
+			
+		pw->RetrievePassword();
 
 		m_filter->ServerCredential = pw;
 
@@ -181,6 +186,7 @@ HttpClient^ AmcrestMotion::CreateHttpClient()
 
 		m_filter->IgnorableServerCertificateErrors->Append(Windows::Security::Cryptography::Certificates::ChainValidationResult::InvalidName);
 
+		
 		//filter->MaxConnectionsPerServer = 5;
 		//filter->CacheControl->ReadBehavior;
 
@@ -239,7 +245,6 @@ bool AmcrestMotion::doEventsDetection() {
 		m_cancellationTokenSource->get_token()).then([this](HttpResponseMessage^ response)
 
 			{
-
 				return create_task(response->Content->ReadAsInputStreamAsync(), m_cancellationTokenSource->get_token())
 
 					.then([=, this](IInputStream^ stream)
@@ -255,8 +260,13 @@ bool AmcrestMotion::doEventsDetection() {
 								try
 								{
 									auto b = tskbuffer.get();
+
+									wchar_t statuscodetxt[200];
 									
-									Platform::String^ err = L"Amcrest Motion Streaming stopped: " + stringToPlatformString(m_ResponseTextState);
+									swprintf(statuscodetxt, sizeof(statuscodetxt), L"Amcrest Motion Streaming stopped: %s (StatusCode:%d)", stringToPlatformString(m_ResponseTextState)->Data(), response->StatusCode);
+
+									Platform::String^ err = ref new Platform::String(statuscodetxt);
+
 									setstoppStreamingEvent(err);
 								}
 					
